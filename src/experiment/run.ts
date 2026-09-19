@@ -216,7 +216,7 @@ export function prepareExperimentRun(
       stop_condition: "fixed_users",
     },
     experiment: {
-      name: `simula_${input.run_id}`,
+      name: `creative_flywheel_${input.run_id}`,
       hypothesis:
         "Changing the opening hook changes install rate for otherwise matched creative.",
       environment: input.environment,
@@ -304,7 +304,7 @@ export function buildExposureContexts(
     return {
       impression_id: `${run.run_id}_impression_${suffix}`,
       ts_utc: exposureTime,
-      user_id: `simula_${run.run_id}_user_${suffix}`,
+      user_id: `creative_flywheel_${run.run_id}_user_${suffix}`,
       segment: audience.segment,
       os: audience.os,
       exposure_n: 1,

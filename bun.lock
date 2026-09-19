@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "simula-creative-loop",
+      "name": "creative-flywheel",
       "dependencies": {
         "@statsig/statsig-node-core": "0.23.0",
         "react": "19.2.3",

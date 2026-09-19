@@ -1,4 +1,6 @@
-# Simula Creative Loop Agent
+# Creative Flywheel
+
+Turn every experiment into better creative.
 
 Implemented domain primitives and their source definitions are maintained in
 [`docs/primitives.md`](docs/primitives.md).

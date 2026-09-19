@@ -141,7 +141,7 @@ export class StatsigConsoleClient {
     const raw = await this.#request("POST", "/metrics", {
       name,
       type: "ratio",
-      description: `Simula ${numeratorEvent} per ${denominatorEvent}.`,
+      description: `Creative Flywheel ${numeratorEvent} per ${denominatorEvent}.`,
       directionality: "increase",
       unitTypes: ["userID"],
       metricEvents: [

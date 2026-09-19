@@ -1,4 +1,4 @@
-# Simula Agent Guide
+# Creative Flywheel Agent Guide
 
 ## Domain primitives
 

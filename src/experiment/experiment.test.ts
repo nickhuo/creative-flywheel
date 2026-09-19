@@ -34,7 +34,7 @@ const run = prepareExperimentRun({
   seed: 42,
   users: 4,
   environment: "development",
-  target_app: "simula_app",
+  target_app: "creative_flywheel_app",
   audience_model_path: "artifacts/audience/model.json",
   audience_model: model,
   control_manifest_path: "manifests/g0_v00.json",
@@ -43,13 +43,14 @@ const run = prepareExperimentRun({
   treatment_manifest: treatment,
 });
 const statsigExperimentData = {
-  id: "simula_smoke_001",
-  name: "simula_smoke_001",
+  id: "creative_flywheel_smoke_001",
+  name: "creative_flywheel_smoke_001",
   idType: "userID",
   description: "Auditable creative smoke run smoke_001.",
   hypothesis:
     "Changing the opening hook changes install rate for otherwise matched creative.",
-  permalink: "https://console.statsig.com/experiment/simula_smoke_001",
+  permalink:
+    "https://console.statsig.com/experiment/creative_flywheel_smoke_001",
   status: "setup",
   controlGroupID: "control_group",
   allocation: 100,
@@ -59,7 +60,7 @@ const statsigExperimentData = {
   secondaryMetrics: [
     {name: "ctr", type: "ratio", direction: "increase"},
   ],
-  targetApps: ["simula_app"],
+  targetApps: ["creative_flywheel_app"],
   targetExposures: 4,
   targetingGateID: null,
   duration: 1,
@@ -93,7 +94,7 @@ describe("experiment run", () => {
       ...run,
       run_id: "smoke_002",
       prepared_at: "2026-09-19T12:00:00.000Z",
-      experiment: {...run.experiment, name: "simula_smoke_002"},
+      experiment: {...run.experiment, name: "creative_flywheel_smoke_002"},
     });
     const nextRound = buildExposureContexts(
       nextRun,
@@ -271,11 +272,11 @@ describe("Statsig Console boundary", () => {
     const created = await client.ensureExperiment(run);
 
     expect(requestBody).toMatchObject({
-      name: "simula_smoke_001",
-      id: "simula_smoke_001",
+      name: "creative_flywheel_smoke_001",
+      id: "creative_flywheel_smoke_001",
       idType: "userID",
       allocation: 100,
-      targetApps: ["simula_app"],
+      targetApps: ["creative_flywheel_app"],
       targetExposures: 4,
       enabledNonProdEnvironments: ["development"],
       groups: [
@@ -284,7 +285,7 @@ describe("Statsig Console boundary", () => {
       ],
     });
     expect(created.receipt).toMatchObject({
-      experiment_id: "simula_smoke_001",
+      experiment_id: "creative_flywheel_smoke_001",
       control_group_id: "control_group",
       treatment_group_id: "treatment_group",
       active_observed_at: null,
@@ -351,7 +352,9 @@ describe("Statsig Console boundary", () => {
       },
     });
 
-    const started = await client.ensureExperimentStarted("simula_smoke_001");
+    const started = await client.ensureExperimentStarted(
+      "creative_flywheel_smoke_001",
+    );
 
     expect(methods).toEqual(["GET", "PUT"]);
     expect(started.already_active).toBe(false);
@@ -366,7 +369,9 @@ describe("Statsig Console boundary", () => {
       },
     });
 
-    const started = await client.ensureExperimentStarted("simula_smoke_001");
+    const started = await client.ensureExperimentStarted(
+      "creative_flywheel_smoke_001",
+    );
 
     expect(methods).toEqual(["GET"]);
     expect(started).toMatchObject({already_active: true, start: null});
