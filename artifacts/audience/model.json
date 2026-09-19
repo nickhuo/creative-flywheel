@@ -1,0 +1,830 @@
+{
+  "schema_version": 1,
+  "source": {
+    "sha256": "40ce1fee7f827b76522c8638a5fdc9ea66e622d20169ed49f9b8a742892ef9c8",
+    "row_count": 120000,
+    "start_ts_utc": "2026-08-17 00:00",
+    "end_ts_utc": "2026-08-30 23:59"
+  },
+  "split": {
+    "key": "user_id",
+    "seed": 20260918,
+    "validation_percent": 20,
+    "rule": "uint32(sha256(seed|user_id)[0:8]) mod 5 == 0",
+    "train_rows": 98142,
+    "validation_rows": 21858,
+    "train_users": 22511,
+    "validation_users": 5487
+  },
+  "training": {
+    "solver": "grouped_binomial_damped_newton",
+    "objective": "mean_log_loss_plus_l2",
+    "max_iterations": 50,
+    "gradient_tolerance": 1e-8,
+    "lambda_candidates": [
+      1e-7,
+      0.000001,
+      0.00001,
+      0.0001,
+      0.001
+    ],
+    "click_lambda_scores": [
+      {
+        "l2": 1e-7,
+        "validation_log_loss": 0.16063233626896573
+      },
+      {
+        "l2": 0.000001,
+        "validation_log_loss": 0.1606317503236018
+      },
+      {
+        "l2": 0.00001,
+        "validation_log_loss": 0.1606263192455798
+      },
+      {
+        "l2": 0.0001,
+        "validation_log_loss": 0.16060110012676332
+      },
+      {
+        "l2": 0.001,
+        "validation_log_loss": 0.1607951117337731
+      }
+    ],
+    "install_lambda_scores": [
+      {
+        "l2": 1e-7,
+        "validation_log_loss": 0.0159292086598
+      },
+      {
+        "l2": 0.000001,
+        "validation_log_loss": 0.01592924260837321
+      },
+      {
+        "l2": 0.00001,
+        "validation_log_loss": 0.01592898850055073
+      },
+      {
+        "l2": 0.0001,
+        "validation_log_loss": 0.016071851006759424
+      },
+      {
+        "l2": 0.001,
+        "validation_log_loss": 0.019121897935737084
+      }
+    ]
+  },
+  "inference": {
+    "unseen_layer_value": "use_reference_level_and_report",
+    "unknown_audience_value": "reject",
+    "new_combination": "additive_main_effects"
+  },
+  "features": [
+    {
+      "field": "background",
+      "values": [
+        "cozy_cafe",
+        "moonlit_temple",
+        "neon_city",
+        "storm_battlefield",
+        "sunlit_meadow",
+        "throne_room"
+      ],
+      "baseline": "cozy_cafe"
+    },
+    {
+      "field": "subject_character",
+      "values": [
+        "Kael",
+        "Luna",
+        "Mira",
+        "Rex"
+      ],
+      "baseline": "Kael"
+    },
+    {
+      "field": "subject_action",
+      "values": [
+        "casts_spell",
+        "close_up_smile",
+        "draws_blade",
+        "opens_treasure",
+        "waves_to_camera"
+      ],
+      "baseline": "casts_spell"
+    },
+    {
+      "field": "hook_text",
+      "values": [
+        "Can you beat level 3?",
+        "Free gems every day",
+        "She remembers everything.",
+        "The ruins are calling",
+        "Your party is waiting."
+      ],
+      "baseline": "Can you beat level 3?"
+    },
+    {
+      "field": "cta_text",
+      "values": [
+        "Claim Bonus",
+        "Install Now",
+        "Join Luna",
+        "Play Free"
+      ],
+      "baseline": "Claim Bonus"
+    },
+    {
+      "field": "audio_style",
+      "values": [
+        "low_drums",
+        "none",
+        "upbeat_synth",
+        "warm_piano"
+      ],
+      "baseline": "low_drums"
+    },
+    {
+      "field": "segment",
+      "values": [
+        "casual",
+        "companion",
+        "rpg"
+      ],
+      "baseline": "casual"
+    },
+    {
+      "field": "os",
+      "values": [
+        "android",
+        "ios"
+      ],
+      "baseline": "android"
+    },
+    {
+      "field": "fatigue_bucket",
+      "values": [
+        "1",
+        "2",
+        "3",
+        "4-5",
+        "6-10",
+        "11-20",
+        "21-50",
+        "51+"
+      ],
+      "baseline": "1"
+    }
+  ],
+  "seen_layer_combinations": [
+    {
+      "background": "cozy_cafe",
+      "subject_character": "Kael",
+      "subject_action": "draws_blade",
+      "hook_text": "She remembers everything.",
+      "cta_text": "Install Now",
+      "audio_style": "none"
+    },
+    {
+      "background": "cozy_cafe",
+      "subject_character": "Kael",
+      "subject_action": "waves_to_camera",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Play Free",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "cozy_cafe",
+      "subject_character": "Luna",
+      "subject_action": "close_up_smile",
+      "hook_text": "Free gems every day",
+      "cta_text": "Install Now",
+      "audio_style": "none"
+    },
+    {
+      "background": "cozy_cafe",
+      "subject_character": "Mira",
+      "subject_action": "casts_spell",
+      "hook_text": "Free gems every day",
+      "cta_text": "Join Luna",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "cozy_cafe",
+      "subject_character": "Mira",
+      "subject_action": "draws_blade",
+      "hook_text": "She remembers everything.",
+      "cta_text": "Install Now",
+      "audio_style": "none"
+    },
+    {
+      "background": "cozy_cafe",
+      "subject_character": "Rex",
+      "subject_action": "casts_spell",
+      "hook_text": "Free gems every day",
+      "cta_text": "Join Luna",
+      "audio_style": "none"
+    },
+    {
+      "background": "cozy_cafe",
+      "subject_character": "Rex",
+      "subject_action": "close_up_smile",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Claim Bonus",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "cozy_cafe",
+      "subject_character": "Rex",
+      "subject_action": "opens_treasure",
+      "hook_text": "Your party is waiting.",
+      "cta_text": "Install Now",
+      "audio_style": "upbeat_synth"
+    },
+    {
+      "background": "moonlit_temple",
+      "subject_character": "Luna",
+      "subject_action": "casts_spell",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Claim Bonus",
+      "audio_style": "none"
+    },
+    {
+      "background": "moonlit_temple",
+      "subject_character": "Rex",
+      "subject_action": "casts_spell",
+      "hook_text": "She remembers everything.",
+      "cta_text": "Play Free",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "moonlit_temple",
+      "subject_character": "Rex",
+      "subject_action": "draws_blade",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Claim Bonus",
+      "audio_style": "upbeat_synth"
+    },
+    {
+      "background": "moonlit_temple",
+      "subject_character": "Rex",
+      "subject_action": "opens_treasure",
+      "hook_text": "Free gems every day",
+      "cta_text": "Play Free",
+      "audio_style": "none"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Kael",
+      "subject_action": "casts_spell",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Install Now",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Kael",
+      "subject_action": "close_up_smile",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Install Now",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Kael",
+      "subject_action": "close_up_smile",
+      "hook_text": "Your party is waiting.",
+      "cta_text": "Play Free",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Kael",
+      "subject_action": "opens_treasure",
+      "hook_text": "Free gems every day",
+      "cta_text": "Claim Bonus",
+      "audio_style": "upbeat_synth"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Kael",
+      "subject_action": "waves_to_camera",
+      "hook_text": "Your party is waiting.",
+      "cta_text": "Claim Bonus",
+      "audio_style": "upbeat_synth"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Luna",
+      "subject_action": "close_up_smile",
+      "hook_text": "Free gems every day",
+      "cta_text": "Install Now",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Mira",
+      "subject_action": "draws_blade",
+      "hook_text": "She remembers everything.",
+      "cta_text": "Claim Bonus",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Mira",
+      "subject_action": "draws_blade",
+      "hook_text": "Your party is waiting.",
+      "cta_text": "Play Free",
+      "audio_style": "upbeat_synth"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Rex",
+      "subject_action": "close_up_smile",
+      "hook_text": "Free gems every day",
+      "cta_text": "Join Luna",
+      "audio_style": "upbeat_synth"
+    },
+    {
+      "background": "neon_city",
+      "subject_character": "Rex",
+      "subject_action": "opens_treasure",
+      "hook_text": "Can you beat level 3?",
+      "cta_text": "Claim Bonus",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "storm_battlefield",
+      "subject_character": "Kael",
+      "subject_action": "waves_to_camera",
+      "hook_text": "Free gems every day",
+      "cta_text": "Install Now",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "storm_battlefield",
+      "subject_character": "Luna",
+      "subject_action": "close_up_smile",
+      "hook_text": "Your party is waiting.",
+      "cta_text": "Join Luna",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "storm_battlefield",
+      "subject_character": "Mira",
+      "subject_action": "casts_spell",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Join Luna",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "storm_battlefield",
+      "subject_character": "Mira",
+      "subject_action": "close_up_smile",
+      "hook_text": "Free gems every day",
+      "cta_text": "Claim Bonus",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "storm_battlefield",
+      "subject_character": "Mira",
+      "subject_action": "close_up_smile",
+      "hook_text": "Your party is waiting.",
+      "cta_text": "Play Free",
+      "audio_style": "none"
+    },
+    {
+      "background": "storm_battlefield",
+      "subject_character": "Mira",
+      "subject_action": "waves_to_camera",
+      "hook_text": "Your party is waiting.",
+      "cta_text": "Play Free",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "sunlit_meadow",
+      "subject_character": "Kael",
+      "subject_action": "close_up_smile",
+      "hook_text": "Can you beat level 3?",
+      "cta_text": "Install Now",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "sunlit_meadow",
+      "subject_character": "Luna",
+      "subject_action": "casts_spell",
+      "hook_text": "Free gems every day",
+      "cta_text": "Claim Bonus",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "sunlit_meadow",
+      "subject_character": "Luna",
+      "subject_action": "draws_blade",
+      "hook_text": "Can you beat level 3?",
+      "cta_text": "Claim Bonus",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "sunlit_meadow",
+      "subject_character": "Luna",
+      "subject_action": "opens_treasure",
+      "hook_text": "She remembers everything.",
+      "cta_text": "Play Free",
+      "audio_style": "none"
+    },
+    {
+      "background": "sunlit_meadow",
+      "subject_character": "Luna",
+      "subject_action": "opens_treasure",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Install Now",
+      "audio_style": "none"
+    },
+    {
+      "background": "sunlit_meadow",
+      "subject_character": "Mira",
+      "subject_action": "opens_treasure",
+      "hook_text": "Your party is waiting.",
+      "cta_text": "Claim Bonus",
+      "audio_style": "low_drums"
+    },
+    {
+      "background": "throne_room",
+      "subject_character": "Kael",
+      "subject_action": "casts_spell",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Play Free",
+      "audio_style": "none"
+    },
+    {
+      "background": "throne_room",
+      "subject_character": "Kael",
+      "subject_action": "opens_treasure",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Install Now",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "throne_room",
+      "subject_character": "Mira",
+      "subject_action": "close_up_smile",
+      "hook_text": "Can you beat level 3?",
+      "cta_text": "Join Luna",
+      "audio_style": "warm_piano"
+    },
+    {
+      "background": "throne_room",
+      "subject_character": "Mira",
+      "subject_action": "draws_blade",
+      "hook_text": "She remembers everything.",
+      "cta_text": "Install Now",
+      "audio_style": "upbeat_synth"
+    },
+    {
+      "background": "throne_room",
+      "subject_character": "Rex",
+      "subject_action": "draws_blade",
+      "hook_text": "Free gems every day",
+      "cta_text": "Play Free",
+      "audio_style": "upbeat_synth"
+    },
+    {
+      "background": "throne_room",
+      "subject_character": "Rex",
+      "subject_action": "draws_blade",
+      "hook_text": "The ruins are calling",
+      "cta_text": "Claim Bonus",
+      "audio_style": "low_drums"
+    }
+  ],
+  "click_model": {
+    "feature_names": [
+      "background=moonlit_temple",
+      "background=neon_city",
+      "background=storm_battlefield",
+      "background=sunlit_meadow",
+      "background=throne_room",
+      "subject_character=Luna",
+      "subject_character=Mira",
+      "subject_character=Rex",
+      "subject_action=close_up_smile",
+      "subject_action=draws_blade",
+      "subject_action=opens_treasure",
+      "subject_action=waves_to_camera",
+      "hook_text=Free gems every day",
+      "hook_text=She remembers everything.",
+      "hook_text=The ruins are calling",
+      "hook_text=Your party is waiting.",
+      "cta_text=Install Now",
+      "cta_text=Join Luna",
+      "cta_text=Play Free",
+      "audio_style=none",
+      "audio_style=upbeat_synth",
+      "audio_style=warm_piano",
+      "segment=companion",
+      "segment=rpg",
+      "os=ios",
+      "fatigue_bucket=2",
+      "fatigue_bucket=3",
+      "fatigue_bucket=4-5",
+      "fatigue_bucket=6-10",
+      "fatigue_bucket=11-20",
+      "fatigue_bucket=21-50",
+      "fatigue_bucket=51+"
+    ],
+    "intercept": -3.1577929328869265,
+    "coefficients": [
+      0.48054958347873883,
+      0.038292389609461276,
+      0.26345825819051377,
+      0.12189275984607137,
+      0.03268802195631763,
+      0.07230529327264532,
+      0.012504213671349348,
+      -0.12428197550407588,
+      -0.02324457459037603,
+      0.18623165111684212,
+      -0.07152974579781647,
+      -0.15130647927042315,
+      -0.24173340342260477,
+      -0.12216684521804393,
+      0.1389207733751543,
+      0.08508767437263874,
+      -0.008531692425393273,
+      -0.056379202093383374,
+      0.1246325214854389,
+      -0.19642172648537656,
+      -0.011799976723748305,
+      0.0990909798047436,
+      -0.02703001157045719,
+      -0.0021205727413743207,
+      -0.09716726314273173,
+      -0.19802750726369162,
+      -0.18775577956265535,
+      -0.33245139168677934,
+      -0.5609054221589418,
+      -0.6647423467361325,
+      -0.7479277913464673,
+      -1.2817355835642898
+    ],
+    "l2": 0.0001,
+    "iterations_used": 5,
+    "converged": true
+  },
+  "install_model": {
+    "feature_names": [
+      "background=moonlit_temple",
+      "background=neon_city",
+      "background=storm_battlefield",
+      "background=sunlit_meadow",
+      "background=throne_room",
+      "subject_character=Luna",
+      "subject_character=Mira",
+      "subject_character=Rex",
+      "subject_action=close_up_smile",
+      "subject_action=draws_blade",
+      "subject_action=opens_treasure",
+      "subject_action=waves_to_camera",
+      "hook_text=Free gems every day",
+      "hook_text=She remembers everything.",
+      "hook_text=The ruins are calling",
+      "hook_text=Your party is waiting.",
+      "cta_text=Install Now",
+      "cta_text=Join Luna",
+      "cta_text=Play Free",
+      "audio_style=none",
+      "audio_style=upbeat_synth",
+      "audio_style=warm_piano",
+      "segment=companion",
+      "segment=rpg",
+      "os=ios",
+      "fatigue_bucket=2",
+      "fatigue_bucket=3",
+      "fatigue_bucket=4-5",
+      "fatigue_bucket=6-10",
+      "fatigue_bucket=11-20",
+      "fatigue_bucket=21-50",
+      "fatigue_bucket=51+",
+      "click=1"
+    ],
+    "intercept": -7.867240839458521,
+    "coefficients": [
+      -0.05589993094594844,
+      0.4936604912203049,
+      -0.17999017743295453,
+      -0.30675936171464724,
+      0.36159961403885216,
+      0.4970762019475437,
+      0.551261351909601,
+      0.2881629868861178,
+      0.3290279621213354,
+      -0.13929477874530022,
+      0.36885236558465045,
+      0.4836266307578739,
+      -0.7426922905436862,
+      0.2897182087622602,
+      0.12479180868682269,
+      0.0262729557148442,
+      0.5062298089944063,
+      0.34970180334571244,
+      0.44098814630048033,
+      0.07684161263323007,
+      0.04119054466975415,
+      -0.11626995923454145,
+      -0.1578360792960889,
+      0.1556440480738407,
+      -0.22594125996179304,
+      0.05003250588728559,
+      0.2005174314033381,
+      0.09079992229775945,
+      0.43236335515586466,
+      0.46485607299732845,
+      -0.08014281918286961,
+      0.38697157030071383,
+      4.901620194363971
+    ],
+    "l2": 0.00001,
+    "iterations_used": 7,
+    "converged": true
+  },
+  "audience_mix": [
+    {
+      "segment": "casual",
+      "os": "android",
+      "count": 9447,
+      "weight": 0.078725
+    },
+    {
+      "segment": "casual",
+      "os": "ios",
+      "count": 13396,
+      "weight": 0.11163333333333333
+    },
+    {
+      "segment": "companion",
+      "os": "android",
+      "count": 17545,
+      "weight": 0.14620833333333333
+    },
+    {
+      "segment": "companion",
+      "os": "ios",
+      "count": 23893,
+      "weight": 0.19910833333333333
+    },
+    {
+      "segment": "rpg",
+      "os": "android",
+      "count": 26114,
+      "weight": 0.21761666666666668
+    },
+    {
+      "segment": "rpg",
+      "os": "ios",
+      "count": 29605,
+      "weight": 0.24670833333333334
+    }
+  ],
+  "exposure_mix": [
+    {
+      "bucket": "1",
+      "count": 70753,
+      "weight": 0.5896083333333333
+    },
+    {
+      "bucket": "2",
+      "count": 15069,
+      "weight": 0.125575
+    },
+    {
+      "bucket": "3",
+      "count": 6731,
+      "weight": 0.056091666666666665
+    },
+    {
+      "bucket": "4-5",
+      "count": 6640,
+      "weight": 0.05533333333333333
+    },
+    {
+      "bucket": "6-10",
+      "count": 6818,
+      "weight": 0.05681666666666667
+    },
+    {
+      "bucket": "11-20",
+      "count": 4827,
+      "weight": 0.040225
+    },
+    {
+      "bucket": "21-50",
+      "count": 4272,
+      "weight": 0.0356
+    },
+    {
+      "bucket": "51+",
+      "count": 4890,
+      "weight": 0.04075
+    }
+  ],
+  "metrics": {
+    "train": {
+      "click": {
+        "observations": 98142,
+        "positive_rate": 0.03651851398993296,
+        "mean_prediction": 0.03651851464090114,
+        "log_loss": 0.15438183021938173,
+        "brier": 0.03502941704922283,
+        "baseline_log_loss": 0.1567173856572392,
+        "baseline_brier": 0.035184912125955974
+      },
+      "install": {
+        "conditional": {
+          "observations": 98142,
+          "positive_rate": 0.003586639766868415,
+          "mean_prediction": 0.003586639976365944,
+          "log_loss": 0.014685644477620309,
+          "brier": 0.0032427076609352398,
+          "baseline_log_loss": 0.023774916996732457,
+          "baseline_brier": 0.0035737757820447085
+        },
+        "marginal": {
+          "observations": 98142,
+          "positive_rate": 0.003586639766868415,
+          "mean_prediction": 0.003581798174557879,
+          "log_loss": 0.023003622908658383,
+          "brier": 0.003567447782027808,
+          "baseline_log_loss": 0.023774916996732457,
+          "baseline_brier": 0.0035737757820447085
+        },
+        "no_click": {
+          "observations": 94558,
+          "positive_rate": 0.0006028046278474587,
+          "mean_prediction": 0.0006536788856145438,
+          "log_loss": 0.0050721736951587874,
+          "brier": 0.0006024691896577516,
+          "baseline_log_loss": 0.005071766632251883,
+          "baseline_brier": 0.0006024412544269599
+        },
+        "after_click": {
+          "observations": 3584,
+          "positive_rate": 0.08231026785714286,
+          "mean_prediction": 0.08096803920051354,
+          "log_loss": 0.26832140626556317,
+          "brier": 0.07290109755128603,
+          "baseline_log_loss": 0.28437590265619245,
+          "baseline_brier": 0.07553528766242679
+        }
+      }
+    },
+    "validation": {
+      "click": {
+        "observations": 21858,
+        "positive_rate": 0.03806386677646628,
+        "mean_prediction": 0.03805823461768503,
+        "log_loss": 0.16060110012676332,
+        "brier": 0.03653184949387907,
+        "baseline_log_loss": 0.1617749141211355,
+        "baseline_brier": 0.036617396937733894
+      },
+      "install": {
+        "conditional": {
+          "observations": 21858,
+          "positive_rate": 0.003888736389422637,
+          "mean_prediction": 0.003579027615209554,
+          "log_loss": 0.01592898850055073,
+          "brier": 0.00358671640400356,
+          "baseline_log_loss": 0.025474798507239754,
+          "baseline_brier": 0.0038737053810859617
+        },
+        "marginal": {
+          "observations": 21858,
+          "positive_rate": 0.003888736389422637,
+          "mean_prediction": 0.003624892284791515,
+          "log_loss": 0.02549670529672559,
+          "brier": 0.003872559241912272,
+          "baseline_log_loss": 0.025474798507239754,
+          "baseline_brier": 0.0038737053810859617
+        },
+        "no_click": {
+          "observations": 21026,
+          "positive_rate": 0.0005231617996765909,
+          "mean_prediction": 0.0006330411546449386,
+          "log_loss": 0.004561848954973158,
+          "brier": 0.0005230488526875333,
+          "baseline_log_loss": 0.004481349305117741,
+          "baseline_brier": 0.0005228944443883076
+        },
+        "after_click": {
+          "observations": 832,
+          "positive_rate": 0.0889423076923077,
+          "mean_prediction": 0.07802892102847028,
+          "log_loss": 0.30319518571848975,
+          "brier": 0.08101060334387164,
+          "baseline_log_loss": 0.30036816137793426,
+          "baseline_brier": 0.08107555754704929
+        }
+      }
+    }
+  }
+}
