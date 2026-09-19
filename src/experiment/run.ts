@@ -84,7 +84,6 @@ export const experimentRunSchema = z
           .regex(/^[A-Za-z0-9_-]+$/),
         hypothesis: z.string().trim().min(1),
         environment: z.string().trim().min(1),
-        target_app: z.string().trim().min(1),
         assignment_unit: z.literal("userID"),
         parameter: z.literal("variant_id"),
         arms: z.tuple([armSchema, armSchema]),
@@ -188,7 +187,6 @@ type PrepareExperimentRunInput = {
   seed: number;
   users: number;
   environment: string;
-  target_app: string;
   audience_model_path: string;
   audience_model: AudienceModel;
   control_manifest_path: string;
@@ -220,7 +218,6 @@ export function prepareExperimentRun(
       hypothesis:
         "Changing the opening hook changes install rate for otherwise matched creative.",
       environment: input.environment,
-      target_app: input.target_app,
       assignment_unit: "userID",
       parameter: "variant_id",
       arms: [

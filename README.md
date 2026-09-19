@@ -29,8 +29,8 @@ and experiment results belong to the next stage of the loop.
 ## Experiment smoke run
 
 Copy `.env.example` to `.env` and set a Statsig Console API Key, Server Secret,
-environment, and target app. The two keys have separate responsibilities and are
-never written to artifacts.
+and environment. The two keys have separate responsibilities and are never
+written to artifacts.
 
 Run each boundary separately so its artifact can be reviewed before continuing:
 

@@ -49,14 +49,6 @@ if (command === "prepare") {
 
 async function prepareCommand(arguments_: string[]): Promise<void> {
   const runId = experimentRunIdSchema.parse(readFlag(arguments_, "--run-id"));
-  const targetApp =
-    readOptionalFlag(arguments_, "--target-app") ?? Bun.env.STATSIG_TARGET_APP;
-  if (targetApp === undefined || targetApp.trim() === "") {
-    throw new Error(
-      "Provide --target-app or set STATSIG_TARGET_APP before preparing a run.",
-    );
-  }
-
   const modelPath = resolve(
     projectRoot,
     readOptionalFlag(arguments_, "--model") ?? defaultModelPath,
@@ -95,7 +87,6 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
     seed,
     users,
     environment,
-    target_app: targetApp,
     audience_model_path: projectPath(modelPath),
     audience_model: audienceModel,
     control_manifest_path: projectPath(controlPath),

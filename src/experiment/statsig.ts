@@ -63,10 +63,8 @@ const experimentResponseSchema = z
         })
         .passthrough(),
     ),
-    targetApps: z.union([z.string(), z.array(z.string())]),
     targetExposures: z.number().int(),
     targetingGateID: z.string().nullable(),
-    duration: z.number().int(),
     sequentialTesting: z.boolean(),
     bonferroniCorrection: z.boolean(),
     enabledNonProdEnvironments: z.array(z.string()).optional(),
@@ -202,9 +200,7 @@ export class StatsigConsoleClient {
         ...metric,
         direction: "increase",
       })),
-      targetApps: [run.experiment.target_app],
       targetExposures: run.traffic.users,
-      duration: 1,
       sequentialTesting: false,
       bonferroniCorrection: false,
     };
@@ -217,10 +213,6 @@ export class StatsigConsoleClient {
     const raw =
       existing ?? (await this.#request("POST", "/experiments", body));
     const experiment = experimentResponseSchema.parse(unwrapData(raw));
-    const expectedTargetApps = [run.experiment.target_app];
-    const actualTargetApps = Array.isArray(experiment.targetApps)
-      ? experiment.targetApps
-      : [experiment.targetApps];
     const expectedEnvironments =
       run.experiment.environment === "production"
         ? []
@@ -240,11 +232,10 @@ export class StatsigConsoleClient {
       experiment.hypothesis !== run.experiment.hypothesis ||
       experiment.allocation !== 100 ||
       experiment.targetExposures !== run.traffic.users ||
-      experiment.targetingGateID !== null ||
-      experiment.duration !== 1 ||
+      (experiment.targetingGateID !== null &&
+        experiment.targetingGateID !== "") ||
       experiment.sequentialTesting ||
       experiment.bonferroniCorrection ||
-      JSON.stringify(actualTargetApps) !== JSON.stringify(expectedTargetApps) ||
       JSON.stringify(experiment.enabledNonProdEnvironments ?? []) !==
         JSON.stringify(expectedEnvironments) ||
       experiment.primaryMetrics.length !== 1 ||

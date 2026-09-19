@@ -34,7 +34,6 @@ const run = prepareExperimentRun({
   seed: 42,
   users: 4,
   environment: "development",
-  target_app: "creative_flywheel_app",
   audience_model_path: "artifacts/audience/model.json",
   audience_model: model,
   control_manifest_path: "manifests/g0_v00.json",
@@ -60,10 +59,8 @@ const statsigExperimentData = {
   secondaryMetrics: [
     {name: "ctr", type: "ratio", direction: "increase"},
   ],
-  targetApps: ["creative_flywheel_app"],
   targetExposures: 4,
   targetingGateID: null,
-  duration: 1,
   sequentialTesting: false,
   bonferroniCorrection: false,
   enabledNonProdEnvironments: ["development"],
@@ -276,7 +273,6 @@ describe("Statsig Console boundary", () => {
       id: "creative_flywheel_smoke_001",
       idType: "userID",
       allocation: 100,
-      targetApps: ["creative_flywheel_app"],
       targetExposures: 4,
       enabledNonProdEnvironments: ["development"],
       groups: [
@@ -284,6 +280,8 @@ describe("Statsig Console boundary", () => {
         {size: 50, parameterValues: {variant_id: "g0_v01"}},
       ],
     });
+    expect(requestBody).not.toHaveProperty("targetApps");
+    expect(requestBody).not.toHaveProperty("duration");
     expect(created.receipt).toMatchObject({
       experiment_id: "creative_flywheel_smoke_001",
       control_group_id: "control_group",
@@ -305,6 +303,19 @@ describe("Statsig Console boundary", () => {
     const created = await client.ensureExperiment(run);
 
     expect(methods).toEqual(["GET"]);
+    expect(created.reused).toBe(true);
+  });
+
+  test("treats an empty targeting gate ID as no targeting gate", async () => {
+    const client = new StatsigConsoleClient("console-test", {
+      fetch: async () =>
+        Response.json({
+          data: {...statsigExperimentData, targetingGateID: ""},
+        }),
+    });
+
+    const created = await client.ensureExperiment(run);
+
     expect(created.reused).toBe(true);
   });
 
