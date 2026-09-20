@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Creative Flywheel</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <main id="main">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Experiment intelligence</p>
+          <h1>Optimization trajectory</h1>
+          <p class="page-description">Track evidence, agent learning, and creative evolution across sequential two-arm experiments.</p>
+        </div>
+        <div class="header-actions">
+          <label class="run-picker" for="run-select">
+            <span>Run</span>
+            <select id="run-select" disabled>
+              <option>Loading runs…</option>
+            </select>
+          </label>
+        </div>
+      </header>
+      <div id="dashboard" aria-busy="true">
+        <section class="loading-overview" aria-label="Loading experiments">
+          <div class="skeleton wide"></div>
+        </section>
+        <section class="loading-panel"><div class="skeleton line"></div><div class="skeleton chart"></div></section>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

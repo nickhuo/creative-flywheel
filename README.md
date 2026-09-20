@@ -84,6 +84,21 @@ Open the Remotion Studio with:
 bun run dev
 ```
 
+Open the local experiment dashboard with:
+
+```bash
+bun run dashboard
+```
+
+The dashboard reads each optimization's plan, experiment snapshots, observations,
+and portable trajectory from `artifacts/runs/`. It presents the sequence of
+two-arm experiments as an agent-evolution narrative: evidence, interpretation,
+learning, next hypothesis, and the resulting creative change. For runs without
+local simulation results, it reads persisted Statsig snapshots from the agent ledger and refreshes
+the latest evidence from the Statsig Console API when
+`STATSIG_CONSOLE_API_KEY` is configured. The default address is
+`http://localhost:3000`; set `DASHBOARD_PORT` to use another port.
+
 The first slice deliberately uses a local CSS composition. Background, character,
 action, hook, and CTA each change the rendered frames; `audio_style` selects a
 local soundtrack or silence. Real image, character, font, and mastered audio

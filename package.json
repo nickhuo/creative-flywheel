@@ -6,6 +6,7 @@
   "scripts": {
     "agent": "bun run src/cli/agent.ts",
     "audience": "bun run src/cli/audience.ts",
+    "dashboard": "bun run src/dashboard/server.ts",
     "dev": "remotion studio src/video.tsx",
     "experiment": "bun run src/cli/experiment.ts",
     "render": "bun run src/cli/render.ts",
