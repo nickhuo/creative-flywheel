@@ -16,9 +16,9 @@ Definitions:
 A renderable creative variant.
 
 It owns the stable variant identity, generation lineage, and the six creative layers consumed by the renderer and audience model. Generation 0 has no parent; later generations require one.
-The local optimization loop names its single challenger in each generation
-`g{generation}_v00`; experiment run identity remains separate from creative
-identity.
+The local optimization loop namespaces each challenger as
+`{optimization_run_id}_g{generation}_v00`, so creative identity remains globally
+unique while experiment run identity stays separate.
 
 The general schema accepts non-empty layer values so the audience model can report
 unseen-value coverage. The render boundary is deliberately narrower: every layer
@@ -109,6 +109,23 @@ audience mix. Each subsequent local run freezes the preceding experiment's
 observed champion rate as its baseline and recalculates its fixed-horizon sample
 size. Challenger generation does not own or modify the statistical design.
 
+## OptimizationRun
+
+Definitions:
+
+- [`optimizationRunPlanSchema`](../src/artifacts.ts)
+- [`experimentLogRecordSchema`](../src/artifacts.ts)
+
+One complete creative-optimization trajectory.
+
+Its immutable plan owns the optimization identity, creation time, initial
+experiment, audience-model reference, and initial variants. All experiment
+snapshots for the trajectory are stored in one `experiments.json` array; raw
+provider and simulator observations are stored in one `observations.json` array.
+SQLite indexes the current round and champion for scheduling and lookup, while
+`trajectory.json` is the portable audit export. An `OptimizationRun` does not
+own creative media, which remains addressable by stable variant identity.
+
 ## ResultSnapshot
 
 Definition: [`resultSnapshotSchema` and `ResultSnapshot`](../src/experiment/evaluation.ts)
@@ -161,6 +178,7 @@ require human review, while the local simulator approves and executes them.
 are implementation or audit details. They do not define the creative-loop protocol
 and do not require domain-level naming.
 
-`EligibilityAssessment`, `DecisionProposalRecord`, and `ActionReceiptRecord` are
-implementation or audit details. `Round` and `Decision` remain planning names and
-are not implemented primitives.
+`ExperimentLogRecord`, `ObservationLogRecord`, `EligibilityAssessment`,
+`DecisionProposalRecord`, and `ActionReceiptRecord` are implementation or audit
+details. `Round` and `Decision` remain planning names and are not implemented
+primitives.

@@ -1,9 +1,11 @@
 import {expect, test} from "bun:test";
+import {Database} from "bun:sqlite";
 import {randomUUID} from "node:crypto";
 import {mkdtemp, readdir, rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join, resolve} from "node:path";
 
+import {experimentLogRecordSchema} from "../src/artifacts";
 import {AgentLedger} from "../src/agent/ledger";
 import {createResultSnapshot} from "../src/experiment/evaluation";
 import {experimentRunSchema} from "../src/experiment/run";
@@ -81,25 +83,29 @@ test(
     const runDirectory = join(
       projectRoot,
       "artifacts",
-      "experiments",
+      "runs",
       runId,
     );
     const temporaryDirectory = await mkdtemp(join(tmpdir(), "simula-e2e-"));
     const ledgerPath = join(temporaryDirectory, "state.sqlite");
+    const environment = {SIMULA_AGENT_DB: ledgerPath};
 
     try {
-      const prepareOutput = await runCli([
-        "src/cli/experiment.ts",
-        "prepare",
-        "--run-id",
-        runId,
-        "--baseline-rate",
-        "0.01",
-        "--mde",
-        "0.5",
-        "--batch-size",
-        "2",
-      ]);
+      const prepareOutput = await runCli(
+        [
+          "src/cli/experiment.ts",
+          "prepare",
+          "--run-id",
+          runId,
+          "--baseline-rate",
+          "0.01",
+          "--mde",
+          "0.5",
+          "--batch-size",
+          "2",
+        ],
+        environment,
+      );
       const prepared = JSON.parse(prepareOutput) as {
         status: string;
         statistical_design: {required_users: number};
@@ -108,7 +114,12 @@ test(
       expect(prepared.status).toBe("prepared");
       expect(prepared.statistical_design.required_users).toBe(22);
       const run = experimentRunSchema.parse(
-        await Bun.file(join(runDirectory, "run.json")).json(),
+        experimentLogRecordSchema.parse(
+          (
+            await Bun.file(join(runDirectory, "experiments.json")).json() as
+              unknown[]
+          ).at(-1),
+        ).experiment,
       );
       expect(run.experiment.primary_metric).toEqual({
         name: "install_rate_user",
@@ -178,8 +189,8 @@ test(
           "1",
         ],
         {
+          ...environment,
           OPENAI_MODEL: "unused-in-final-round",
-          SIMULA_AGENT_DB: ledgerPath,
         },
       );
       const simulation = JSON.parse(simulationOutput) as {
@@ -200,29 +211,62 @@ test(
       });
       expect(simulation.trajectory).toHaveLength(1);
       expect(simulation.trajectory[0]).toMatchObject({
-        log: `artifacts/experiments/${runId}/simulation.json`,
+        log: `artifacts/runs/${runId}/trajectory.json`,
         action: {action: "terminate"},
         action_receipt: {status: "succeeded"},
       });
       expect((await readdir(runDirectory)).sort()).toEqual([
-        "run.json",
-        "simulation.json",
+        "experiments.json",
+        "observations.json",
+        "plan.json",
+        "trajectory.json",
       ]);
-      expect(await Bun.file(ledgerPath).exists()).toBe(false);
+      expect(await Bun.file(ledgerPath).exists()).toBe(true);
+      const ledger = new Database(ledgerPath, {readonly: true, strict: true});
+      try {
+        expect(
+          ledger
+            .query<
+              {status: string; current_round: number},
+              [string]
+            >(
+              `SELECT status, current_round
+               FROM optimization_runs
+               WHERE optimization_run_id = ?`,
+            )
+            .get(runId),
+        ).toEqual({status: "completed", current_round: 1});
+        expect(
+          ledger
+            .query<{count: number}, [string]>(
+              `SELECT COUNT(*) AS count
+               FROM experiment_rounds
+               WHERE optimization_run_id = ?`,
+            )
+            .get(runId),
+        ).toEqual({count: 1});
+      } finally {
+        ledger.close();
+      }
 
-      const simulationLog = await Bun.file(
-        join(runDirectory, "simulation.json"),
+      const trajectory = await Bun.file(
+        join(runDirectory, "trajectory.json"),
       ).json();
-      expect(simulationLog).toMatchObject({
+      expect(trajectory).toMatchObject({
         schema_version: 1,
         source: "simulator",
-        run_id: runId,
-        action: {action: "terminate"},
-        proposal: {status: "approved"},
-        action_receipt: {status: "succeeded"},
-        next_run_id: null,
+        optimization_run_id: runId,
+        status: "completed",
+        rounds: [
+          {
+            run_id: runId,
+            action: {action: "terminate"},
+            proposal: {status: "approved"},
+            action_receipt: {status: "succeeded"},
+          },
+        ],
       });
-      expect(simulationLog).not.toHaveProperty("batches");
+      expect(trajectory).not.toHaveProperty("batches");
     } finally {
       await rm(runDirectory, {recursive: true, force: true});
       await rm(temporaryDirectory, {recursive: true, force: true});

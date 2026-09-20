@@ -55,3 +55,6 @@ scratchpad/
 artifacts/audience/sample.json
 artifacts/agent/
 artifacts/experiments/
+artifacts/creatives/
+artifacts/runs/
+artifacts/state.sqlite*

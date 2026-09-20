@@ -4,6 +4,28 @@ export type ObservationTrigger = "cron" | "manual" | "provider_event";
 export type ProposalStatus = "approved" | "pending" | "rejected";
 export type ActionReceiptStatus = "failed" | "succeeded";
 
+export type OptimizationRunRecord = {
+  optimization_run_id: string;
+  status: "completed" | "running";
+  plan_path: string;
+  current_round: number;
+  champion_variant_id: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ExperimentRoundRecord = {
+  experiment_run_id: string;
+  optimization_run_id: string;
+  round_number: number;
+  experiment_path: string;
+  status: string;
+  control_variant_id: string;
+  treatment_variant_id: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ExperimentRuntime = {
   run_id: string;
   next_observation_at: string | null;
@@ -103,6 +125,32 @@ export class AgentLedger {
     this.#database.run("PRAGMA busy_timeout = 5000");
 
     this.#database.run(`
+      CREATE TABLE IF NOT EXISTS optimization_runs (
+        optimization_run_id TEXT PRIMARY KEY NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('running', 'completed')),
+        plan_path TEXT NOT NULL,
+        current_round INTEGER NOT NULL CHECK (current_round > 0),
+        champion_variant_id TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      ) STRICT
+    `);
+    this.#database.run(`
+      CREATE TABLE IF NOT EXISTS experiment_rounds (
+        experiment_run_id TEXT PRIMARY KEY NOT NULL,
+        optimization_run_id TEXT NOT NULL
+          REFERENCES optimization_runs(optimization_run_id),
+        round_number INTEGER NOT NULL CHECK (round_number > 0),
+        experiment_path TEXT NOT NULL,
+        status TEXT NOT NULL,
+        control_variant_id TEXT NOT NULL,
+        treatment_variant_id TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE (optimization_run_id, round_number)
+      ) STRICT
+    `);
+    this.#database.run(`
       CREATE TABLE IF NOT EXISTS experiment_runtime (
         run_id TEXT PRIMARY KEY NOT NULL,
         next_observation_at TEXT,
@@ -164,6 +212,90 @@ export class AgentLedger {
 
   close(): void {
     this.#database.close();
+  }
+
+  registerOptimizationRun(record: OptimizationRunRecord): void {
+    this.#database
+      .query<
+        never,
+        [string, string, string, number, string, string, string]
+      >(
+        `INSERT INTO optimization_runs (
+           optimization_run_id, status, plan_path, current_round,
+           champion_variant_id, created_at, updated_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        record.optimization_run_id,
+        record.status,
+        record.plan_path,
+        record.current_round,
+        record.champion_variant_id,
+        record.created_at,
+        record.updated_at,
+      );
+  }
+
+  upsertExperimentRound(record: ExperimentRoundRecord): void {
+    this.#database.transaction(() => {
+      this.#database
+        .query<
+          never,
+          [string, string, number, string, string, string, string, string, string]
+        >(
+          `INSERT INTO experiment_rounds (
+             experiment_run_id, optimization_run_id, round_number,
+             experiment_path, status, control_variant_id,
+             treatment_variant_id, created_at, updated_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT (experiment_run_id) DO UPDATE SET
+             status = excluded.status,
+             control_variant_id = excluded.control_variant_id,
+             treatment_variant_id = excluded.treatment_variant_id,
+             updated_at = excluded.updated_at`,
+        )
+        .run(
+          record.experiment_run_id,
+          record.optimization_run_id,
+          record.round_number,
+          record.experiment_path,
+          record.status,
+          record.control_variant_id,
+          record.treatment_variant_id,
+          record.created_at,
+          record.updated_at,
+        );
+      this.#database
+        .query<never, [number, string, string, string, number]>(
+          `UPDATE optimization_runs
+           SET current_round = ?, champion_variant_id = ?, updated_at = ?
+           WHERE optimization_run_id = ? AND current_round <= ?`,
+        )
+        .run(
+          record.round_number,
+          record.control_variant_id,
+          record.updated_at,
+          record.optimization_run_id,
+          record.round_number,
+        );
+    }).immediate();
+  }
+
+  completeOptimizationRun(
+    optimizationRunId: string,
+    championVariantId: string,
+    completedAt: string,
+  ): void {
+    const result = this.#database
+      .query<never, [string, string, string]>(
+        `UPDATE optimization_runs
+         SET status = 'completed', champion_variant_id = ?, updated_at = ?
+         WHERE optimization_run_id = ? AND status = 'running'`,
+      )
+      .run(championVariantId, completedAt, optimizationRunId);
+    if (result.changes !== 1) {
+      throw new Error(`Optimization run cannot be completed: ${optimizationRunId}`);
+    }
   }
 
   getRuntime(runId: string): ExperimentRuntime | null {

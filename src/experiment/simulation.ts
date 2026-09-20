@@ -35,6 +35,7 @@ type IteratingAction = Extract<
 
 export function createNextSimulationRun(input: {
   next_run_id: string;
+  challenger_variant_id: string;
   prepared_at: string;
   challenger_manifest_path: string;
   current_run: ExperimentRun;
@@ -60,7 +61,7 @@ export function createNextSimulationRun(input: {
     input.treatment_manifest.generation,
   ) + 1;
   const challengerManifest = renderableCreativeManifestSchema.parse({
-    variant_id: `g${nextGeneration}_v00`,
+    variant_id: input.challenger_variant_id,
     generation: nextGeneration,
     parent_id: championManifest.variant_id,
     layers: input.action.next_challenger.layers,

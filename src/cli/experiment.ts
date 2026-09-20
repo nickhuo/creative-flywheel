@@ -1,6 +1,17 @@
-import {mkdir, rename, writeFile} from "node:fs/promises";
-import {dirname, relative, resolve} from "node:path";
+import {resolve} from "node:path";
 
+import {
+  appendExperimentSnapshot,
+  appendObservation,
+  artifactPath,
+  findExperiment,
+  findLatestObservation,
+  indexExperimentRound,
+  indexOptimizationRun,
+  initializeOptimizationRun,
+  openAgentLedger,
+  projectRoot,
+} from "../artifacts";
 import {
   audienceModelSchema,
   sampleExposure,
@@ -27,7 +38,6 @@ import {
   type CreativeManifest,
 } from "../manifest";
 
-const projectRoot = resolve(import.meta.dir, "../..");
 const defaultModelPath = resolve(projectRoot, "artifacts/audience/model.json");
 const defaultControlPath = resolve(projectRoot, "manifests/g0_v00.json");
 const defaultTreatmentPath = resolve(projectRoot, "manifests/g0_v01.json");
@@ -124,19 +134,24 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
     power,
     hypothesis,
     environment,
-    audience_model_path: projectPath(modelPath),
-    control_manifest_path: projectPath(controlPath),
+    audience_model_path: artifactPath(modelPath),
+    control_manifest_path: artifactPath(controlPath),
     control_manifest: controlManifest,
-    treatment_manifest_path: projectPath(treatmentPath),
+    treatment_manifest_path: artifactPath(treatmentPath),
     treatment_manifest: treatmentManifest,
   });
-  const paths = artifactPaths(runId);
-  await writeJsonNew(paths.run, run);
+  const paths = await initializeOptimizationRun(runId, run);
+  const ledger = await openAgentLedger();
+  try {
+    indexOptimizationRun(ledger, runId, run);
+  } finally {
+    ledger.close();
+  }
 
   console.log(
     JSON.stringify(
       {
-        run: paths.run,
+        run: paths.experiments,
         status: run.status,
         statistical_design: run.statistical_design,
         traffic: run.traffic,
@@ -154,8 +169,8 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
 
 async function createCommand(arguments_: string[]): Promise<void> {
   const runId = experimentRunIdSchema.parse(readFlag(arguments_, "--run-id"));
-  const paths = artifactPaths(runId);
-  let run = await loadRun(paths.run, runId);
+  const location = await findExperiment(runId);
+  let run = location.experiment;
   await loadAndVerifyInputs(run);
   const consoleKey = requiredEnvironmentVariable("STATSIG_CONSOLE_API_KEY");
   const client = new StatsigConsoleClient(consoleKey);
@@ -170,29 +185,37 @@ async function createCommand(arguments_: string[]): Promise<void> {
       experiment_reused: experiment.reused,
       start: null,
     };
-    if (await Bun.file(paths.statsigCreate).exists()) {
-      await writeJson(paths.statsigCreate, statsigCreateArtifact);
-    } else {
-      await writeJsonNew(paths.statsigCreate, statsigCreateArtifact);
-    }
+    await appendObservation({
+      optimization_run_id: location.optimization_run_id,
+      experiment_run_id: run.run_id,
+      round_number: location.round_number,
+      type: "statsig_create",
+      recorded_at: new Date().toISOString(),
+      payload: statsigCreateArtifact,
+    });
     run = experimentRunSchema.parse({
       ...run,
       status: "created",
       statsig_experiment: experiment.receipt,
     });
-    await writeJson(paths.run, run);
+    await appendRunSnapshot(location, run);
   } else if (
     run.status === "created" &&
     run.statsig_experiment !== null &&
     run.statsig_experiment.active_observed_at === null
   ) {
-    const storedArtifact = await readJson(paths.statsigCreate);
+    const storedObservation = await findLatestObservation(
+      location.optimization_run_id,
+      run.run_id,
+      "statsig_create",
+    );
+    const storedArtifact = storedObservation?.payload;
     if (
       typeof storedArtifact !== "object" ||
       storedArtifact === null ||
       Array.isArray(storedArtifact)
     ) {
-      throw new Error(`Invalid Statsig artifact at ${paths.statsigCreate}.`);
+      throw new Error(`Missing Statsig create observation for ${run.run_id}.`);
     }
     statsigCreateArtifact = {...storedArtifact};
   } else {
@@ -206,7 +229,14 @@ async function createCommand(arguments_: string[]): Promise<void> {
   const start = await client.ensureExperimentStarted(
     statsigExperiment.experiment_id,
   );
-  await writeJson(paths.statsigCreate, {...statsigCreateArtifact, start});
+  await appendObservation({
+    optimization_run_id: location.optimization_run_id,
+    experiment_run_id: run.run_id,
+    round_number: location.round_number,
+    type: "statsig_create",
+    recorded_at: new Date().toISOString(),
+    payload: {...statsigCreateArtifact, start},
+  });
   const startedRun = experimentRunSchema.parse({
     ...run,
     statsig_experiment: {
@@ -214,12 +244,12 @@ async function createCommand(arguments_: string[]): Promise<void> {
       active_observed_at: new Date().toISOString(),
     },
   });
-  await writeJson(paths.run, startedRun);
+  await appendRunSnapshot(location, startedRun);
 
   console.log(
     JSON.stringify(
       {
-        run: paths.run,
+        run: runId,
         status: startedRun.status,
         experiment_id: statsigExperiment.experiment_id,
         permalink: statsigExperiment.permalink,
@@ -234,8 +264,8 @@ async function createCommand(arguments_: string[]): Promise<void> {
 
 async function serveCommand(arguments_: string[]): Promise<void> {
   const runId = experimentRunIdSchema.parse(readFlag(arguments_, "--run-id"));
-  const paths = artifactPaths(runId);
-  const run = await loadRun(paths.run, runId);
+  const location = await findExperiment(runId);
+  const run = location.experiment;
   if (
     run.status !== "created" ||
     run.statsig_experiment === null ||
@@ -243,10 +273,15 @@ async function serveCommand(arguments_: string[]): Promise<void> {
   ) {
     throw new Error(`Run ${runId} is not ready to serve.`);
   }
-  for (const path of [paths.events, paths.pendingEvents, paths.summary]) {
-    if (await Bun.file(path).exists()) {
-      throw new Error(`Artifact already exists at ${path}; refusing to resend events.`);
-    }
+  const pending = await findLatestObservation(
+    location.optimization_run_id,
+    run.run_id,
+    "serve_pending",
+  );
+  if (pending !== null) {
+    throw new Error(
+      `Run ${runId} already has a pending serve batch; refusing to resend events.`,
+    );
   }
 
   const {audienceModel, controlManifest, treatmentManifest} =
@@ -294,14 +329,16 @@ async function serveCommand(arguments_: string[]): Promise<void> {
       throw new Error("Statsig assigned no users to one of the experiment arms.");
     }
 
-    await mkdir(dirname(paths.pendingEvents), {recursive: true});
-    await writeFile(
-      paths.pendingEvents,
-      `${records.map((record) => JSON.stringify(record)).join("\n")}\n`,
-      {flag: "wx"},
-    );
-    await writeJson(
-      paths.run,
+    await appendObservation({
+      optimization_run_id: location.optimization_run_id,
+      experiment_run_id: run.run_id,
+      round_number: location.round_number,
+      type: "serve_pending",
+      recorded_at: new Date().toISOString(),
+      payload: {events: records, summary},
+    });
+    await appendRunSnapshot(
+      location,
       experimentRunSchema.parse({...run, status: "serving"}),
     );
     for (const record of records) session.log(record);
@@ -317,15 +354,21 @@ async function serveCommand(arguments_: string[]): Promise<void> {
   if (operationError !== undefined) throw operationError;
 
   const summary = summarizeExperimentEvents(run, records);
-  await writeJsonNew(paths.summary, summary);
-  await rename(paths.pendingEvents, paths.events);
+  await appendObservation({
+    optimization_run_id: location.optimization_run_id,
+    experiment_run_id: run.run_id,
+    round_number: location.round_number,
+    type: "serve_completed",
+    recorded_at: new Date().toISOString(),
+    payload: {summary},
+  });
   const servedRun = experimentRunSchema.parse({...run, status: "served"});
-  await writeJson(paths.run, servedRun);
+  await appendRunSnapshot(location, servedRun);
 
   console.log(
     JSON.stringify(
       {
-        run: paths.run,
+        run: runId,
         status: servedRun.status,
         summary,
         next: `bun run experiment inspect --run-id ${runId}`,
@@ -338,8 +381,8 @@ async function serveCommand(arguments_: string[]): Promise<void> {
 
 async function inspectCommand(arguments_: string[]): Promise<void> {
   const runId = experimentRunIdSchema.parse(readFlag(arguments_, "--run-id"));
-  const paths = artifactPaths(runId);
-  const run = await loadRun(paths.run, runId);
+  const location = await findExperiment(runId);
+  const run = location.experiment;
   if (
     (run.status !== "served" && run.status !== "awaiting_results") ||
     run.statsig_experiment === null
@@ -353,19 +396,26 @@ async function inspectCommand(arguments_: string[]): Promise<void> {
   const raw = await client.inspectExperiment(
     run.statsig_experiment.experiment_id,
   );
-  await writeJson(paths.inspect, raw);
+  await appendObservation({
+    optimization_run_id: location.optimization_run_id,
+    experiment_run_id: run.run_id,
+    round_number: location.round_number,
+    type: "statsig_inspect",
+    recorded_at: new Date().toISOString(),
+    payload: raw,
+  });
   const inspectedRun = experimentRunSchema.parse({
     ...run,
     status: "awaiting_results",
   });
-  await writeJson(paths.run, inspectedRun);
+  await appendRunSnapshot(location, inspectedRun);
 
   console.log(
     JSON.stringify(
       {
-        run: paths.run,
+        run: runId,
         status: inspectedRun.status,
-        raw_inspection: paths.inspect,
+        raw_inspection: "observations.json",
         note: "Metric normalization belongs to the next ResultSnapshot step.",
       },
       null,
@@ -393,45 +443,34 @@ async function loadAndVerifyInputs(run: ExperimentRun): Promise<{
   return {audienceModel, controlManifest, treatmentManifest};
 }
 
-async function loadRun(path: string, expectedId: string): Promise<ExperimentRun> {
-  const run = experimentRunSchema.parse(await readJson(path));
-  if (run.run_id !== expectedId) {
-    throw new Error(`Run ID mismatch in ${path}.`);
-  }
-  return run;
-}
-
 async function readJson(path: string): Promise<unknown> {
   const file = Bun.file(path);
   if (!(await file.exists())) throw new Error(`File not found: ${path}`);
   return file.json();
 }
 
-function artifactPaths(runId: string): {
-  run: string;
-  statsigCreate: string;
-  pendingEvents: string;
-  events: string;
-  summary: string;
-  inspect: string;
-} {
-  const directory = resolve(projectRoot, "artifacts/experiments", runId);
-  return {
-    run: resolve(directory, "run.json"),
-    statsigCreate: resolve(directory, "statsig-create.raw.json"),
-    pendingEvents: resolve(directory, "events.pending.jsonl"),
-    events: resolve(directory, "events.jsonl"),
-    summary: resolve(directory, "summary.json"),
-    inspect: resolve(directory, "statsig-inspect.raw.json"),
-  };
-}
-
-function projectPath(path: string): string {
-  const projectRelative = relative(projectRoot, path);
-  if (projectRelative === "" || projectRelative.startsWith("..")) {
-    throw new Error(`Input must be inside the project: ${path}`);
+async function appendRunSnapshot(
+  location: Awaited<ReturnType<typeof findExperiment>>,
+  run: ExperimentRun,
+): Promise<void> {
+  await appendExperimentSnapshot({
+    optimization_run_id: location.optimization_run_id,
+    round_number: location.round_number,
+    recorded_at: new Date().toISOString(),
+    experiment: run,
+  });
+  const ledger = await openAgentLedger();
+  try {
+    indexExperimentRound(
+      ledger,
+      location.optimization_run_id,
+      location.round_number,
+      run,
+      new Date().toISOString(),
+    );
+  } finally {
+    ledger.close();
   }
-  return projectRelative;
 }
 
 function readFlag(arguments_: string[], name: string): string {
@@ -456,16 +495,4 @@ function requiredEnvironmentVariable(name: string): string {
     throw new Error(`Missing required environment variable ${name}.`);
   }
   return value;
-}
-
-async function writeJsonNew(path: string, value: unknown): Promise<void> {
-  await mkdir(dirname(path), {recursive: true});
-  await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, {flag: "wx"});
-}
-
-async function writeJson(path: string, value: unknown): Promise<void> {
-  await mkdir(dirname(path), {recursive: true});
-  const pendingPath = `${path}.partial`;
-  await writeFile(pendingPath, `${JSON.stringify(value, null, 2)}\n`);
-  await rename(pendingPath, path);
 }

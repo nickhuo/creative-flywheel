@@ -1,10 +1,24 @@
-import {appendFile, mkdir, readdir, rename, writeFile} from "node:fs/promises";
-import {basename, dirname, relative, resolve} from "node:path";
+import {resolve} from "node:path";
 
+import {z} from "zod";
+
+import {
+  appendExperimentSnapshot,
+  appendObservation,
+  artifactPath,
+  creativeManifestPath,
+  findExperiment,
+  indexExperimentRound,
+  listLatestExperiments,
+  openAgentLedger,
+  projectRoot,
+  runArtifactPaths,
+  writeJsonAtomic,
+  writeJsonNew,
+} from "../artifacts";
 import {audienceModelSchema, sha256} from "../audience/model";
 import {type ChallengerContext} from "../agent/challenger";
 import {
-  AgentLedger,
   type ActionReceiptRecord,
   type ObservationTrigger,
   type ProposalStatus,
@@ -32,10 +46,6 @@ import {
 const OBSERVATION_INTERVAL_MS = 60 * 60 * 1000;
 const LEASE_DURATION_MS = 5 * 60 * 1000;
 const DEFAULT_MAX_ROUNDS = 10;
-const projectRoot = resolve(import.meta.dir, "../..");
-const experimentsDirectory = resolve(projectRoot, "artifacts/experiments");
-const defaultLedgerPath = resolve(projectRoot, "artifacts/agent/state.sqlite");
-
 const [command, ...arguments_] = Bun.argv.slice(2);
 
 if (command === "tick") {
@@ -64,9 +74,24 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
   if (!Number.isSafeInteger(maxRounds) || maxRounds < 1) {
     throw new RangeError("--max-rounds must be a positive integer.");
   }
-  let run = await loadRun(
-    resolve(experimentsDirectory, rootRunId, "run.json"),
-  );
+  const location = await findExperiment(rootRunId);
+  if (
+    location.optimization_run_id !== rootRunId ||
+    location.round_number !== 1
+  ) {
+    throw new Error(`${rootRunId} is not an optimization root run.`);
+  }
+  const trajectoryState = z
+    .object({
+      status: z.enum(["completed", "running"]),
+      rounds: z.array(z.unknown()),
+    })
+    .passthrough()
+    .parse(await Bun.file(runArtifactPaths(rootRunId).trajectory).json());
+  if (trajectoryState.status === "completed" || trajectoryState.rounds.length > 0) {
+    throw new Error(`Optimization run ${rootRunId} already has a trajectory.`);
+  }
+  let run = location.experiment;
   const audienceModel = audienceModelSchema.parse(
     await Bun.file(resolve(projectRoot, run.audience_model.path)).json(),
   );
@@ -75,13 +100,21 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
   if (Number.isNaN(simulationTime)) {
     throw new Error(`Run ${rootRunId} has an invalid prepared_at timestamp.`);
   }
-  const ledger = new AgentLedger();
+  const ledger = await openAgentLedger();
   try {
     const experimentHistory: ChallengerContext["experiment_history"] = [];
     const completedRuns: Array<{
       round: number;
       run_id: string;
       action: ProposedAction;
+      proposal: {
+        proposal_id: string;
+        policy_version: string;
+        prompt_version: string;
+        model: string;
+        status: ProposalStatus;
+        reviewed_by: string | null;
+      };
       action_receipt: ActionReceiptRecord;
       log: string;
     }> = [];
@@ -89,15 +122,6 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
 
     for (let round = 1; round <= maxRounds; round += 1) {
       const {controlManifest, treatmentManifest} = await loadRunManifests(run);
-      const simulationLogPath = resolve(
-        experimentsDirectory,
-        run.run_id,
-        "simulation.json",
-      );
-      if (await Bun.file(simulationLogPath).exists()) {
-        throw new Error(`Simulation log already exists for ${run.run_id}.`);
-      }
-
       simulationTime += 60_000;
       const observedAt = new Date(simulationTime).toISOString();
       if (ledger.getRuntime(run.run_id) === null) {
@@ -125,6 +149,14 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
         summary,
         observedAt,
       );
+      await appendObservation({
+        optimization_run_id: rootRunId,
+        experiment_run_id: run.run_id,
+        round_number: round,
+        type: "simulator_result",
+        recorded_at: observedAt,
+        payload: {summary, snapshot: finalSnapshot},
+      });
       const outcome = await evaluateSnapshot({
         run,
         snapshot: finalSnapshot,
@@ -196,25 +228,28 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
             champion_variant_id: finalAction.champion_variant_id,
           },
         });
-        await writeJsonNew(simulationLogPath, {
-          schema_version: 1,
-          source: "simulator",
-          round,
-          run_id: run.run_id,
-          observed_at: observedAt,
-          snapshot: finalSnapshot,
-          action: finalAction,
-          proposal: proposalLog,
-          action_receipt: receipt,
-          next_run_id: null,
-        });
         completedRuns.push({
           round,
           run_id: run.run_id,
           action: finalAction,
+          proposal: proposalLog,
           action_receipt: receipt,
-          log: relative(projectRoot, simulationLogPath),
+          log: artifactPath(runArtifactPaths(rootRunId).trajectory),
         });
+        await writeJsonAtomic(runArtifactPaths(rootRunId).trajectory, {
+          schema_version: 1,
+          optimization_run_id: rootRunId,
+          source: "simulator",
+          status: "completed",
+          max_rounds: maxRounds,
+          termination: "max_rounds",
+          rounds: completedRuns,
+        });
+        ledger.completeOptimizationRun(
+          rootRunId,
+          finalAction.champion_variant_id,
+          reviewedAt,
+        );
         termination = "max_rounds";
         break;
       }
@@ -223,14 +258,12 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
       const nextRunId = experimentRunIdSchema.parse(
         `${rootRunId}_round_${nextRound.toString().padStart(2, "0")}`,
       );
-      const nextRunDirectory = resolve(experimentsDirectory, nextRunId);
-      const challengerPath = resolve(nextRunDirectory, "challenger.json");
-      const nextRunPath = resolve(nextRunDirectory, "run.json");
-      if (
-        (await Bun.file(challengerPath).exists()) ||
-        (await Bun.file(nextRunPath).exists())
-      ) {
-        throw new Error(`Next-round artifacts already exist for ${nextRunId}.`);
+      const challengerVariantId = experimentRunIdSchema.parse(
+        `${rootRunId}_g${nextRound - 1}_v00`,
+      );
+      const challengerPath = creativeManifestPath(challengerVariantId);
+      if (await Bun.file(challengerPath).exists()) {
+        throw new Error(`Creative already exists for ${challengerVariantId}.`);
       }
       simulationTime += 60_000;
       if (finalSnapshot.primary_metric.status !== "ready") {
@@ -241,8 +274,9 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
         : finalSnapshot.primary_metric.control.mean;
       const next = createNextSimulationRun({
         next_run_id: nextRunId,
+        challenger_variant_id: challengerVariantId,
         prepared_at: new Date(simulationTime).toISOString(),
-        challenger_manifest_path: relative(projectRoot, challengerPath),
+        challenger_manifest_path: artifactPath(challengerPath),
         current_run: run,
         audience_model: audienceModel,
         control_manifest: controlManifest,
@@ -251,7 +285,19 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
         action: finalAction,
       });
       await writeJsonNew(challengerPath, next.challenger_manifest);
-      await writeJsonNew(nextRunPath, next.run);
+      await appendExperimentSnapshot({
+        optimization_run_id: rootRunId,
+        round_number: nextRound,
+        recorded_at: next.run.prepared_at,
+        experiment: next.run,
+      });
+      indexExperimentRound(
+        ledger,
+        rootRunId,
+        nextRound,
+        next.run,
+        next.run.prepared_at,
+      );
       const receipt = ledger.recordActionReceipt({
         receipt_id: sha256(idempotencyKey),
         proposal_id: approvedProposal.proposal_id,
@@ -270,24 +316,22 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
           next_run_id: next.run.run_id,
         },
       });
-      await writeJsonNew(simulationLogPath, {
-        schema_version: 1,
-        source: "simulator",
-        round,
-        run_id: run.run_id,
-        observed_at: observedAt,
-        snapshot: finalSnapshot,
-        action: finalAction,
-        proposal: proposalLog,
-        action_receipt: receipt,
-        next_run_id: next.run.run_id,
-      });
       completedRuns.push({
         round,
         run_id: run.run_id,
         action: finalAction,
+        proposal: proposalLog,
         action_receipt: receipt,
-        log: relative(projectRoot, simulationLogPath),
+        log: artifactPath(runArtifactPaths(rootRunId).trajectory),
+      });
+      await writeJsonAtomic(runArtifactPaths(rootRunId).trajectory, {
+        schema_version: 1,
+        optimization_run_id: rootRunId,
+        source: "simulator",
+        status: "running",
+        max_rounds: maxRounds,
+        termination: null,
+        rounds: completedRuns,
       });
       run = next.run;
     }
@@ -318,8 +362,10 @@ async function tickCommand(arguments_: string[]): Promise<void> {
       (requestedRunId === undefined ? "cron" : "manual"),
   );
   const observedAt = new Date().toISOString();
-  const runPaths = await findRunPaths(requestedRunId);
-  const ledger = await openLedger();
+  const runLocations = requestedRunId === undefined
+    ? await listLatestExperiments()
+    : [await findExperiment(requestedRunId)];
+  const ledger = await openAgentLedger();
   const client = new StatsigConsoleClient(
     requiredEnvironmentVariable("STATSIG_CONSOLE_API_KEY"),
   );
@@ -328,8 +374,8 @@ async function tickCommand(arguments_: string[]): Promise<void> {
   let hasFailure = false;
 
   try {
-    for (const runPath of runPaths) {
-      let run = await loadRun(runPath);
+    for (const location of runLocations) {
+      let run = location.experiment;
       if (run.status !== "served" && run.status !== "awaiting_results") {
         continue;
       }
@@ -365,10 +411,29 @@ async function tickCommand(arguments_: string[]): Promise<void> {
             ...run,
             status: "awaiting_results",
           });
-          await writeJsonAtomic(runPath, run);
+          await appendExperimentSnapshot({
+            optimization_run_id: location.optimization_run_id,
+            round_number: location.round_number,
+            recorded_at: observedAt,
+            experiment: run,
+          });
+          indexExperimentRound(
+            ledger,
+            location.optimization_run_id,
+            location.round_number,
+            run,
+            observedAt,
+          );
         }
         const observation = await client.observeExperiment(run);
-        await appendObservation(run.run_id, observedAt, observation);
+        await appendObservation({
+          optimization_run_id: location.optimization_run_id,
+          experiment_run_id: run.run_id,
+          round_number: location.round_number,
+          type: "statsig_result",
+          recorded_at: observedAt,
+          payload: observation,
+        });
         const snapshot = normalizeStatsigObservation(
           run,
           observation,
@@ -383,7 +448,7 @@ async function tickCommand(arguments_: string[]): Promise<void> {
           model,
           ledger,
           challenger_context: {
-            round: 1,
+            round: location.round_number,
             max_rounds: DEFAULT_MAX_ROUNDS,
             control_manifest: controlManifest,
             treatment_manifest: treatmentManifest,
@@ -427,7 +492,7 @@ async function tickCommand(arguments_: string[]): Promise<void> {
 async function proposalsCommand(arguments_: string[]): Promise<void> {
   const statusFlag = readOptionalFlag(arguments_, "--status");
   const status = statusFlag === undefined ? undefined : parseProposalStatus(statusFlag);
-  const ledger = await openLedger();
+  const ledger = await openAgentLedger();
   try {
     console.log(JSON.stringify({proposals: ledger.listProposals(status)}, null, 2));
   } finally {
@@ -443,7 +508,7 @@ async function reviewCommand(
   const reviewedBy = readFlag(arguments_, "--reviewed-by");
   const note = readOptionalFlag(arguments_, "--note");
   const reviewedAt = new Date().toISOString();
-  const ledger = await openLedger();
+  const ledger = await openAgentLedger();
   try {
     const proposal = ledger.getProposal(proposalId);
     if (proposal === null) throw new Error(`Proposal not found: ${proposalId}`);
@@ -486,39 +551,6 @@ async function reviewCommand(
   }
 }
 
-async function findRunPaths(requestedRunId?: string): Promise<string[]> {
-  if (requestedRunId !== undefined) {
-    return [resolve(experimentsDirectory, requestedRunId, "run.json")];
-  }
-  let entries;
-  try {
-    entries = await readdir(experimentsDirectory, {withFileTypes: true});
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
-      return [];
-    }
-    throw error;
-  }
-  return entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => resolve(experimentsDirectory, entry.name, "run.json"))
-    .sort();
-}
-
-async function loadRun(path: string): Promise<ExperimentRun> {
-  const file = Bun.file(path);
-  if (!(await file.exists())) throw new Error(`Run not found: ${path}`);
-  const run = experimentRunSchema.parse(await file.json());
-  if (run.run_id !== basename(dirname(path))) {
-    throw new Error(`Run ID does not match its artifact directory: ${path}`);
-  }
-  return run;
-}
-
 async function loadRunManifests(run: ExperimentRun): Promise<{
   controlManifest: RenderableCreativeManifest;
   treatmentManifest: RenderableCreativeManifest;
@@ -531,39 +563,6 @@ async function loadRunManifests(run: ExperimentRun): Promise<{
     await Bun.file(resolve(projectRoot, treatmentArm.manifest.path)).json(),
   );
   return {controlManifest, treatmentManifest};
-}
-
-async function appendObservation(
-  runId: string,
-  observedAt: string,
-  observation: unknown,
-): Promise<void> {
-  const path = resolve(experimentsDirectory, runId, "observations.jsonl");
-  await mkdir(dirname(path), {recursive: true});
-  await appendFile(
-    path,
-    `${JSON.stringify({run_id: runId, observed_at: observedAt, observation})}\n`,
-  );
-}
-
-async function writeJsonAtomic(path: string, value: unknown): Promise<void> {
-  const pendingPath = `${path}.partial`;
-  await writeFile(pendingPath, `${JSON.stringify(value, null, 2)}\n`);
-  await rename(pendingPath, path);
-}
-
-async function writeJsonNew(path: string, value: unknown): Promise<void> {
-  await mkdir(dirname(path), {recursive: true});
-  await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, {flag: "wx"});
-}
-
-async function openLedger(): Promise<AgentLedger> {
-  const configuredPath = Bun.env.SIMULA_AGENT_DB?.trim();
-  const path = configuredPath === undefined || configuredPath === ""
-    ? defaultLedgerPath
-    : resolve(projectRoot, configuredPath);
-  await mkdir(dirname(path), {recursive: true});
-  return new AgentLedger(path);
 }
 
 function parseTrigger(value: string): ObservationTrigger {
