@@ -133,14 +133,14 @@ stores normalized evidence, approvals, and idempotent action receipts in the
 shared SQLite ledger and writes the portable completed trajectory to
 `trajectory.json`.
 At the calculated horizon, deterministic policy chooses `stop` or `promote`.
-Unless the maximum round has been reached, one Challenger Agent call uses the
-updated champion, complete experiment history, and a versioned Rune Keepers
-campaign brief to interpret the completed experiment, record a learning, and
-propose the next structured hypothesis and renderable layer combination. After
-`stop`, the challenger explores one coherent direction by changing two or three
-layers; after `promote`, it exploits the new champion with exactly one layer
-change. The orchestrator validates this policy instead of relying on the prompt
-alone. The local executor adds each next experiment to the root optimization's
+Unless the maximum round has been reached, application code routes `stop` to the
+Explore Agent and `promote` to the Exploit Agent. Both receive the updated
+champion and versioned Rune Keepers campaign brief, then use the read-only
+`search_experiment_runs` and `get_experiment_trajectory` tools to retrieve only
+relevant historical evidence. Explore changes two or three coordinated layers;
+Exploit changes exactly one. The orchestrator validates this policy instead of
+relying on either prompt alone. The local executor adds each next experiment to
+the root optimization's
 `experiments.json`, writes its globally namespaced challenger manifest under
 the run's `creatives/` directory, and repeats until deterministic `terminate`.
 

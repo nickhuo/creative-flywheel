@@ -35,9 +35,9 @@ seconds by `VIDEO_SPEC`; it is not a manifest dimension.
 
 Definition: [`CAMPAIGN_BRIEF`](../src/agent/challenger.ts)
 
-Trusted, versioned context for the Challenger Agent. It describes the Rune
-Keepers product, campaign objective, audience, and brand constraints. It does not
-own the executable creative catalog, manifests, experiment results, or
+Trusted, versioned context shared by the Explore and Exploit Agents. It describes
+the Rune Keepers product, campaign objective, audience, and brand constraints. It
+does not own the executable creative catalog, manifests, experiment results, or
 audience-model parameters. Its audience motivations guide hypotheses but are not
 experimental evidence.
 
@@ -77,7 +77,8 @@ Definition: [`AudiencePrediction`](../src/audience/model.ts#L233-L242)
 
 The audience model's probabilities and training-data coverage for one manifest and exposure context.
 
-It is an audit value, not an experiment result and not an input to the challenger agent.
+It is an audit value, not an experiment result and not an input to either creative
+agent.
 
 `layer_coverage` describes only coverage of `CreativeManifest.layers`:
 
@@ -149,8 +150,8 @@ recommendation or action.
 
 Definition: [`challengerProposalSchema` and `ChallengerProposal`](../src/experiment/evaluation.ts)
 
-A typed evaluation and creative hypothesis produced by the single Challenger
-Agent for one completed `ResultSnapshot`.
+A typed evaluation and creative hypothesis produced by either the Explore Agent
+or Exploit Agent for one completed `ResultSnapshot`.
 
 It owns the agent's interpretation and learning from the completed experiment,
 a structured next hypothesis, its tradeoffs, rationale, evidence references,

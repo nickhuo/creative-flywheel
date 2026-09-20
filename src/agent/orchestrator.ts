@@ -12,11 +12,12 @@ import {type ExperimentRun} from "../experiment/run";
 import {CREATIVE_LAYER_FIELDS} from "../manifest";
 import {
   CHALLENGER_LAYER_STRATEGY,
-  CHALLENGER_PROMPT,
+  CREATIVE_PROMPT_VERSIONS,
   challengerContextSchema,
-  runChallengerAgent,
-  type ChallengerAgentResult,
+  creativePromptForDecision,
+  runCreativeAgent,
   type ChallengerContext,
+  type CreativeAgentResult,
 } from "./challenger";
 import {
   AgentLedger,
@@ -32,7 +33,7 @@ export type ChallengerRunner = (
   context: ChallengerContext,
   decision: "stop" | "promote",
   config: {model: string; tracingDisabled?: boolean},
-) => Promise<ChallengerAgentResult>;
+) => Promise<CreativeAgentResult>;
 
 export type EvaluateSnapshotInput = {
   run: ExperimentRun;
@@ -71,10 +72,18 @@ export async function evaluateSnapshot(
     payload: snapshot,
   });
   const persistedSnapshot = resultSnapshotSchema.parse(persisted.payload);
+  const decision = persistedSnapshot.primary_metric.status === "ready"
+    ? decideExperimentAction(input.run, persistedSnapshot)
+    : null;
+  const promptVersion = decision === null
+    ? null
+    : creativePromptForDecision(decision).version;
   const currentVersionProposals = existingProposals.filter(
     ({policy_version, prompt_version}) =>
       policy_version === EXPERIMENT_POLICY_VERSION &&
-      prompt_version === CHALLENGER_PROMPT.version,
+      (promptVersion === null
+        ? CREATIVE_PROMPT_VERSIONS.some((version) => version === prompt_version)
+        : prompt_version === promptVersion),
   );
   const eligibility = assessEligibility(input.run, persistedSnapshot, {
     previousSnapshotId: currentVersionProposals[0]?.snapshot_id ?? null,
@@ -105,14 +114,14 @@ export async function evaluateSnapshot(
   if (primaryMetric.status !== "ready") {
     throw new Error("Eligible evidence must contain a ready primary metric.");
   }
-  const decision = decideExperimentAction(
-    input.run,
-    persistedSnapshot,
-  );
+  if (decision === null) {
+    throw new Error("Eligible evidence must resolve to a deterministic decision.");
+  }
+  const creativePrompt = creativePromptForDecision(decision);
   const isFinalRound = context.round === context.max_rounds;
   const challengerResult = isFinalRound
     ? null
-    : await (input.propose_challenger ?? runChallengerAgent)(
+    : await (input.propose_challenger ?? runCreativeAgent)(
         input.run,
         persistedSnapshot,
         context,
@@ -215,7 +224,7 @@ export async function evaluateSnapshot(
     JSON.stringify({
       snapshot_id: persistedSnapshot.snapshot_id,
       policy_version: EXPERIMENT_POLICY_VERSION,
-      prompt_version: CHALLENGER_PROMPT.version,
+      prompt_version: creativePrompt.version,
       proposal,
     }),
   );
@@ -224,7 +233,7 @@ export async function evaluateSnapshot(
     snapshot_id: persistedSnapshot.snapshot_id,
     action_type: proposal.action,
     policy_version: EXPERIMENT_POLICY_VERSION,
-    prompt_version: CHALLENGER_PROMPT.version,
+    prompt_version: creativePrompt.version,
     model: challengerResult === null ? "deterministic" : input.model,
     created_at: input.observed_at,
     payload: {
