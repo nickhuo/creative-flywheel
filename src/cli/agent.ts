@@ -1,4 +1,4 @@
-import {resolve} from "node:path";
+import {dirname, resolve} from "node:path";
 
 import {z} from "zod";
 
@@ -85,6 +85,7 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
     throw new RangeError("--max-rounds must be a positive integer.");
   }
   const isVerbose = arguments_.includes("--verbose");
+  const shouldRender = arguments_.includes("--render");
   const reporter = new SimulationReporter(isVerbose);
   const location = await findExperiment(rootRunId);
   if (
@@ -133,6 +134,43 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
     }> = [];
     for (let round = 1; round <= maxRounds; round += 1) {
       const {controlManifest, treatmentManifest} = await loadRunManifests(run);
+      if (shouldRender) {
+        console.log(`\nRendering round ${round} creatives before experiment`);
+        for (const [role, manifest] of [
+          ["control", controlManifest],
+          ["challenger", treatmentManifest],
+        ] as const) {
+          const manifestPath = creativeManifestPath(
+            rootRunId,
+            manifest.variant_id,
+          );
+          const videoPath = resolve(dirname(manifestPath), "video.mp4");
+          if (await Bun.file(videoPath).exists()) {
+            console.log(`  Ready         ${role} · ${manifest.variant_id}`);
+            continue;
+          }
+          console.log(`  Rendering     ${role} · ${manifest.variant_id}`);
+          const renderProcess = Bun.spawn({
+            cmd: [
+              process.execPath,
+              "run",
+              resolve(projectRoot, "src/cli/render.ts"),
+              "--run-id",
+              rootRunId,
+              manifestPath,
+            ],
+            cwd: projectRoot,
+            stdout: "inherit",
+            stderr: "inherit",
+          });
+          const renderExitCode = await renderProcess.exited;
+          if (renderExitCode !== 0) {
+            throw new Error(
+              `Rendering ${role} ${manifest.variant_id} failed with exit code ${renderExitCode}.`,
+            );
+          }
+        }
+      }
       reporter.roundStarted(round, maxRounds, run);
       simulationTime += 60_000;
       const observedAt = new Date(simulationTime).toISOString();

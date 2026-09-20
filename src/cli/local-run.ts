@@ -155,6 +155,7 @@ export async function runLocalOptimization(arguments_: string[]): Promise<void> 
       rootRunId,
       "--max-rounds",
       String(maxRounds),
+      ...(!arguments_.includes("--no-render") ? ["--render"] : []),
       ...(isVerbose ? ["--verbose"] : []),
     ],
     cwd: projectRoot,
@@ -165,36 +166,6 @@ export async function runLocalOptimization(arguments_: string[]): Promise<void> 
   const simulationExitCode = await simulation.exited;
   if (simulationExitCode !== 0) {
     throw new Error(`Simulation failed with exit code ${simulationExitCode}.`);
-  }
-
-  if (!arguments_.includes("--no-render")) {
-    const experimentRecords = z.array(experimentLogRecordSchema).parse(
-      await Bun.file(runArtifactPaths(rootRunId).experiments).json(),
-    );
-    const manifestPaths = [
-      ...new Set(
-        experimentRecords.flatMap(({experiment}) =>
-          experiment.experiment.arms.map(({manifest}) => manifest.path)
-        ),
-      ),
-    ];
-    console.log(`\nRendering ${manifestPaths.length} creative videos`);
-    for (const [index, manifestPath] of manifestPaths.entries()) {
-      const manifest = renderableCreativeManifestSchema.parse(
-        await Bun.file(resolve(projectRoot, manifestPath)).json(),
-      );
-      console.log(
-        `  Render ${index + 1}/${manifestPaths.length}  ${manifest.variant_id}`,
-      );
-      await runCaptured([
-        process.execPath,
-        "run",
-        resolve(projectRoot, "src/cli/render.ts"),
-        "--run-id",
-        rootRunId,
-        resolve(projectRoot, manifestPath),
-      ]);
-    }
   }
 
   if (!arguments_.includes("--no-dashboard")) {

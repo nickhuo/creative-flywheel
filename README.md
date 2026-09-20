@@ -129,8 +129,9 @@ bun run agent run \
 The command creates a unique optimization root, validates that the two seed
 manifests differ in only one or two renderable layers, runs the local audience
 simulator with the configured OpenAI model, and prints a compact status stream.
-After the final round it renders every creative in the lineage, starts or reuses
-the dashboard, and opens the browser directly on the completed run. Use
+Before each experiment it renders that round's control and challenger, reusing
+videos that are already present. After the final round it starts or reuses the
+dashboard and opens the browser directly on the completed run. Use
 `--run-id` for a stable ID, `--seed` to change simulator randomness,
 `--openai-model` to override `OPENAI_MODEL`, or `--no-render`, `--no-dashboard`,
 and `--no-open` for automation and tests.
