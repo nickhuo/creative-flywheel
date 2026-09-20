@@ -53,4 +53,5 @@ scratchpad/
 
 # Generated artifacts
 artifacts/audience/sample.json
+artifacts/agent/
 artifacts/experiments/
