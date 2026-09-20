@@ -126,7 +126,7 @@ function render() {
     ${renderTrajectoryLog(trackRounds, selectedRun.run_id)}`;
 }
 
-function renderTrajectoryLog(runs, selectedRunId) {
+export function renderTrajectoryLog(runs, selectedRunId) {
   return `<section class="trajectory-log" aria-label="Agent evolution by experiment round">${runs.map((run, index) => {
     const metric = readyPrimaryMetric(run);
     const action = run.decision?.action ?? null;
@@ -147,7 +147,7 @@ function renderTrajectoryLog(runs, selectedRunId) {
       const label = arm.role === "control" ? "Control video" : "Challenger video";
       return arm.video_url === null
         ? `<div class="creative-link unavailable"><span><b>${label}</b><small>${escapeHtml(arm.variant_id)} · unavailable</small></span></div>`
-        : `<a class="creative-link" href="${escapeHtml(arm.video_url)}" target="_blank" rel="noopener"><span><b>${label}</b><small>${escapeHtml(arm.variant_id)}.mp4</small></span><i aria-hidden="true">↗</i></a>`;
+        : `<figure class="creative-video"><video controls playsinline preload="metadata" aria-label="${escapeHtml(label)} for ${escapeHtml(arm.variant_id)}"><source src="${escapeHtml(arm.video_url)}" type="video/mp4"></video><figcaption><span><b>${label}</b><small>${escapeHtml(arm.variant_id)}.mp4</small></span><a class="creative-open" href="${escapeHtml(arm.video_url)}" target="_blank" rel="noopener">Open <span aria-hidden="true">↗</span></a></figcaption></figure>`;
     }).join("")}</div>`;
     const allocation = run.arms.map(({allocation_percent: percent}) => percent).join(" / ");
     const experimentConfig = `
