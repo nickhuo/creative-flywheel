@@ -10,6 +10,7 @@ Definitions:
 
 - [`creativeManifestSchema` and `CreativeManifest`](../src/manifest.ts)
 - [`renderableCreativeManifestSchema`](../src/manifest.ts)
+- [`CREATIVE_LAYER_CATALOG`](../src/manifest.ts)
 - [`CREATIVE_LAYER_VALUES`](../src/manifest.ts)
 
 A renderable creative variant.
@@ -21,10 +22,21 @@ identity.
 
 The general schema accepts non-empty layer values so the audience model can report
 unseen-value coverage. The render boundary is deliberately narrower: every layer
-must belong to the catalog fitted by the checked-in audience model. The catalog has
+must belong to the catalog fitted by the checked-in audience model. The catalog is
+the single source for executable values and their stable creative semantics. It has
 6 backgrounds, 4 characters, 5 actions, 5 hooks, 4 CTAs, and 3 audio styles, for
 7,200 deterministic combinations. Format is fixed at 1080×1920, 30 fps, and 8
 seconds by `VIDEO_SPEC`; it is not a manifest dimension.
+
+## CampaignBrief
+
+Definition: [`CAMPAIGN_BRIEF`](../src/agent/challenger.ts)
+
+Trusted, versioned context for the Challenger Agent. It describes the Rune
+Keepers product, campaign objective, audience, and brand constraints. It does not
+own the executable creative catalog, manifests, experiment results, or
+audience-model parameters. Its audience motivations guide hypotheses but are not
+experimental evidence.
 
 ## AudienceModel
 

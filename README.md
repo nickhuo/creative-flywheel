@@ -104,9 +104,10 @@ The simulator adds one reproducible 50/50 batch at a time and records every
 cumulative snapshot. The deterministic gate advances intermediate batches without
 calling the model. At the calculated fixed horizon, deterministic policy chooses
 `stop` or `promote`. Unless the maximum round has been reached, one Challenger
-Agent call uses the updated champion and complete experiment history to propose
-the next hypothesis and renderable layer combination. The local executor prepares
-the next run and repeats until deterministic `terminate`.
+Agent call uses the updated champion, complete experiment history, and a versioned
+Rune Keepers campaign brief to propose the next hypothesis and renderable layer
+combination. The local executor prepares the next run and repeats until
+deterministic `terminate`.
 
 Without `--run-id`, the command scans every `served` or `awaiting_results`
 experiment under `artifacts/experiments/`. A scheduler can call it hourly:

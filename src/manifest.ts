@@ -14,32 +14,68 @@ export const CREATIVE_LAYER_FIELDS = [
   "audio_style",
 ] as const;
 
+export const CREATIVE_LAYER_CATALOG = {
+  background: {
+    cozy_cafe: "Warm, conversational, and intimate.",
+    moonlit_temple: "Mysterious fantasy exploration.",
+    neon_city: "Modern, energetic, and high contrast.",
+    storm_battlefield: "Urgency, danger, and combat.",
+    sunlit_meadow: "Comfort, optimism, and approachability.",
+    throne_room: "Epic scale, status, and power.",
+  },
+  subject_character: {
+    Kael:
+      "A sardonic dark mage in black robes who is secretly kind; signals magic, intrigue, and hidden warmth.",
+    Luna:
+      "A quiet hooded rogue with silver hair, dry humor, and a glowing rune blade; signals mystery, adventure, and attachment.",
+    Mira:
+      "A warm healer in white and gold who remembers everything the player says; signals care, memory, and trust.",
+    Rex:
+      "A loud, loyal armored knight with a red plume and a big grin; signals combat, energy, and loyalty.",
+  },
+  subject_action: {
+    casts_spell: "Magic and power.",
+    close_up_smile: "Warmth and trust.",
+    draws_blade: "Action and impending conflict.",
+    opens_treasure: "Reward and discovery.",
+    waves_to_camera: "Friendly direct address.",
+  },
+  hook_text: {
+    "Can you beat level 3?": "Challenge and mastery.",
+    "Free gems every day": "Recurring tangible reward.",
+    "She remembers everything.": "Memory and personal connection.",
+    "The ruins are calling": "Mystery and exploration.",
+    "Your party is waiting.": "Belonging and character attachment.",
+  },
+  cta_text: {
+    "Claim Bonus": "Reward-oriented action.",
+    "Install Now": "Direct acquisition action.",
+    "Join Luna": "Character-specific invitation centered on Luna.",
+    "Play Free": "Low-friction, free-to-play framing.",
+  },
+  audio_style: {
+    low_drums: "Tension and anticipation.",
+    upbeat_synth: "Energy and momentum.",
+    warm_piano: "Warmth and emotional connection.",
+  },
+} as const;
+
+function catalogValues<const Catalog extends Readonly<Record<string, string>>>(
+  catalog: Catalog,
+): readonly [Extract<keyof Catalog, string>, ...Extract<keyof Catalog, string>[]] {
+  return Object.keys(catalog) as [
+    Extract<keyof Catalog, string>,
+    ...Extract<keyof Catalog, string>[],
+  ];
+}
+
 export const CREATIVE_LAYER_VALUES = {
-  background: [
-    "cozy_cafe",
-    "moonlit_temple",
-    "neon_city",
-    "storm_battlefield",
-    "sunlit_meadow",
-    "throne_room",
-  ],
-  subject_character: ["Kael", "Luna", "Mira", "Rex"],
-  subject_action: [
-    "casts_spell",
-    "close_up_smile",
-    "draws_blade",
-    "opens_treasure",
-    "waves_to_camera",
-  ],
-  hook_text: [
-    "Can you beat level 3?",
-    "Free gems every day",
-    "She remembers everything.",
-    "The ruins are calling",
-    "Your party is waiting.",
-  ],
-  cta_text: ["Claim Bonus", "Install Now", "Join Luna", "Play Free"],
-  audio_style: ["low_drums", "upbeat_synth", "warm_piano"],
+  background: catalogValues(CREATIVE_LAYER_CATALOG.background),
+  subject_character: catalogValues(CREATIVE_LAYER_CATALOG.subject_character),
+  subject_action: catalogValues(CREATIVE_LAYER_CATALOG.subject_action),
+  hook_text: catalogValues(CREATIVE_LAYER_CATALOG.hook_text),
+  cta_text: catalogValues(CREATIVE_LAYER_CATALOG.cta_text),
+  audio_style: catalogValues(CREATIVE_LAYER_CATALOG.audio_style),
 } as const;
 
 export const creativeLayersSchema = z
