@@ -1,8 +1,8 @@
 import {z} from "zod";
 
+import {CREATIVE_LAYER_FIELDS, creativeLayersSchema} from "../manifest";
 import {
   audienceModelSchema,
-  CREATIVE_FIELDS,
   FATIGUE_BUCKETS,
   fatigueBucket,
   featureNames,
@@ -22,7 +22,6 @@ import {
   type OperatingSystem,
   type Segment,
 } from "./model";
-import {creativeLayersSchema} from "../manifest";
 
 export const AUDIENCE_CSV_HEADER = [
   "impression_id",
@@ -303,7 +302,7 @@ function parseAudienceCsv(csvText: string): AudienceRow[] {
 }
 
 function buildFeatureSpecs(rows: AudienceRow[]): FeatureSpec[] {
-  const creativeSpecs = CREATIVE_FIELDS.map((field) => {
+  const creativeSpecs = CREATIVE_LAYER_FIELDS.map((field) => {
     const values = [...new Set(rows.map((row) => row.layers[field]))].sort();
     return {field, values, baseline: values[0]!};
   });

@@ -465,10 +465,11 @@ async function appendRunSnapshot(
   location: Awaited<ReturnType<typeof findExperiment>>,
   run: ExperimentRun,
 ): Promise<void> {
+  const recordedAt = new Date().toISOString();
   await appendExperimentSnapshot({
     optimization_run_id: location.optimization_run_id,
     round_number: location.round_number,
-    recorded_at: new Date().toISOString(),
+    recorded_at: recordedAt,
     experiment: run,
   });
   const ledger = await openAgentLedger();
@@ -478,7 +479,7 @@ async function appendRunSnapshot(
       location.optimization_run_id,
       location.round_number,
       run,
-      new Date().toISOString(),
+      recordedAt,
     );
   } finally {
     ledger.close();

@@ -39,7 +39,6 @@ export function createNextSimulationRun(input: {
   prepared_at: string;
   challenger_manifest_path: string;
   current_run: ExperimentRun;
-  audience_model: AudienceModel;
   control_manifest: RenderableCreativeManifest;
   treatment_manifest: RenderableCreativeManifest;
   champion_baseline_rate: number;

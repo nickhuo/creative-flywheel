@@ -6,10 +6,8 @@ import {
   type CreativeManifest,
 } from "../manifest";
 
-export const CREATIVE_FIELDS = CREATIVE_LAYER_FIELDS;
-
 export const FATIGUE_BUCKETS = [
-"1",
+  "1",
   "2",
   "3",
   "4-5",
@@ -22,13 +20,13 @@ export const FATIGUE_BUCKETS = [
 export const SEGMENTS = ["casual", "companion", "rpg"] as const;
 export const OPERATING_SYSTEMS = ["android", "ios"] as const;
 export const FEATURE_FIELDS = [
-  ...CREATIVE_FIELDS,
+  ...CREATIVE_LAYER_FIELDS,
   "segment",
   "os",
   "fatigue_bucket",
 ] as const;
 export type Binary = 0 | 1;
-type CreativeField = (typeof CREATIVE_FIELDS)[number];
+type CreativeField = (typeof CREATIVE_LAYER_FIELDS)[number];
 type FeatureField = (typeof FEATURE_FIELDS)[number];
 export type Segment = (typeof SEGMENTS)[number];
 export type OperatingSystem = (typeof OPERATING_SYSTEMS)[number];
@@ -358,7 +356,7 @@ export function predict(
 export function layerCombinationKey(
   layers: z.infer<typeof creativeLayersSchema>,
 ): string {
-  return JSON.stringify(CREATIVE_FIELDS.map((field) => layers[field]));
+  return JSON.stringify(CREATIVE_LAYER_FIELDS.map((field) => layers[field]));
 }
 
 export function sha256(value: string): string {
@@ -372,5 +370,5 @@ export function sigmoid(value: number): number {
 }
 
 function isCreativeField(field: FeatureField): field is CreativeField {
-  return CREATIVE_FIELDS.includes(field as CreativeField);
+  return CREATIVE_LAYER_FIELDS.includes(field as CreativeField);
 }

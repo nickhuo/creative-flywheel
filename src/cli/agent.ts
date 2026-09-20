@@ -118,21 +118,10 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
       action_receipt: ActionReceiptRecord;
       log: string;
     }> = [];
-    let termination: "max_rounds" | null = null;
-
     for (let round = 1; round <= maxRounds; round += 1) {
       const {controlManifest, treatmentManifest} = await loadRunManifests(run);
       simulationTime += 60_000;
       const observedAt = new Date(simulationTime).toISOString();
-      if (ledger.getRuntime(run.run_id) === null) {
-        ledger.upsertRuntime({
-          run_id: run.run_id,
-          next_observation_at: null,
-          lease_until: null,
-          cooldown_until: null,
-          updated_at: observedAt,
-        });
-      }
 
       const events = simulateExperimentBatch(
         run,
@@ -250,7 +239,6 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
           finalAction.champion_variant_id,
           reviewedAt,
         );
-        termination = "max_rounds";
         break;
       }
 
@@ -281,7 +269,6 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
         prepared_at: new Date(simulationTime).toISOString(),
         challenger_manifest_path: artifactPath(challengerPath),
         current_run: run,
-        audience_model: audienceModel,
         control_manifest: controlManifest,
         treatment_manifest: treatmentManifest,
         champion_baseline_rate: championBaselineRate,
@@ -339,14 +326,13 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
       run = next.run;
     }
 
-    if (termination === null) termination = "max_rounds";
     console.log(
       JSON.stringify(
         {
           source: "simulator",
           root_run_id: rootRunId,
           max_rounds: maxRounds,
-          termination,
+          termination: "max_rounds",
           trajectory: completedRuns,
         },
         null,

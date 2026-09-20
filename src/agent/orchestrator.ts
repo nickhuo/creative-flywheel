@@ -4,7 +4,6 @@ import {
   decideExperimentAction,
   proposedActionSchema,
   resultSnapshotSchema,
-  shouldTerminateOptimization,
   type EligibilityAssessment,
   type ProposedAction,
   type ResultSnapshot,
@@ -59,7 +58,10 @@ export async function evaluateSnapshot(
 ): Promise<EvaluationOutcome> {
   const snapshot = resultSnapshotSchema.parse(input.snapshot);
   const runtime = input.ledger.getRuntime(input.run.run_id);
-  const existingProposals = proposalsForRun(input.ledger, input.run.run_id);
+  const existingProposals = input.ledger.listProposals().filter((proposal) => {
+    const proposalSnapshot = input.ledger.getSnapshot(proposal.snapshot_id);
+    return proposalSnapshot?.run_id === input.run.run_id;
+  });
   const persisted = input.ledger.recordSnapshot({
     snapshot_id: snapshot.snapshot_id,
     run_id: snapshot.run_id,
@@ -107,11 +109,8 @@ export async function evaluateSnapshot(
     input.run,
     persistedSnapshot,
   );
-  const shouldTerminate = shouldTerminateOptimization(
-    context.round,
-    context.max_rounds,
-  );
-  const challengerResult = shouldTerminate
+  const isFinalRound = context.round === context.max_rounds;
+  const challengerResult = isFinalRound
     ? null
     : await (input.propose_challenger ?? runChallengerAgent)(
         input.run,
@@ -176,7 +175,7 @@ export async function evaluateSnapshot(
     evidence: metricEvidence,
   };
   const proposal = proposedActionSchema.parse(
-    shouldTerminate
+    challengerResult === null
       ? {
           ...common,
           action: "terminate",
@@ -201,7 +200,7 @@ export async function evaluateSnapshot(
             summary: "Promote the treatment and test the next challenger.",
             rationale:
               "The treatment has a statistically significant positive primary-metric effect under the fixed-horizon policy.",
-            next_challenger: challengerResult!.challenger,
+            next_challenger: challengerResult.challenger,
           }
         : {
             ...common,
@@ -209,7 +208,7 @@ export async function evaluateSnapshot(
             summary: "Retain the control and test the next challenger.",
             rationale:
               "The treatment did not satisfy the fixed-horizon promotion rule.",
-            next_challenger: challengerResult!.challenger,
+            next_challenger: challengerResult.challenger,
           },
   );
   const proposalId = sha256(
@@ -243,14 +242,4 @@ export async function evaluateSnapshot(
     proposal: record,
     action: proposal,
   };
-}
-
-function proposalsForRun(
-  ledger: AgentLedger,
-  runId: string,
-): DecisionProposalRecord[] {
-  return ledger.listProposals().filter((proposal) => {
-    const snapshot = ledger.getSnapshot(proposal.snapshot_id);
-    return snapshot?.run_id === runId;
-  });
 }

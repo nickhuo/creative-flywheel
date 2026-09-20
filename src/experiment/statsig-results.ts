@@ -111,6 +111,7 @@ export function normalizeStatsigObservation(
   if (run.statsig_experiment === null) {
     throw new Error("Run has no Statsig experiment.");
   }
+  const receipt = run.statsig_experiment;
   const [controlArm, treatmentArm] = run.experiment.arms;
   const issues: HealthIssue[] = [];
   const experiment = experimentEnvelopeSchema.safeParse(observation.experiment);
@@ -171,28 +172,29 @@ export function normalizeStatsigObservation(
 
   const exposureGroups = [
     {
-      group_id: run.statsig_experiment.control_group_id,
+      group_id: receipt.control_group_id,
       variant_id: controlArm.variant_id,
       role: "control" as const,
       exposures: latestExposure(
         exposureRows.find(
-          ({groupID}) => groupID === run.statsig_experiment?.control_group_id,
+          ({groupID}) => groupID === receipt.control_group_id,
         )?.results ?? [],
       ),
     },
     {
-      group_id: run.statsig_experiment.treatment_group_id,
+      group_id: receipt.treatment_group_id,
       variant_id: treatmentArm.variant_id,
       role: "treatment" as const,
       exposures: latestExposure(
         exposureRows.find(
-          ({groupID}) => groupID === run.statsig_experiment?.treatment_group_id,
+          ({groupID}) => groupID === receipt.treatment_group_id,
         )?.results ?? [],
       ),
     },
   ];
+  const observedGroupIds = new Set(exposureRows.map(({groupID}) => groupID));
   for (const group of exposureGroups) {
-    if (!exposureRows.some(({groupID}) => groupID === group.group_id)) {
+    if (!observedGroupIds.has(group.group_id)) {
       issues.push({
         code: "exposure_group_missing",
         level: "error",
@@ -201,7 +203,7 @@ export function normalizeStatsigObservation(
     }
   }
   const hasAllExposureGroups = exposureGroups.every((group) =>
-    exposureRows.some(({groupID}) => groupID === group.group_id),
+    observedGroupIds.has(group.group_id),
   );
   const totalExposures = exposureGroups.reduce(
     (total, {exposures}) => total + exposures,
@@ -226,23 +228,22 @@ export function normalizeStatsigObservation(
     }
   }
 
-  const normalizedMetrics = observation.metric_results.map((metric) =>
-    normalizeMetric(run, metric.name, metric.response),
-  );
-  for (const normalized of normalizedMetrics) issues.push(...normalized.issues);
-  const primaryIndex = observation.metric_results.findIndex(
+  const normalizedMetrics = observation.metric_results.map((metric) => ({
+    role: metric.role,
+    result: normalizeMetric(run, metric.name, metric.response),
+  }));
+  for (const {result} of normalizedMetrics) issues.push(...result.issues);
+  const primaryMetric = normalizedMetrics.find(
     ({role}) => role === "primary",
-  );
-  if (primaryIndex === -1) {
+  )?.result;
+  if (primaryMetric === undefined) {
     throw new Error("Statsig observation is missing the primary metric.");
   }
-  const primaryMetric = normalizedMetrics[primaryIndex]!;
-  const secondaryMetrics = observation.metric_results.flatMap(
-    (metric, index) =>
-      metric.role === "secondary" ? [normalizedMetrics[index]!.metric] : [],
+  const secondaryMetrics = normalizedMetrics.flatMap(
+    ({role, result}) => role === "secondary" ? [result.metric] : [],
   );
   const dataDates = normalizedMetrics
-    .map(({dataThrough}) => dataThrough)
+    .map(({result}) => result.dataThrough)
     .filter((date): date is string => date !== null)
     .sort();
 
@@ -253,7 +254,7 @@ export function normalizeStatsigObservation(
     data_through: dataDates[0] ?? null,
     source: {
       provider: "statsig",
-      experiment_id: run.statsig_experiment.experiment_id,
+      experiment_id: receipt.experiment_id,
     },
     analysis:
       experiment.success && experiment.data.data.sequentialTesting
@@ -338,25 +339,33 @@ function normalizeMetric(
       issues,
     };
   }
-  const required = [
-    metric.controlMean,
-    metric.testMean,
-    metric.controlUnits,
-    metric.testUnits,
-    metric.pValue,
-  ];
+  const {
+    confidenceInterval,
+    controlMean,
+    controlUnits,
+    pValue,
+    testMean,
+    testUnits,
+  } = metric;
   if (
-    required.some((value) => value === null || value === undefined) ||
-    metric.confidenceInterval === null ||
-    metric.confidenceInterval === undefined
+    confidenceInterval === null ||
+    confidenceInterval === undefined ||
+    controlMean === null ||
+    controlMean === undefined ||
+    controlUnits === null ||
+    controlUnits === undefined ||
+    pValue === null ||
+    pValue === undefined ||
+    testMean === null ||
+    testMean === undefined ||
+    testUnits === null ||
+    testUnits === undefined
   ) {
     return {
       ...pending("Statsig metric statistics are not complete yet.", issues),
       dataThrough: ds,
     };
   }
-  const controlMean = metric.controlMean!;
-  const testMean = metric.testMean!;
   const absoluteEffect = metric.absoluteChange ?? testMean - controlMean;
   const [controlArm, treatmentArm] = run.experiment.arms;
 
@@ -366,22 +375,22 @@ function normalizeMetric(
       status: "ready",
       control: {
         variant_id: controlArm.variant_id,
-        units: metric.controlUnits!,
+        units: controlUnits,
         mean: controlMean,
       },
       treatment: {
         variant_id: treatmentArm.variant_id,
-        units: metric.testUnits!,
+        units: testUnits,
         mean: testMean,
       },
       absolute_effect: absoluteEffect,
       relative_effect:
         controlMean === 0 ? null : absoluteEffect / controlMean,
       confidence_interval: {
-        ...metric.confidenceInterval,
+        ...confidenceInterval,
         level: 0.95,
       },
-      p_value: metric.pValue!,
+      p_value: pValue,
     },
     dataThrough: ds,
     issues,

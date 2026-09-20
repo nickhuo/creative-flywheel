@@ -428,19 +428,3 @@ export function decideExperimentAction(
     ? "promote"
     : "stop";
 }
-
-export function shouldTerminateOptimization(
-  round: number,
-  maxRounds: number,
-): boolean {
-  if (
-    !Number.isSafeInteger(round) ||
-    !Number.isSafeInteger(maxRounds) ||
-    round < 1 ||
-    maxRounds < 1 ||
-    round > maxRounds
-  ) {
-    throw new RangeError("Experiment round must be within maxRounds.");
-  }
-  return round === maxRounds;
-}
