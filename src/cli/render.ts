@@ -1,8 +1,15 @@
 import {mkdir, rename} from "node:fs/promises";
-import {resolve} from "node:path";
+import {dirname, resolve} from "node:path";
 
 import {z} from "zod";
 
+import {
+  artifactPath,
+  creativeManifestPath,
+  projectRoot,
+  writeJsonAtomic,
+  writeJsonNew,
+} from "../artifacts";
 import {renderableCreativeManifestSchema, VIDEO_SPEC} from "../manifest";
 
 const MAX_CONTAINER_DURATION_DRIFT_IN_FRAMES = 2; // Covers silent AAC encoder priming.
@@ -31,7 +38,6 @@ if (manifestArgument === undefined) {
   throw new Error("Usage: bun run render <manifest.json>");
 }
 
-const projectRoot = resolve(import.meta.dir, "../..");
 const manifestPath = resolve(manifestArgument);
 const manifestFile = Bun.file(manifestPath);
 
@@ -41,15 +47,30 @@ if (!(await manifestFile.exists())) {
 
 const manifestJson: unknown = await manifestFile.json();
 const manifest = renderableCreativeManifestSchema.parse(manifestJson);
-const rendersDirectory = resolve(projectRoot, "renders");
-const outputPath = resolve(rendersDirectory, `${manifest.variant_id}.mp4`);
-const pendingOutputPath = resolve(
-  rendersDirectory,
-  `${manifest.variant_id}.partial.mp4`,
-);
+const storedManifestPath = creativeManifestPath(manifest.variant_id);
+const creativeDirectory = dirname(storedManifestPath);
+const outputPath = resolve(creativeDirectory, "video.mp4");
+const pendingOutputPath = resolve(creativeDirectory, "video.partial.mp4");
+const renderMetadataPath = resolve(creativeDirectory, "render.json");
 const remotionCli = resolve(projectRoot, "node_modules/.bin/remotion");
 
-await mkdir(rendersDirectory, {recursive: true});
+await mkdir(creativeDirectory, {recursive: true});
+const storedManifestFile = Bun.file(storedManifestPath);
+if (await storedManifestFile.exists()) {
+  const storedManifest = renderableCreativeManifestSchema.parse(
+    await storedManifestFile.json(),
+  );
+  if (JSON.stringify(storedManifest) !== JSON.stringify(manifest)) {
+    throw new Error(
+      `Creative ${manifest.variant_id} already has a different manifest.`,
+    );
+  }
+} else {
+  await writeJsonNew(storedManifestPath, manifest);
+}
+if (await Bun.file(outputPath).exists()) {
+  throw new Error(`Rendered video already exists for ${manifest.variant_id}.`);
+}
 
 const renderProcess = Bun.spawn({
   cmd: [
@@ -161,5 +182,25 @@ if (failures.length > 0) {
 }
 
 await rename(pendingOutputPath, outputPath);
+
+await writeJsonAtomic(renderMetadataPath, {
+  schema_version: 1,
+  variant_id: manifest.variant_id,
+  rendered_at: new Date().toISOString(),
+  renderer: {
+    name: "remotion",
+    composition_id: VIDEO_SPEC.compositionId,
+  },
+  video: {
+    path: artifactPath(outputPath),
+    codec: "h264",
+    audio_codec: "aac",
+    pixel_format: "yuv420p",
+    width: VIDEO_SPEC.width,
+    height: VIDEO_SPEC.height,
+    fps: VIDEO_SPEC.fps,
+    duration_in_frames: VIDEO_SPEC.durationInFrames,
+  },
+});
 
 console.log(`Rendered and validated ${manifest.variant_id} at ${outputPath}`);

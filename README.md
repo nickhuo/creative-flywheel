@@ -14,7 +14,10 @@ bun run render manifests/g0_v00.json
 bun run render manifests/g0_v01.json
 ```
 
-Rendered videos are written to `renders/{variant_id}.mp4`.
+Each render is stored as an immutable creative package under
+`artifacts/creatives/{variant_id}/`, containing `manifest.json`, `video.mp4`, and
+`render.json`. The renderer refuses to replace an existing video or reuse a
+variant ID with different manifest content.
 Generation zero contains eight manifests (`g0_v00` through `g0_v07`) that cover
 all values in the six-layer render catalog. The renderer is deterministic and
 uses only local CSS, animation, text, and reviewed audio assets; no generation API
@@ -61,17 +64,17 @@ model, logs outcome events, and flushes the SDK. `inspect` saves raw platform
 state; it deliberately does not turn that response into a decision or normalized
 result yet.
 
-Artifacts live under `artifacts/experiments/{run_id}/`.
-`statsig-create.raw.json` preserves the create/start responses; `events.jsonl`
-and `summary.json` are local reconciliation evidence. Statsig remains the source
-of experiment results. Synthetic user IDs are namespaced by run so a later smoke
-run cannot add outcome events to an earlier experiment's cohort.
+An optimization lives under `artifacts/runs/{run_id}/`. Its plan and portable
+trajectory are JSON documents; every experiment-state snapshot is stored in the
+`experiments.json` array, and all Statsig and simulator evidence is stored in the
+`observations.json` array. Statsig remains the source of experiment results. Synthetic
+user IDs are namespaced by run so a later smoke run cannot add outcome events to
+an earlier experiment's cohort.
 
-Before logging traffic, `serve` writes `events.pending.jsonl` and advances the run
-to `serving`. If sending or flushing then fails, it intentionally refuses an
-automatic retry because Statsig may already hold a partial batch. Keep the pending
-artifact for diagnosis and prepare a new run; resumable delivery belongs to the
-later round-ledger step.
+Before logging traffic, `serve` appends a `serve_pending` record containing the
+frozen batch and advances the experiment to `serving`. If sending or flushing
+then fails, it intentionally refuses an automatic retry because Statsig may
+already hold a partial batch. The pending record remains available for diagnosis.
 
 Open the Remotion Studio with:
 
@@ -101,26 +104,31 @@ bun run agent simulate --run-id smoke_001 --max-rounds 10
 ```
 
 The simulator produces one reproducible 50/50 fixed-horizon result per run. It
-keeps transient decision state in memory and writes the normalized result,
-approved action, and receipt to `simulation.json` in that run's artifact folder.
+stores normalized evidence, approvals, and idempotent action receipts in the
+shared SQLite ledger and writes the portable completed trajectory to
+`trajectory.json`.
 At the calculated horizon, deterministic policy chooses `stop` or `promote`.
 Unless the maximum round has been reached, one Challenger Agent call uses the
 updated champion, complete experiment history, and a versioned Rune Keepers
 campaign brief to interpret the completed experiment, record a learning, and
 propose the next structured hypothesis and renderable layer combination. The
-local executor prepares the next run in its own folder and repeats until
-deterministic `terminate`.
+local executor adds each next experiment to the root optimization's
+`experiments.json`, writes its globally namespaced challenger manifest under
+`artifacts/creatives/`, and repeats until deterministic `terminate`.
 
-Without `--run-id`, the command scans every `served` or `awaiting_results`
-experiment under `artifacts/experiments/`. A scheduler can call it hourly:
+Without `--run-id`, the command scans the latest snapshot of every `served` or
+`awaiting_results` experiment under `artifacts/runs/`. A scheduler can call it
+hourly:
 
 ```bash
 bun run agent tick
 ```
 
 The tick fetches cumulative exposures, diagnostics, and Statsig metric results,
-appends the raw response to `observations.jsonl`, and stores an immutable normalized
-snapshot in `artifacts/agent/state.sqlite`. The current experiments use a fixed
+adds the raw response to the root run's `observations.json`, and stores an
+immutable normalized snapshot in `artifacts/state.sqlite`. The same database
+indexes optimization runs and experiment rounds and owns scheduler leases,
+proposal reviews, and action idempotency. The current experiments use a fixed
 horizon, so the deterministic decision runs only after target exposure is met,
 the primary metric is ready, and health checks pass. The model is called only to
 propose a challenger after `stop` or `promote`; it never chooses the experiment
