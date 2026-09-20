@@ -1,6 +1,9 @@
 const dashboard = globalThis.document?.querySelector("#dashboard") ?? null;
 const runSelect = globalThis.document?.querySelector("#run-select") ?? null;
 const state = {data: null, selectedRunId: null};
+const requestedOptimizationRunId = typeof globalThis.location === "undefined"
+  ? null
+  : new URLSearchParams(globalThis.location.search).get("run");
 
 if (dashboard !== null && runSelect !== null) {
   dashboard.addEventListener("click", (event) => {
@@ -29,7 +32,7 @@ async function loadDashboard() {
   runSelect.disabled = true;
   dashboard.setAttribute("aria-busy", "true");
   try {
-    const response = await fetch("/api/dashboard", {
+    const response = await fetch("/api/dashboard?refresh=1", {
       headers: {Accept: "application/json"},
     });
     const payload = await response.json();
@@ -39,7 +42,12 @@ async function loadDashboard() {
     state.data = payload;
     const rounds = payload.tracks.flatMap((track) => track.rounds);
     if (!rounds.some((run) => run.run_id === state.selectedRunId)) {
-      state.selectedRunId = payload.tracks[0]?.rounds.at(-1)?.run_id ?? null;
+      const requestedTrack = payload.tracks.find(
+        ({optimization_run_id: optimizationRunId}) =>
+          optimizationRunId === requestedOptimizationRunId,
+      );
+      state.selectedRunId = requestedTrack?.rounds.at(-1)?.run_id ??
+        payload.tracks[0]?.rounds.at(-1)?.run_id ?? null;
     }
     render();
   } catch (error) {

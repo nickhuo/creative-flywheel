@@ -366,6 +366,56 @@ test(
   30_000,
 );
 
+test(
+  "runs a seed optimization with readable verbose output",
+  async () => {
+    const runId = `local_${randomUUID().replaceAll("-", "")}`;
+    const runDirectory = join(projectRoot, "artifacts", "runs", runId);
+    const temporaryDirectory = await mkdtemp(join(tmpdir(), "simula-local-"));
+
+    try {
+      const output = await runCli(
+        [
+          "src/cli/agent.ts",
+          "run",
+          "--run-id",
+          runId,
+          "--max-rounds",
+          "1",
+          "--verbose",
+          "--no-render",
+          "--no-dashboard",
+          "--baseline-rate",
+          "0.01",
+          "--mde",
+          "0.5",
+          "--batch-size",
+          "2",
+        ],
+        {
+          SIMULA_AGENT_DB: join(temporaryDirectory, "state.sqlite"),
+          OPENAI_API_KEY: "test-key",
+          OPENAI_MODEL: "unused-in-final-round",
+        },
+      );
+
+      expect(output).toContain("Preparing seed experiment");
+      expect(output).toContain("Creative Flywheel local optimization");
+      expect(output).toContain("Round 1/1");
+      expect(output).toContain("Traffic");
+      expect(output).toContain("Decision     terminate");
+      expect(output).toContain("Run summary");
+      expect(
+        await Bun.file(join(runDirectory, "trajectory.json")).exists(),
+      ).toBe(true);
+    } finally {
+      await rm(runDirectory, {recursive: true, force: true});
+      await rm(temporaryDirectory, {recursive: true, force: true});
+    }
+  },
+  30_000,
+);
+
 async function runCli(
   arguments_: string[],
   environment: Record<string, string> = {},

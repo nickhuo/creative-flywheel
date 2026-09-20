@@ -17,14 +17,20 @@ import {
   writeJsonNew,
 } from "../artifacts";
 import {audienceModelSchema, sha256} from "../audience/model";
-import {type ChallengerContext} from "../agent/challenger";
+import {
+  creativePromptForDecision,
+  type ChallengerContext,
+} from "../agent/challenger";
 import {
   type ActionReceiptRecord,
   type ObservationTrigger,
   type ProposalStatus,
 } from "../agent/ledger";
 import {evaluateSnapshot} from "../agent/orchestrator";
-import {type ProposedAction} from "../experiment/evaluation";
+import {
+  decideExperimentAction,
+  type ProposedAction,
+} from "../experiment/evaluation";
 import {
   experimentRunIdSchema,
   experimentRunSchema,
@@ -42,13 +48,17 @@ import {
   renderableCreativeManifestSchema,
   type RenderableCreativeManifest,
 } from "../manifest";
+import {runLocalOptimization} from "./local-run";
+import {SimulationReporter} from "./simulation-reporter";
 
 const OBSERVATION_INTERVAL_MS = 60 * 60 * 1000;
 const LEASE_DURATION_MS = 5 * 60 * 1000;
 const DEFAULT_MAX_ROUNDS = 10;
 const [command, ...arguments_] = Bun.argv.slice(2);
 
-if (command === "tick") {
+if (command === "run") {
+  await runLocalOptimization(arguments_);
+} else if (command === "tick") {
   await tickCommand(arguments_);
 } else if (command === "simulate") {
   await simulateCommand(arguments_);
@@ -60,7 +70,7 @@ if (command === "tick") {
   await reviewCommand(arguments_, "rejected");
 } else {
   throw new Error(
-    "Usage: bun run agent <tick|simulate|proposals|approve|reject> [options]",
+    "Usage: bun run agent <run|tick|simulate|proposals|approve|reject> [options]",
   );
 }
 
@@ -74,6 +84,8 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
   if (!Number.isSafeInteger(maxRounds) || maxRounds < 1) {
     throw new RangeError("--max-rounds must be a positive integer.");
   }
+  const isVerbose = arguments_.includes("--verbose");
+  const reporter = new SimulationReporter(isVerbose);
   const location = await findExperiment(rootRunId);
   if (
     location.optimization_run_id !== rootRunId ||
@@ -96,6 +108,7 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
     await Bun.file(resolve(projectRoot, run.audience_model.path)).json(),
   );
   const model = requiredEnvironmentVariable("OPENAI_MODEL");
+  reporter.start({root_run_id: rootRunId, max_rounds: maxRounds, model});
   let simulationTime = Date.parse(run.prepared_at);
   if (Number.isNaN(simulationTime)) {
     throw new Error(`Run ${rootRunId} has an invalid prepared_at timestamp.`);
@@ -120,6 +133,7 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
     }> = [];
     for (let round = 1; round <= maxRounds; round += 1) {
       const {controlManifest, treatmentManifest} = await loadRunManifests(run);
+      reporter.roundStarted(round, maxRounds, run);
       simulationTime += 60_000;
       const observedAt = new Date(simulationTime).toISOString();
 
@@ -138,6 +152,7 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
         summary,
         observedAt,
       );
+      reporter.trafficCompleted(summary, finalSnapshot);
       await appendObservation({
         optimization_run_id: rootRunId,
         experiment_run_id: run.run_id,
@@ -146,6 +161,22 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
         recorded_at: observedAt,
         payload: {summary, snapshot: finalSnapshot},
       });
+      const deterministicDecision = decideExperimentAction(run, finalSnapshot);
+      if (round < maxRounds) {
+        const prompt = creativePromptForDecision(deterministicDecision);
+        reporter.agentStarted({
+          decision: deterministicDecision,
+          agent_name: deterministicDecision === "stop"
+            ? "Explore Agent"
+            : "Exploit Agent",
+          prompt_version: prompt.version,
+          model,
+          champion_variant_id: deterministicDecision === "promote"
+            ? treatmentManifest.variant_id
+            : controlManifest.variant_id,
+          snapshot_id: finalSnapshot.snapshot_id,
+        });
+      }
       const outcome = await evaluateSnapshot({
         run,
         snapshot: finalSnapshot,
@@ -190,6 +221,16 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
         status: approvedProposal.status,
         reviewed_by: approvedProposal.reviewed_by,
       };
+      reporter.roundCompleted({
+        round,
+        run,
+        snapshot: finalSnapshot,
+        action: finalAction,
+        proposal: approvedProposal,
+        champion_manifest: deterministicDecision === "promote"
+          ? treatmentManifest
+          : controlManifest,
+      });
       experimentHistory.push({
         run_id: run.run_id,
         hypothesis: run.experiment.hypothesis.statement,
@@ -323,22 +364,27 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
         termination: null,
         rounds: completedRuns,
       });
+      reporter.nextRoundPrepared(next.run);
       run = next.run;
     }
 
-    console.log(
-      JSON.stringify(
-        {
-          source: "simulator",
-          root_run_id: rootRunId,
-          max_rounds: maxRounds,
-          termination: "max_rounds",
-          trajectory: completedRuns,
-        },
-        null,
-        2,
-      ),
-    );
+    if (isVerbose) {
+      reporter.complete(rootRunId);
+    } else {
+      console.log(
+        JSON.stringify(
+          {
+            source: "simulator",
+            root_run_id: rootRunId,
+            max_rounds: maxRounds,
+            termination: "max_rounds",
+            trajectory: completedRuns,
+          },
+          null,
+          2,
+        ),
+      );
+    }
   } finally {
     ledger.close();
   }
@@ -346,6 +392,12 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
 
 async function tickCommand(arguments_: string[]): Promise<void> {
   const requestedRunId = readOptionalFlag(arguments_, "--run-id");
+  const maxRounds = Number(
+    readOptionalFlag(arguments_, "--max-rounds") ?? DEFAULT_MAX_ROUNDS,
+  );
+  if (!Number.isSafeInteger(maxRounds) || maxRounds < 1) {
+    throw new RangeError("--max-rounds must be a positive integer.");
+  }
   const trigger = parseTrigger(
     readOptionalFlag(arguments_, "--trigger") ??
       (requestedRunId === undefined ? "cron" : "manual"),
@@ -438,7 +490,7 @@ async function tickCommand(arguments_: string[]): Promise<void> {
           ledger,
           challenger_context: {
             round: location.round_number,
-            max_rounds: DEFAULT_MAX_ROUNDS,
+            max_rounds: maxRounds,
             control_manifest: controlManifest,
             treatment_manifest: treatmentManifest,
             experiment_history: [],

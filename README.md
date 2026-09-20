@@ -114,6 +114,27 @@ Set `OPENAI_API_KEY` and `OPENAI_MODEL` in `.env`, then run one observation tick
 bun run agent tick --run-id smoke_001
 ```
 
+Run the complete local workflow from a generation-zero seed pair through eight
+rounds, video rendering, and an automatically opened dashboard:
+
+```bash
+bun run agent run \
+  --seed-control g0_v00 \
+  --seed-treatment g0_v01 \
+  --max-rounds 8 \
+  --openai-model gpt-5.6-luna \
+  --verbose
+```
+
+The command creates a unique optimization root, validates that the two seed
+manifests differ in only one or two renderable layers, runs the local audience
+simulator with the configured OpenAI model, and prints a compact status stream.
+After the final round it renders every creative in the lineage, starts or reuses
+the dashboard, and opens the browser directly on the completed run. Use
+`--run-id` for a stable ID, `--seed` to change simulator randomness,
+`--openai-model` to override `OPENAI_MODEL`, or `--no-render`, `--no-dashboard`,
+and `--no-open` for automation and tests.
+
 Run a multi-round optimization entirely against the local audience simulator:
 
 ```bash
