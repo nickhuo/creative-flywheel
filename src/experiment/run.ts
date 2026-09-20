@@ -16,8 +16,8 @@ import {
 } from "../manifest";
 import {calculateRequiredUsers} from "./statistics";
 
-export const INSTALL_RATE_METRIC = "install_rate";
-export const CTR_METRIC = "ctr";
+export const INSTALL_RATE_METRIC = "install_rate_user";
+export const CTR_METRIC = "ctr_user";
 export const IMPRESSION_EVENT = "ad_impression";
 export const CLICK_EVENT = "ad_click";
 export const INSTALL_EVENT = "ad_install";
@@ -49,6 +49,25 @@ const armSchema = z
     allocation_percent: z.literal(50),
   })
   .strict();
+
+const primaryMetricSchema = z.union([
+  z
+    .object({
+      name: z.literal(INSTALL_RATE_METRIC),
+      type: z.literal("event_user"),
+    })
+    .strict(),
+  z
+    .object({name: z.literal("install_rate"), type: z.literal("ratio")})
+    .strict(),
+]);
+
+const secondaryMetricSchema = z.union([
+  z
+    .object({name: z.literal(CTR_METRIC), type: z.literal("event_user")})
+    .strict(),
+  z.object({name: z.literal("ctr"), type: z.literal("ratio")}).strict(),
+]);
 
 const statsigExperimentReceiptSchema = z
   .object({
@@ -123,15 +142,8 @@ export const experimentRunSchema = z
         assignment_unit: z.literal("userID"),
         parameter: z.literal("variant_id"),
         arms: z.tuple([armSchema, armSchema]),
-        primary_metric: z
-          .object({name: z.literal(INSTALL_RATE_METRIC), type: z.literal("ratio")})
-          .strict(),
-        secondary_metrics: z
-          .tuple([
-            z
-              .object({name: z.literal(CTR_METRIC), type: z.literal("ratio")})
-              .strict(),
-          ]),
+        primary_metric: primaryMetricSchema,
+        secondary_metrics: z.tuple([secondaryMetricSchema]),
       })
       .strict(),
     statsig_experiment: statsigExperimentReceiptSchema.nullable(),
@@ -358,8 +370,8 @@ export function prepareExperimentRun(
           allocation_percent: 50,
         },
       ],
-      primary_metric: {name: INSTALL_RATE_METRIC, type: "ratio"},
-      secondary_metrics: [{name: CTR_METRIC, type: "ratio"}],
+      primary_metric: {name: INSTALL_RATE_METRIC, type: "event_user"},
+      secondary_metrics: [{name: CTR_METRIC, type: "event_user"}],
     },
     statsig_experiment: null,
   });

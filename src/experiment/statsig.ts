@@ -4,10 +4,8 @@ import {z} from "zod";
 import {type ExposureContext} from "../audience/model";
 import {
   CLICK_EVENT,
-  CTR_METRIC,
   IMPRESSION_EVENT,
   INSTALL_EVENT,
-  INSTALL_RATE_METRIC,
   type ExperimentEventRecord,
   type ExperimentRun,
   type StatsigExperimentReceipt,
@@ -19,14 +17,15 @@ const DEFAULT_CONSOLE_URL = "https://statsigapi.net/console/v1";
 const metricSchema = z
   .object({
     name: z.string(),
-    type: z.literal("ratio"),
+    type: z.enum(["ratio", "event_user"]),
     directionality: z.literal("increase"),
     unitTypes: z.array(z.string()),
+    rollupTimeWindow: z.string().nullish(),
     metricEvents: z.array(
       z
         .object({
           name: z.string(),
-          type: z.enum(["count", "count_distinct"]),
+          type: z.enum(["count", "count_distinct"]).optional(),
           criteria: z.array(z.unknown()).optional(),
         })
         .passthrough(),
@@ -119,59 +118,69 @@ export class StatsigConsoleClient {
     this.#fetch = options.fetch ?? fetch;
   }
 
-  async #ensureRatioMetric(
+  async #ensureOutcomeMetric(
     name: string,
-    numeratorEvent: string,
-    denominatorEvent: string,
+    eventName: string,
+    type: "ratio" | "event_user",
   ): Promise<{created: boolean; raw: unknown}> {
-    const path = `/metrics/${encodeURIComponent(name)}/ratio`;
+    const path = `/metrics/${encodeURIComponent(name)}/${type}`;
     const existing = await this.#request("GET", path, undefined, true);
     if (existing !== null) {
       const metric = metricSchema.parse(unwrapData(existing));
       const eventNames = metric.metricEvents.map((event) => event.name);
+      const expectedEventNames =
+        type === "ratio" ? [eventName, IMPRESSION_EVENT] : [eventName];
       if (
-        eventNames[0] !== numeratorEvent ||
-        eventNames[1] !== denominatorEvent ||
+        metric.type !== type ||
+        JSON.stringify(eventNames) !== JSON.stringify(expectedEventNames) ||
         metric.metricEvents.some(
           (event) =>
-            event.type !== "count" || (event.criteria?.length ?? 0) !== 0,
+            (event.type !== undefined && event.type !== "count") ||
+            (event.criteria?.length ?? 0) !== 0,
         ) ||
-        metric.metricEvents.length !== 2 ||
         metric.unitTypes.length !== 1 ||
-        metric.unitTypes[0] !== "userID"
+        metric.unitTypes[0] !== "userID" ||
+        (type === "event_user" && metric.rollupTimeWindow !== "max")
       ) {
         throw new Error(
-          `Existing Statsig metric ${name} does not match ${numeratorEvent}/${denominatorEvent}.`,
+          `Existing Statsig metric ${name} does not match ${eventName}.`,
         );
       }
       return {created: false, raw: existing};
     }
 
+    const metricEvents = [{name: eventName, type: "count", criteria: []}];
+    if (type === "ratio") {
+      metricEvents.push({name: IMPRESSION_EVENT, type: "count", criteria: []});
+    }
     const raw = await this.#request("POST", "/metrics", {
       name,
-      type: "ratio",
-      description: `Creative Flywheel ${numeratorEvent} per ${denominatorEvent}.`,
+      type,
+      description:
+        type === "ratio"
+          ? `Creative Flywheel ${eventName} per ${IMPRESSION_EVENT}.`
+          : `Creative Flywheel users with ${eventName}.`,
       directionality: "increase",
       unitTypes: ["userID"],
-      metricEvents: [
-        {name: numeratorEvent, type: "count", criteria: []},
-        {name: denominatorEvent, type: "count", criteria: []},
-      ],
+      metricEvents,
+      ...(type === "event_user" ? {rollupTimeWindow: "max"} : {}),
     });
     metricSchema.parse(unwrapData(raw));
     return {created: true, raw};
   }
 
-  async ensureSmokeMetrics(): Promise<unknown[]> {
-    const install = await this.#ensureRatioMetric(
-      INSTALL_RATE_METRIC,
+  async ensureExperimentMetrics(
+    run: ExperimentRun,
+  ): Promise<Array<{created: boolean; raw: unknown}>> {
+    const install = await this.#ensureOutcomeMetric(
+      run.experiment.primary_metric.name,
       INSTALL_EVENT,
-      IMPRESSION_EVENT,
+      run.experiment.primary_metric.type,
     );
-    const click = await this.#ensureRatioMetric(
-      CTR_METRIC,
+    const click = await this.#ensureOutcomeMetric(
+      run.experiment.secondary_metrics[0].name,
       CLICK_EVENT,
-      IMPRESSION_EVENT,
+      run.experiment.secondary_metrics[0].type,
     );
     return [install, click];
   }
@@ -230,7 +239,7 @@ export class StatsigConsoleClient {
         : [run.experiment.environment];
     const matchesMetric = (
       actual: {name: string; type: string; direction?: string},
-      expected: {name: string; type: "ratio"},
+      expected: {name: string; type: "ratio" | "event_user"},
     ) =>
       actual.name === expected.name &&
       actual.type === expected.type &&

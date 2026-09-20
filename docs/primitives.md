@@ -89,15 +89,20 @@ Definition: [`experimentRunSchema` and `ExperimentRun`](../src/experiment/run.ts
 An auditable record of one experiment execution.
 
 It owns the frozen hypothesis and layer changes, input paths and fingerprints,
-seed, two-arm definitions, metric names, fixed-horizon statistical design,
-calculated sample size, batch plan, current lifecycle status, and the Statsig
-experiment receipt. The experiment runner may advance its status, but it must
-reject changed inputs and must never persist platform credentials.
+seed, two-arm definitions, metric names and types, fixed-horizon statistical
+design, calculated sample size, batch plan, current lifecycle status, and the
+Statsig experiment receipt. The experiment runner may advance its status, but it
+must reject changed inputs and must never persist platform credentials.
 
 Each run fixes one exposure per synthetic user. Statsig is the assignment source
 of truth for a provider run. The local simulator instead uses reproducible paired
 50/50 assignment; in both cases the audience model only samples the assigned
 creative's outcome.
+
+New runs use one-time `event_user` metrics for binary install and click outcomes.
+Their means are the fraction of exposed users who fired each event, matching the
+one-exposure-per-user design. The schema still accepts the earlier ratio metric
+names and types so existing run artifacts remain readable.
 
 The first local run estimates its baseline from the control creative and fitted
 audience mix. Each subsequent local run freezes the preceding experiment's

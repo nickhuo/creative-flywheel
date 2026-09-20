@@ -4,6 +4,9 @@ import {mkdtemp, readdir, rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join, resolve} from "node:path";
 
+import {experimentRunSchema} from "../src/experiment/run";
+import {StatsigConsoleClient} from "../src/experiment/statsig";
+
 const projectRoot = resolve(import.meta.dir, "..");
 
 test(
@@ -39,6 +42,66 @@ test(
 
       expect(prepared.status).toBe("prepared");
       expect(prepared.statistical_design.required_users).toBe(22);
+      const run = experimentRunSchema.parse(
+        await Bun.file(join(runDirectory, "run.json")).json(),
+      );
+      expect(run.experiment.primary_metric).toEqual({
+        name: "install_rate_user",
+        type: "event_user",
+      });
+      expect(run.experiment.secondary_metrics).toEqual([
+        {name: "ctr_user", type: "event_user"},
+      ]);
+      expect(
+        experimentRunSchema.safeParse({
+          ...run,
+          experiment: {
+            ...run.experiment,
+            primary_metric: {name: "install_rate", type: "ratio"},
+            secondary_metrics: [{name: "ctr", type: "ratio"}],
+          },
+        }).success,
+      ).toBe(true);
+
+      const metricRequests: Array<Record<string, unknown>> = [];
+      const statsig = new StatsigConsoleClient("test-console-key", {
+        fetch: async (_input, init) => {
+          if (init?.method === "GET") return new Response(null, {status: 404});
+          const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+          metricRequests.push(body);
+          const metricEvents = body.metricEvents as Array<{
+            name: string;
+            criteria: unknown[];
+          }>;
+          return Response.json(
+            {
+              data: {
+                ...body,
+                metricEvents: metricEvents.map(({name, criteria}) => ({
+                  name,
+                  criteria,
+                })),
+              },
+            },
+            {status: 201},
+          );
+        },
+      });
+      await statsig.ensureExperimentMetrics(run);
+      expect(metricRequests).toMatchObject([
+        {
+          name: "install_rate_user",
+          type: "event_user",
+          rollupTimeWindow: "max",
+          metricEvents: [{name: "ad_install"}],
+        },
+        {
+          name: "ctr_user",
+          type: "event_user",
+          rollupTimeWindow: "max",
+          metricEvents: [{name: "ad_click"}],
+        },
+      ]);
 
       const simulationOutput = await runCli(
         [

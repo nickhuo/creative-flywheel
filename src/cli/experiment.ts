@@ -163,7 +163,7 @@ async function createCommand(arguments_: string[]): Promise<void> {
   let statsigCreateArtifact: Record<string, unknown>;
 
   if (run.status === "prepared" && run.statsig_experiment === null) {
-    const metrics = await client.ensureSmokeMetrics();
+    const metrics = await client.ensureExperimentMetrics(run);
     const experiment = await client.ensureExperiment(run);
     statsigCreateArtifact = {
       metrics,
