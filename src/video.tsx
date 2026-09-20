@@ -23,7 +23,7 @@ const AUDIO_TRACKS = {
   low_drums: "audio/low_drums.ogg",
   upbeat_synth: "audio/upbeat_synth.ogg",
   warm_piano: "audio/warm_piano.ogg",
-} satisfies Record<Exclude<AudioStyle, "none">, string>;
+} satisfies Record<AudioStyle, string>;
 
 const BACKGROUNDS = {
   cozy_cafe: {
@@ -122,8 +122,7 @@ const RuneKeepersAd = ({layers}: RenderableCreativeManifest) => {
   const frame = useCurrentFrame();
   const background = BACKGROUNDS[layers.background];
   const character = CHARACTERS[layers.subject_character];
-  const audioSource =
-    layers.audio_style === "none" ? null : AUDIO_TRACKS[layers.audio_style];
+  const audioSource = AUDIO_TRACKS[layers.audio_style];
   const opacity = interpolate(frame, [0, 15, 215, 239], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -144,9 +143,7 @@ const RuneKeepersAd = ({layers}: RenderableCreativeManifest) => {
         padding: "120px 88px 96px",
       }}
     >
-      {audioSource === null ? null : (
-        <Audio loop src={staticFile(audioSource)} volume={0.35} />
-      )}
+      <Audio loop src={staticFile(audioSource)} volume={0.35} />
 
       <div
         style={{

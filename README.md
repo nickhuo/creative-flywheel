@@ -18,8 +18,8 @@ Rendered videos are written to `renders/{variant_id}.mp4`.
 Generation zero contains eight manifests (`g0_v00` through `g0_v07`) that cover
 all values in the six-layer render catalog. The renderer is deterministic and
 uses only local CSS, animation, text, and reviewed audio assets; no generation API
-is required. The three non-silent audio styles use checked-in CC0 loops documented
-in [`public/audio/README.md`](public/audio/README.md); `none` produces silence.
+is required. The three audio styles use checked-in CC0 loops documented in
+[`public/audio/README.md`](public/audio/README.md).
 
 Fit and preview the deterministic audience model with:
 

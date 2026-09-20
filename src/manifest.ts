@@ -39,7 +39,7 @@ export const CREATIVE_LAYER_VALUES = {
     "Your party is waiting.",
   ],
   cta_text: ["Claim Bonus", "Install Now", "Join Luna", "Play Free"],
-  audio_style: ["low_drums", "none", "upbeat_synth", "warm_piano"],
+  audio_style: ["low_drums", "upbeat_synth", "warm_piano"],
 } as const;
 
 export const creativeLayersSchema = z

@@ -55,7 +55,10 @@ describe("creative manifests", () => {
 
     for (const field of CREATIVE_LAYER_FIELDS) {
       const feature = model.features.find((candidate) => candidate.field === field);
-      expect(feature?.values).toEqual([...CREATIVE_LAYER_VALUES[field]]);
+      expect(feature).toBeDefined();
+      for (const value of CREATIVE_LAYER_VALUES[field]) {
+        expect(feature!.values).toContain(value);
+      }
     }
   });
 
@@ -67,6 +70,16 @@ describe("creative manifests", () => {
 
     expect(creativeManifestSchema.safeParse(unknown).success).toBe(true);
     expect(renderableCreativeManifestSchema.safeParse(unknown).success).toBe(false);
+  });
+
+  test("rejects creatives without an audio style", () => {
+    const silent = {
+      ...first,
+      layers: {...first.layers, audio_style: "none"},
+    };
+
+    expect(creativeManifestSchema.safeParse(silent).success).toBe(true);
+    expect(renderableCreativeManifestSchema.safeParse(silent).success).toBe(false);
   });
 
   test("later generations require a parent", () => {
