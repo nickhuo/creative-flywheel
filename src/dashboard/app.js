@@ -1,27 +1,29 @@
-const dashboard = document.querySelector("#dashboard");
-const runSelect = document.querySelector("#run-select");
+const dashboard = globalThis.document?.querySelector("#dashboard") ?? null;
+const runSelect = globalThis.document?.querySelector("#run-select") ?? null;
 const state = {data: null, selectedRunId: null};
 
-dashboard.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-run-id]");
-  if (!(button instanceof HTMLButtonElement)) return;
-  state.selectedRunId = button.dataset.runId;
-  render();
-  document.querySelector(
-    `[data-run-id="${CSS.escape(state.selectedRunId)}"]`,
-  )?.focus();
-});
+if (dashboard !== null && runSelect !== null) {
+  dashboard.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-run-id]");
+    if (!(button instanceof HTMLButtonElement)) return;
+    state.selectedRunId = button.dataset.runId;
+    render();
+    document.querySelector(
+      `[data-run-id="${CSS.escape(state.selectedRunId)}"]`,
+    )?.focus();
+  });
 
-runSelect.addEventListener("change", () => {
-  const track = state.data?.tracks.find(
-    ({optimization_run_id: optimizationRunId}) =>
-      optimizationRunId === runSelect.value,
-  );
-  const latestRun = track?.rounds.at(-1);
-  if (latestRun === undefined) return;
-  state.selectedRunId = latestRun.run_id;
-  render();
-});
+  runSelect.addEventListener("change", () => {
+    const track = state.data?.tracks.find(
+      ({optimization_run_id: optimizationRunId}) =>
+        optimizationRunId === runSelect.value,
+    );
+    const latestRun = track?.rounds.at(-1);
+    if (latestRun === undefined) return;
+    state.selectedRunId = latestRun.run_id;
+    render();
+  });
+}
 
 async function loadDashboard() {
   runSelect.disabled = true;
@@ -116,7 +118,7 @@ function render() {
     </section>
 
     <article class="card panel trend-panel">
-      <div class="panel-header"><div><h2>Optimization trend</h2><p class="panel-kicker">Champion and Challenger performance across rounds</p></div><span class="pill ${sourceLabel === "Audience model" ? "simulator" : "live"}">${escapeHtml(sourceLabel)}</span></div>
+      <div class="panel-header"><div><h2>Optimization trend</h2><p class="panel-kicker">Observed arms and the Champion path across rounds</p></div><span class="pill ${sourceLabel === "Audience model" ? "simulator" : "live"}">${escapeHtml(sourceLabel)}</span></div>
       ${renderOptimizationTrend(trackRounds, selectedRun.run_id)}
     </article>
 
@@ -206,12 +208,17 @@ function renderLayerChanges(changes) {
   `).join("")}</div>`;
 }
 
-function renderOptimizationTrend(runs, selectedRunId) {
+export function renderOptimizationTrend(runs, selectedRunId) {
   const observations = runs.flatMap((run) => {
     const metric = readyPrimaryMetric(run);
     return metric === null
       ? []
-      : [{run, metric, champion: championRate(run, metric), challenger: metric.treatment.mean}];
+      : [{
+          run,
+          control: metric.control.mean,
+          challenger: metric.treatment.mean,
+          champion: championRate(run, metric),
+        }];
   });
   if (observations.length === 0) {
     return `<div class="empty-evidence compact"><div><span class="empty-icon" aria-hidden="true">⌁</span><h3>Waiting for trend data</h3><p>This track does not have a ready primary metric yet.</p></div></div>`;
@@ -223,7 +230,9 @@ function renderOptimizationTrend(runs, selectedRunId) {
   const right = 20;
   const top = 28;
   const bottom = 48;
-  const values = observations.flatMap(({champion, challenger}) => [champion, challenger]);
+  const values = observations.flatMap(
+    ({control, challenger, champion}) => [control, challenger, champion],
+  );
   const rawMinimum = Math.min(...values);
   const rawMaximum = Math.max(...values);
   const padding = Math.max((rawMaximum - rawMinimum) * .18, .0006);
@@ -234,8 +243,9 @@ function renderOptimizationTrend(runs, selectedRunId) {
     : left + index / (observations.length - 1) * (width - left - right);
   const y = (value) => top + (maximum - value) / (maximum - minimum) *
     (height - top - bottom);
-  const championPoints = observations.map(({champion}, index) => [x(index), y(champion)]);
+  const controlPoints = observations.map(({control}, index) => [x(index), y(control)]);
   const challengerPoints = observations.map(({challenger}, index) => [x(index), y(challenger)]);
+  const championPoints = observations.map(({champion}, index) => [x(index), y(champion)]);
   const path = (points) => points.map(([pointX, pointY], index) =>
     `${index === 0 ? "M" : "L"}${pointX.toFixed(1)} ${pointY.toFixed(1)}`
   ).join(" ");
@@ -250,15 +260,17 @@ function renderOptimizationTrend(runs, selectedRunId) {
     ? ""
     : `<line class="selected-round-line" x1="${x(selectedIndex)}" y1="${top}" x2="${x(selectedIndex)}" y2="${height - bottom}"/>`;
   const points = observations.map(({run}, index) => `
+    <circle class="trend-dot control" cx="${controlPoints[index][0]}" cy="${controlPoints[index][1]}" r="4"/>
     <circle class="trend-dot challenger" cx="${challengerPoints[index][0]}" cy="${challengerPoints[index][1]}" r="4"/>
-    <circle class="trend-dot champion ${didPromote(run) ? "promoted" : ""}" cx="${championPoints[index][0]}" cy="${championPoints[index][1]}" r="${didPromote(run) ? 5 : 4}"/>
+    <circle class="trend-dot champion" cx="${championPoints[index][0]}" cy="${championPoints[index][1]}" r="7"/>
     <text class="axis-label round-label" x="${x(index)}" y="${height - 19}" text-anchor="middle">R${run.round ?? index + 1}</text>
   `).join("");
 
   return `
-    <div class="trend-legend"><span><i class="legend-dot" style="background:var(--accent)"></i>Champion after decision</span><span><i class="legend-dot" style="background:var(--blue)"></i>Challenger observed</span><span><i class="promote-ring"></i>Promoted</span></div>
-    <svg class="trend-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Champion and Challenger install rates across optimization rounds">
+    <div class="trend-legend"><span><i class="legend-line control"></i>Control observed</span><span><i class="legend-line challenger"></i>Challenger observed</span><span><i class="legend-line champion"></i>Champion path</span></div>
+    <svg class="trend-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Control, Challenger, and Champion install rates across optimization rounds">
       ${grid}${selectedMarker}
+      <path class="control-trend" d="${path(controlPoints)}"/>
       <path class="challenger-trend" d="${path(challengerPoints)}"/>
       <path class="champion-trend" d="${path(championPoints)}"/>
       ${points}
@@ -349,4 +361,4 @@ function escapeHtml(value) {
   })[character]);
 }
 
-await loadDashboard();
+if (dashboard !== null && runSelect !== null) await loadDashboard();

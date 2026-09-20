@@ -4,10 +4,10 @@
   "parent_id": null,
   "layers": {
     "background": "throne_room",
-    "subject_character": "Mira",
-    "subject_action": "casts_spell",
-    "hook_text": "The ruins are calling",
-    "cta_text": "Play Free",
-    "audio_style": "upbeat_synth"
+    "subject_character": "Rex",
+    "subject_action": "opens_treasure",
+    "hook_text": "Free gems every day",
+    "cta_text": "Claim Bonus",
+    "audio_style": "low_drums"
   }
 }

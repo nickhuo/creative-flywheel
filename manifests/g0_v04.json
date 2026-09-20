@@ -3,11 +3,11 @@
   "generation": 0,
   "parent_id": null,
   "layers": {
-    "background": "storm_battlefield",
-    "subject_character": "Rex",
-    "subject_action": "opens_treasure",
+    "background": "cozy_cafe",
+    "subject_character": "Mira",
+    "subject_action": "close_up_smile",
     "hook_text": "She remembers everything.",
-    "cta_text": "Join Luna",
-    "audio_style": "low_drums"
+    "cta_text": "Install Now",
+    "audio_style": "warm_piano"
   }
 }

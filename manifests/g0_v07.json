@@ -3,11 +3,11 @@
   "generation": 0,
   "parent_id": null,
   "layers": {
-    "background": "cozy_cafe",
+    "background": "throne_room",
     "subject_character": "Rex",
-    "subject_action": "draws_blade",
+    "subject_action": "opens_treasure",
     "hook_text": "Free gems every day",
-    "cta_text": "Join Luna",
-    "audio_style": "warm_piano"
+    "cta_text": "Play Free",
+    "audio_style": "upbeat_synth"
   }
 }

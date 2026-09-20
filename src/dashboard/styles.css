@@ -111,19 +111,23 @@ h3 { font-size: 13px; font-weight: 620; }
 
 .grid-line { stroke: var(--border); stroke-width: 1; }
 .axis-label { fill: var(--faint); font-size: 10px; }
-.legend-dot { display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%; }
+.legend-line { display: inline-block; width: 18px; height: 2px; margin-right: 6px; border-radius: 2px; }
+.legend-line.control { background: var(--accent); }
+.legend-line.challenger { background: repeating-linear-gradient(90deg, var(--blue) 0 5px, transparent 5px 8px); }
+.legend-line.champion { background: repeating-linear-gradient(90deg, var(--amber) 0 2px, transparent 2px 6px); }
 
 .trend-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 22px; color: var(--muted); font-size: 10px; }
 .trend-legend span { display: inline-flex; align-items: center; }
-.promote-ring { display: inline-block; width: 9px; height: 9px; margin-right: 5px; border: 2px solid var(--accent); border-radius: 50%; box-shadow: 0 0 0 2px rgba(85,230,193,.12); }
 .trend-chart { display: block; width: 100%; margin-top: 7px; overflow: visible; }
-.champion-trend, .challenger-trend { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.25; }
-.champion-trend { stroke: var(--accent); }
+.control-trend, .challenger-trend, .champion-trend { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.control-trend, .challenger-trend { stroke-width: 2.25; }
+.control-trend { stroke: var(--accent); }
 .challenger-trend { stroke: var(--blue); stroke-dasharray: 4 5; opacity: .85; }
+.champion-trend { stroke: var(--amber); stroke-dasharray: .1 7; stroke-width: 3; }
 .trend-dot { stroke: var(--surface); stroke-width: 2; }
-.trend-dot.champion { fill: var(--accent); }
+.trend-dot.control { fill: var(--accent); }
 .trend-dot.challenger { fill: var(--blue); }
-.trend-dot.promoted { stroke: rgba(85,230,193,.28); stroke-width: 7; }
+.trend-dot.champion { fill: transparent; stroke: var(--amber); stroke-width: 2; }
 .selected-round-line { stroke: rgba(255,255,255,.13); stroke-dasharray: 3 5; }
 .round-label { font-weight: 600; }
 

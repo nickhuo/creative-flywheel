@@ -3,11 +3,11 @@
   "generation": 0,
   "parent_id": null,
   "layers": {
-    "background": "cozy_cafe",
+    "background": "storm_battlefield",
     "subject_character": "Kael",
     "subject_action": "casts_spell",
     "hook_text": "Can you beat level 3?",
-    "cta_text": "Claim Bonus",
+    "cta_text": "Install Now",
     "audio_style": "low_drums"
   }
 }

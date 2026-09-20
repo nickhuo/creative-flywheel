@@ -4,10 +4,10 @@
   "parent_id": null,
   "layers": {
     "background": "sunlit_meadow",
-    "subject_character": "Kael",
-    "subject_action": "waves_to_camera",
+    "subject_character": "Mira",
+    "subject_action": "close_up_smile",
     "hook_text": "Your party is waiting.",
-    "cta_text": "Claim Bonus",
-    "audio_style": "low_drums"
+    "cta_text": "Install Now",
+    "audio_style": "warm_piano"
   }
 }

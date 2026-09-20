@@ -3,11 +3,11 @@
   "generation": 0,
   "parent_id": null,
   "layers": {
-    "background": "neon_city",
-    "subject_character": "Mira",
-    "subject_action": "close_up_smile",
-    "hook_text": "Free gems every day",
-    "cta_text": "Play Free",
-    "audio_style": "upbeat_synth"
+    "background": "storm_battlefield",
+    "subject_character": "Kael",
+    "subject_action": "draws_blade",
+    "hook_text": "Your party is waiting.",
+    "cta_text": "Install Now",
+    "audio_style": "low_drums"
   }
 }
