@@ -126,11 +126,15 @@ recommendation or action.
 
 Definition: [`challengerProposalSchema` and `ChallengerProposal`](../src/experiment/evaluation.ts)
 
-A typed creative hypothesis produced by the single Challenger Agent for one
-completed `ResultSnapshot`.
+A typed evaluation and creative hypothesis produced by the single Challenger
+Agent for one completed `ResultSnapshot`.
 
-It owns the proposed hypothesis, rationale, evidence references, and complete
-renderable layer selection. It does not choose whether to stop, promote, or
+It owns the agent's interpretation and learning from the completed experiment,
+a structured next hypothesis, its tradeoffs, rationale, evidence references,
+and complete renderable layer selection. The hypothesis separates the actual
+experiment population, audience motivation, and proposed creative mechanism.
+The evaluation reflects on the completed experiment after either a deterministic
+`stop` or `promote` decision. It does not choose whether to stop, promote, or
 terminate and has no approval or execution authority. The deterministic policy
 selects the next champion before the agent is called.
 

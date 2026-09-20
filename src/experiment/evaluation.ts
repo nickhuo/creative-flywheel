@@ -208,7 +208,7 @@ export const resultSnapshotSchema = z
   .readonly();
 
 const proposedActionCommonShape = {
-  schema_version: z.literal(4),
+  schema_version: z.literal(5),
   snapshot_id: sha256Schema,
   summary: conciseTextSchema.max(160),
   rationale: conciseTextSchema.max(1200),
@@ -217,9 +217,25 @@ const proposedActionCommonShape = {
 
 export const challengerProposalSchema = z
   .object({
-    schema_version: z.literal(1),
+    schema_version: z.literal(2),
     snapshot_id: sha256Schema,
-    hypothesis: conciseTextSchema.max(500),
+    evaluation: z
+      .object({
+        interpretation: conciseTextSchema.max(800),
+        learning: conciseTextSchema.max(500),
+      })
+      .strict()
+      .readonly(),
+    hypothesis: z
+      .object({
+        statement: conciseTextSchema.max(500),
+        experiment_population: conciseTextSchema.max(300),
+        audience_motivation: conciseTextSchema.max(300),
+        mechanism: conciseTextSchema.max(500),
+      })
+      .strict()
+      .readonly(),
+    tradeoffs: z.array(conciseTextSchema.max(240)).min(1).max(3).readonly(),
     rationale: conciseTextSchema.max(1200),
     evidence: z.array(conciseTextSchema.max(240)).min(1).max(5).readonly(),
     layers: renderableCreativeLayersSchema,
@@ -416,8 +432,8 @@ export function decideExperimentAction(
   }
 
   return snapshot.primary_metric.absolute_effect > 0 &&
-      snapshot.primary_metric.p_value <= run.statistical_design.alpha &&
-      snapshot.primary_metric.confidence_interval.lower > 0
+    snapshot.primary_metric.p_value <= run.statistical_design.alpha &&
+    snapshot.primary_metric.confidence_interval.lower > 0
     ? "promote"
     : "stop";
 }

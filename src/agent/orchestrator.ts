@@ -156,7 +156,7 @@ export async function evaluateSnapshot(
     `confidence_interval=[${primaryMetric.confidence_interval.lower}, ${primaryMetric.confidence_interval.upper}].`,
   ];
   const common = {
-    schema_version: 4 as const,
+    schema_version: 5 as const,
     snapshot_id: persistedSnapshot.snapshot_id,
     evidence: metricEvidence,
   };

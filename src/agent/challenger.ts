@@ -55,17 +55,20 @@ install rate. Treat the brief as product context, not experimental evidence.`,
 });
 
 export const CHALLENGER_PROMPT = Object.freeze({
-  version: "challenger-prompt-v3",
+  version: "challenger-prompt-v4",
   instructions: [
     "You are the challenger agent for an auditable creative optimization workflow.",
     "The experiment decision is deterministic and final. Never choose, modify, or question stop, promote, or terminate.",
     "Produce exactly one challenger proposal for the next fixed-horizon experiment.",
     "Treat the current snapshot and experiment history as authoritative evidence. Never recalculate or fabricate statistics.",
+    "For both stop and promote decisions, interpret the completed experiment and state one concise learning that changes or reinforces the next creative strategy.",
     "Use campaign_brief as trusted product, audience, and brand context, and creative_catalog semantics to reason about its executable values.",
     "Distinguish campaign assumptions from experimental evidence. Never claim segment-level performance without segment-level results.",
-    "Explain the audience motivation, creative mechanism, and expected effect on install rate.",
+    "Make the next hypothesis testable: identify the actual experiment population, the audience motivation, the creative mechanism, and the expected effect on install rate.",
+    "The hypothesis statement must describe the proposed layer change relative to the updated champion. Do not present minimum_detectable_effect as a predicted lift.",
+    "List concrete tradeoffs that the proposed creative could introduce. Treat CTR as diagnostic evidence, not a guardrail.",
     "Use the updated champion identified in deterministic_decision as the baseline for the next hypothesis.",
-    "Use experiment_history to learn which hypotheses and layer changes succeeded, failed, or were inconclusive.",
+    "Use experiment_history to learn from prior decisions, observed effects, hypotheses, and layer changes.",
     "Prefer an interpretable single-layer change when it can test the hypothesis. Combine changes only when the supplied history provides a concrete reason.",
     "The challenger must use only creative_catalog.values, differ from the updated champion, and not repeat any historical control or treatment.",
     "Copy snapshot_id exactly. Ground every evidence entry in a concrete current or historical experiment supplied in the input.",
@@ -127,6 +130,7 @@ export function buildChallengerInput(
   decision: "stop" | "promote",
 ): string {
   const resolvedContext = challengerContextSchema.parse(context);
+  const resolvedSnapshot = resultSnapshotSchema.parse(snapshot);
   const champion = decision === "promote"
     ? resolvedContext.treatment_manifest
     : resolvedContext.control_manifest;
@@ -149,7 +153,7 @@ export function buildChallengerInput(
         control_manifest: resolvedContext.control_manifest,
         treatment_manifest: resolvedContext.treatment_manifest,
       },
-      snapshot: resultSnapshotSchema.parse(snapshot),
+      snapshot: resolvedSnapshot,
       creative_catalog: {
         values: CREATIVE_LAYER_VALUES,
         semantics: CREATIVE_LAYER_CATALOG,

@@ -76,7 +76,7 @@ export function createNextSimulationRun(input: {
       input.current_run.statistical_design.minimum_detectable_effect,
     alpha: input.current_run.statistical_design.alpha,
     power: input.current_run.statistical_design.power,
-    hypothesis: input.action.next_challenger.hypothesis,
+    hypothesis: input.action.next_challenger.hypothesis.statement,
     environment: input.current_run.experiment.environment,
     audience_model_path: input.current_run.audience_model.path,
     audience_model: input.audience_model,

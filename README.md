@@ -106,8 +106,9 @@ approved action, and receipt to `simulation.json` in that run's artifact folder.
 At the calculated horizon, deterministic policy chooses `stop` or `promote`.
 Unless the maximum round has been reached, one Challenger Agent call uses the
 updated champion, complete experiment history, and a versioned Rune Keepers
-campaign brief to propose the next hypothesis and renderable layer combination.
-The local executor prepares the next run in its own folder and repeats until
+campaign brief to interpret the completed experiment, record a learning, and
+propose the next structured hypothesis and renderable layer combination. The
+local executor prepares the next run in its own folder and repeats until
 deterministic `terminate`.
 
 Without `--run-id`, the command scans every `served` or `awaiting_results`
