@@ -93,6 +93,17 @@ type Assignment = {
   statsig_rule_id: string;
 };
 
+export type StatsigExperimentObservation = {
+  experiment: unknown;
+  cumulative_exposures: unknown | null;
+  diagnostics_checks: unknown | null;
+  metric_results: Array<{
+    name: string;
+    role: "primary" | "secondary";
+    response: unknown | null;
+  }>;
+};
+
 export class StatsigConsoleClient {
   readonly #apiKey: string;
   readonly #baseUrl: string;
@@ -178,7 +189,7 @@ export class StatsigConsoleClient {
       name: run.experiment.name,
       id: run.experiment.name,
       description,
-      hypothesis: run.experiment.hypothesis,
+      hypothesis: run.experiment.hypothesis.statement,
       idType: run.experiment.assignment_unit,
       allocation: 100,
       groups: [
@@ -229,7 +240,7 @@ export class StatsigConsoleClient {
       experiment.name !== run.experiment.name ||
       experiment.idType !== run.experiment.assignment_unit ||
       experiment.description !== description ||
-      experiment.hypothesis !== run.experiment.hypothesis ||
+      experiment.hypothesis !== run.experiment.hypothesis.statement ||
       experiment.allocation !== 100 ||
       experiment.targetExposures !== run.traffic.users ||
       (experiment.targetingGateID !== null &&
@@ -324,6 +335,65 @@ export class StatsigConsoleClient {
       true,
     );
     return {experiment, cumulative_exposures: cumulativeExposures};
+  }
+
+  async observeExperiment(
+    run: ExperimentRun,
+  ): Promise<StatsigExperimentObservation> {
+    if (run.statsig_experiment === null) {
+      throw new Error("Run has no Statsig experiment.");
+    }
+    const receipt = run.statsig_experiment;
+    const experimentId = encodeURIComponent(receipt.experiment_id);
+    const experiment = await this.#request(
+      "GET",
+      `/experiments/${experimentId}`,
+    );
+    const cumulativeExposures = await this.#request(
+      "GET",
+      `/experiments/${experimentId}/cumulative_exposures`,
+      undefined,
+      true,
+    );
+    const diagnosticsChecks = await this.#request(
+      "GET",
+      `/experiments/${experimentId}/diagnostics_checks?lastDays=7`,
+      undefined,
+      true,
+    );
+    const metrics = [
+      {role: "primary" as const, ...run.experiment.primary_metric},
+      ...run.experiment.secondary_metrics.map((metric) => ({
+        role: "secondary" as const,
+        ...metric,
+      })),
+    ];
+    const metricResults = await Promise.all(
+      metrics.map(async (metric) => {
+        const query = new URLSearchParams({
+          control: receipt.control_group_id,
+          test: receipt.treatment_group_id,
+          metricID: `${metric.name}::${metric.type}`,
+        });
+        return {
+          name: metric.name,
+          role: metric.role,
+          response: await this.#request(
+            "GET",
+            `/experiments/${experimentId}/pulse_metric_result?${query}`,
+            undefined,
+            true,
+          ),
+        };
+      }),
+    );
+
+    return {
+      experiment,
+      cumulative_exposures: cumulativeExposures,
+      diagnostics_checks: diagnosticsChecks,
+      metric_results: metricResults,
+    };
   }
 
   async #request(

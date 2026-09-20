@@ -32,7 +32,12 @@ const run = prepareExperimentRun({
   run_id: "smoke_001",
   prepared_at: "2026-09-18T12:00:00.000Z",
   seed: 42,
-  users: 4,
+  batch_size: 10,
+  baseline_rate: 0.01,
+  minimum_detectable_effect: 0.8,
+  alpha: 0.05,
+  power: 0.8,
+  hypothesis: "Changing the opening hook increases install rate.",
   environment: "development",
   audience_model_path: "artifacts/audience/model.json",
   audience_model: model,
@@ -46,8 +51,7 @@ const statsigExperimentData = {
   name: "creative_flywheel_smoke_001",
   idType: "userID",
   description: "Auditable creative smoke run smoke_001.",
-  hypothesis:
-    "Changing the opening hook changes install rate for otherwise matched creative.",
+  hypothesis: "Changing the opening hook increases install rate.",
   permalink:
     "https://console.statsig.com/experiment/creative_flywheel_smoke_001",
   status: "setup",
@@ -59,7 +63,7 @@ const statsigExperimentData = {
   secondaryMetrics: [
     {name: "ctr", type: "ratio", direction: "increase"},
   ],
-  targetExposures: 4,
+  targetExposures: 10,
   targetingGateID: null,
   sequentialTesting: false,
   bonferroniCorrection: false,
@@ -85,8 +89,14 @@ const statsigExperimentData = {
 describe("experiment run", () => {
   test("freezes the inputs and deterministic cohort", () => {
     const exposureTime = "2026-09-18T13:00:00.000Z";
-    const first = buildExposureContexts(run, model, exposureTime);
-    const second = buildExposureContexts(run, model, exposureTime);
+    const first = buildExposureContexts(run, model, exposureTime, {
+      start: 0,
+      count: 4,
+    });
+    const second = buildExposureContexts(run, model, exposureTime, {
+      start: 0,
+      count: 4,
+    });
     const nextRun = experimentRunSchema.parse({
       ...run,
       run_id: "smoke_002",
@@ -97,6 +107,7 @@ describe("experiment run", () => {
       nextRun,
       model,
       "2026-09-19T13:00:00.000Z",
+      {start: 0, count: 4},
     );
 
     expect(first).toEqual(second);
@@ -128,6 +139,23 @@ describe("experiment run", () => {
     expect(() =>
       verifyRunInputs(run, model, control, changedTreatment),
     ).toThrow("Treatment manifest no longer matches run.json.");
+
+    const changedHypothesis = experimentRunSchema.parse({
+      ...run,
+      experiment: {
+        ...run.experiment,
+        hypothesis: {
+          ...run.experiment.hypothesis,
+          changes: run.experiment.hypothesis.changes.map((change) => ({
+            ...change,
+            treatment_value: "Incorrect recorded value",
+          })),
+        },
+      },
+    });
+    expect(() =>
+      verifyRunInputs(changedHypothesis, model, control, treatment),
+    ).toThrow("Manifest layer changes no longer match run.json.");
   });
 
   test("reconciles only complete, known, unique events", () => {
@@ -135,6 +163,7 @@ describe("experiment run", () => {
       run,
       model,
       "2026-09-18T13:00:00.000Z",
+      {start: 0, count: 4},
     );
     const records = contexts.map((context, index) =>
       experimentEventRecordSchema.parse({
@@ -273,7 +302,7 @@ describe("Statsig Console boundary", () => {
       id: "creative_flywheel_smoke_001",
       idType: "userID",
       allocation: 100,
-      targetExposures: 4,
+      targetExposures: 10,
       enabledNonProdEnvironments: ["development"],
       groups: [
         {size: 50, parameterValues: {variant_id: "g0_v00"}},
@@ -386,5 +415,47 @@ describe("Statsig Console boundary", () => {
 
     expect(methods).toEqual(["GET"]);
     expect(started).toMatchObject({already_active: true, start: null});
+  });
+
+  test("observes exposures, diagnostics, and configured metric results", async () => {
+    const urls: string[] = [];
+    const client = new StatsigConsoleClient("console-test", {
+      fetch: async (input) => {
+        const url = String(input);
+        urls.push(url);
+        return Response.json({data: {url}});
+      },
+    });
+    const activeRun = experimentRunSchema.parse({
+      ...run,
+      status: "awaiting_results",
+      statsig_experiment: {
+        experiment_id: "creative_flywheel_smoke_001",
+        permalink:
+          "https://console.statsig.com/experiment/creative_flywheel_smoke_001",
+        control_group_id: "control group",
+        treatment_group_id: "treatment/group",
+        recorded_at: "2026-09-18T12:00:00.000Z",
+        active_observed_at: "2026-09-18T12:01:00.000Z",
+      },
+    });
+
+    const observation = await client.observeExperiment(activeRun);
+
+    expect(observation.metric_results.map(({name, role}) => ({name, role}))).toEqual([
+      {name: "install_rate", role: "primary"},
+      {name: "ctr", role: "secondary"},
+    ]);
+    expect(urls).toHaveLength(5);
+    expect(urls[1]).toEndWith(
+      "/experiments/creative_flywheel_smoke_001/cumulative_exposures",
+    );
+    expect(urls[2]).toEndWith(
+      "/experiments/creative_flywheel_smoke_001/diagnostics_checks?lastDays=7",
+    );
+    expect(urls[3]).toContain("control=control+group");
+    expect(urls[3]).toContain("test=treatment%2Fgroup");
+    expect(urls[3]).toContain("metricID=install_rate%3A%3Aratio");
+    expect(urls[4]).toContain("metricID=ctr%3A%3Aratio");
   });
 });

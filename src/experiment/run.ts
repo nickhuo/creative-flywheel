@@ -9,13 +9,20 @@ import {
   type AudienceModel,
   type ExposureContext,
 } from "../audience/model";
-import {creativeManifestSchema, type CreativeManifest} from "../manifest";
+import {
+  CREATIVE_LAYER_FIELDS,
+  creativeManifestSchema,
+  type CreativeManifest,
+} from "../manifest";
+import {calculateRequiredUsers} from "./statistics";
 
 export const INSTALL_RATE_METRIC = "install_rate";
 export const CTR_METRIC = "ctr";
 export const IMPRESSION_EVENT = "ad_impression";
 export const CLICK_EVENT = "ad_click";
 export const INSTALL_EVENT = "ad_install";
+export const SIMULATOR_CONTROL_GROUP_ID = "simulator_control";
+export const SIMULATOR_TREATMENT_GROUP_ID = "simulator_treatment";
 
 const safeIdSchema = z
   .string()
@@ -56,7 +63,7 @@ const statsigExperimentReceiptSchema = z
 
 export const experimentRunSchema = z
   .object({
-    schema_version: z.literal(1),
+    schema_version: z.literal(2),
     run_id: safeIdSchema,
     status: z.enum([
       "prepared",
@@ -71,8 +78,21 @@ export const experimentRunSchema = z
     traffic: z
       .object({
         users: z.number().int().positive(),
+        batch_size: z.number().int().positive(),
         exposures_per_user: z.literal(1),
         stop_condition: z.literal("fixed_users"),
+      })
+      .strict(),
+    statistical_design: z
+      .object({
+        method: z.literal("two_proportion_normal_approximation"),
+        analysis: z.literal("fixed_horizon"),
+        baseline_rate: z.number().positive().lt(1),
+        minimum_detectable_effect: z.number().positive().lt(1),
+        alpha: z.number().positive().lt(1),
+        power: z.number().gt(0.5).lt(1),
+        test_sidedness: z.literal("two_sided"),
+        required_users: z.number().int().positive(),
       })
       .strict(),
     experiment: z
@@ -82,7 +102,23 @@ export const experimentRunSchema = z
           .min(3)
           .max(100)
           .regex(/^[A-Za-z0-9_-]+$/),
-        hypothesis: z.string().trim().min(1),
+        hypothesis: z
+          .object({
+            statement: z.string().trim().min(1),
+            expected_direction: z.literal("increase"),
+            changes: z
+              .array(
+                z
+                  .object({
+                    layer: z.enum(CREATIVE_LAYER_FIELDS),
+                    control_value: z.string().trim().min(1),
+                    treatment_value: z.string().trim().min(1),
+                  })
+                  .strict(),
+              )
+              .min(1),
+          })
+          .strict(),
         environment: z.string().trim().min(1),
         assignment_unit: z.literal("userID"),
         parameter: z.literal("variant_id"),
@@ -115,6 +151,51 @@ export const experimentRunSchema = z
         code: "custom",
         message: "Control and treatment must use different variants.",
         path: ["experiment", "arms"],
+      });
+    }
+    if (run.traffic.batch_size % 2 !== 0) {
+      context.addIssue({
+        code: "custom",
+        message: "Batch size must be even for exact 50/50 allocation.",
+        path: ["traffic", "batch_size"],
+      });
+    }
+    if (
+      run.traffic.users !== run.statistical_design.required_users ||
+      run.traffic.users % run.traffic.batch_size !== 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Traffic users must equal required_users and contain complete batches.",
+        path: ["traffic", "users"],
+      });
+    }
+    if (
+      run.statistical_design.baseline_rate +
+        run.statistical_design.minimum_detectable_effect >=
+      1
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Baseline plus MDE must be below 1.",
+        path: ["statistical_design", "minimum_detectable_effect"],
+      });
+    } else if (
+      run.traffic.batch_size % 2 === 0 &&
+      calculateRequiredUsers({
+        baselineRate: run.statistical_design.baseline_rate,
+        minimumDetectableEffect:
+          run.statistical_design.minimum_detectable_effect,
+        alpha: run.statistical_design.alpha,
+        power: run.statistical_design.power,
+        batchSize: run.traffic.batch_size,
+      }) !== run.statistical_design.required_users
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "required_users does not match the frozen statistical design.",
+        path: ["statistical_design", "required_users"],
       });
     }
     if (run.status === "prepared" && run.statsig_experiment !== null) {
@@ -185,7 +266,12 @@ type PrepareExperimentRunInput = {
   run_id: string;
   prepared_at: string;
   seed: number;
-  users: number;
+  batch_size: number;
+  baseline_rate: number;
+  minimum_detectable_effect: number;
+  alpha: number;
+  power: number;
+  hypothesis: string;
   environment: string;
   audience_model_path: string;
   audience_model: AudienceModel;
@@ -198,8 +284,26 @@ type PrepareExperimentRunInput = {
 export function prepareExperimentRun(
   input: PrepareExperimentRunInput,
 ): ExperimentRun {
+  const requiredUsers = calculateRequiredUsers({
+    baselineRate: input.baseline_rate,
+    minimumDetectableEffect: input.minimum_detectable_effect,
+    alpha: input.alpha,
+    power: input.power,
+    batchSize: input.batch_size,
+  });
+  const changes = CREATIVE_LAYER_FIELDS.flatMap((layer) => {
+    const controlValue = input.control_manifest.layers[layer];
+    const treatmentValue = input.treatment_manifest.layers[layer];
+    return controlValue === treatmentValue
+      ? []
+      : [{layer, control_value: controlValue, treatment_value: treatmentValue}];
+  });
+  if (changes.length === 0) {
+    throw new Error("Control and treatment must change at least one layer.");
+  }
+
   return experimentRunSchema.parse({
-    schema_version: 1,
+    schema_version: 2,
     run_id: input.run_id,
     status: "prepared",
     prepared_at: input.prepared_at,
@@ -209,14 +313,28 @@ export function prepareExperimentRun(
       fingerprint: modelFingerprint(input.audience_model),
     },
     traffic: {
-      users: input.users,
+      users: requiredUsers,
+      batch_size: input.batch_size,
       exposures_per_user: 1,
       stop_condition: "fixed_users",
     },
+    statistical_design: {
+      method: "two_proportion_normal_approximation",
+      analysis: "fixed_horizon",
+      baseline_rate: input.baseline_rate,
+      minimum_detectable_effect: input.minimum_detectable_effect,
+      alpha: input.alpha,
+      power: input.power,
+      test_sidedness: "two_sided",
+      required_users: requiredUsers,
+    },
     experiment: {
       name: `creative_flywheel_${input.run_id}`,
-      hypothesis:
-        "Changing the opening hook changes install rate for otherwise matched creative.",
+      hypothesis: {
+        statement: input.hypothesis,
+        expected_direction: "increase",
+        changes,
+      },
       environment: input.environment,
       assignment_unit: "userID",
       parameter: "variant_id",
@@ -269,12 +387,29 @@ export function verifyRunInputs(
   ) {
     throw new Error("Treatment manifest no longer matches run.json.");
   }
+  const actualChanges = CREATIVE_LAYER_FIELDS.flatMap((layer) => {
+    const controlValue = controlManifest.layers[layer];
+    const treatmentValue = treatmentManifest.layers[layer];
+    return controlValue === treatmentValue
+      ? []
+      : [{layer, control_value: controlValue, treatment_value: treatmentValue}];
+  });
+  if (
+    JSON.stringify(actualChanges) !==
+    JSON.stringify(run.experiment.hypothesis.changes)
+  ) {
+    throw new Error("Manifest layer changes no longer match run.json.");
+  }
 }
 
 export function buildExposureContexts(
   run: ExperimentRun,
   audienceModel: AudienceModel,
   exposureTime: string,
+  range: Readonly<{start: number; count: number}> = {
+    start: 0,
+    count: run.traffic.users,
+  },
 ): ExposureContext[] {
   if (modelFingerprint(audienceModel) !== run.audience_model.fingerprint) {
     throw new Error("Audience model fingerprint no longer matches run.json.");
@@ -282,9 +417,18 @@ export function buildExposureContexts(
   if (audienceModel.audience_mix.length === 0) {
     throw new Error("Audience model has no audience distribution.");
   }
+  if (
+    !Number.isSafeInteger(range.start) ||
+    range.start < 0 ||
+    !Number.isSafeInteger(range.count) ||
+    range.count < 1 ||
+    range.start + range.count > run.traffic.users
+  ) {
+    throw new RangeError("Exposure range must fit inside the planned cohort.");
+  }
 
-  const contexts = Array.from({length: run.traffic.users}, (_, index) => {
-    const ordinal = index + 1;
+  const contexts = Array.from({length: range.count}, (_, index) => {
+    const ordinal = range.start + index + 1;
     const unit = deterministicUniform(
       `${run.audience_model.fingerprint}|${run.seed}|audience|${ordinal}`,
     );
@@ -315,9 +459,9 @@ export function summarizeExperimentEvents(
   run: ExperimentRun,
   records: ExperimentEventRecord[],
 ): ExperimentSummary {
-  if (records.length !== run.traffic.users) {
+  if (records.length < 1 || records.length > run.traffic.users) {
     throw new Error(
-      `Expected ${run.traffic.users} events, received ${records.length}.`,
+      `Expected between 1 and ${run.traffic.users} events, received ${records.length}.`,
     );
   }
   if (new Set(records.map((record) => record.user_id)).size !== records.length) {

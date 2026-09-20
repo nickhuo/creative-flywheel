@@ -4,6 +4,7 @@ import {dirname, relative, resolve} from "node:path";
 import {
   audienceModelSchema,
   sampleExposure,
+  scoreExposure,
   type AudienceModel,
 } from "../audience/model";
 import {
@@ -30,6 +31,9 @@ const projectRoot = resolve(import.meta.dir, "../..");
 const defaultModelPath = resolve(projectRoot, "artifacts/audience/model.json");
 const defaultControlPath = resolve(projectRoot, "manifests/g0_v00.json");
 const defaultTreatmentPath = resolve(projectRoot, "manifests/g0_v01.json");
+const defaultHypothesis =
+  "Changing the opening hook increases install rate for otherwise matched creative.";
+const defaultMinimumDetectableEffect = 0.0025;
 
 const [command, ...arguments_] = Bun.argv.slice(2);
 
@@ -61,14 +65,21 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
     projectRoot,
     readOptionalFlag(arguments_, "--treatment") ?? defaultTreatmentPath,
   );
-  const users = Number(readOptionalFlag(arguments_, "--users") ?? "2000");
+  const batchSize = Number(readOptionalFlag(arguments_, "--batch-size") ?? "500");
+  const minimumDetectableEffect = Number(
+    readOptionalFlag(arguments_, "--mde") ?? defaultMinimumDetectableEffect,
+  );
+  const alpha = Number(readOptionalFlag(arguments_, "--alpha") ?? "0.05");
+  const power = Number(readOptionalFlag(arguments_, "--power") ?? "0.8");
+  const hypothesis =
+    readOptionalFlag(arguments_, "--hypothesis") ?? defaultHypothesis;
   const seed = Number(readOptionalFlag(arguments_, "--seed") ?? "42");
   const environment =
     readOptionalFlag(arguments_, "--environment") ??
     Bun.env.STATSIG_ENVIRONMENT ??
     "development";
-  if (!Number.isInteger(users) || users < 1) {
-    throw new RangeError("--users must be a positive integer.");
+  if (!Number.isInteger(batchSize) || batchSize < 2 || batchSize % 2 !== 0) {
+    throw new RangeError("--batch-size must be a positive even integer.");
   }
   if (!Number.isSafeInteger(seed)) {
     throw new RangeError("--seed must be a safe integer.");
@@ -81,11 +92,37 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
   const treatmentManifest = creativeManifestSchema.parse(
     await readJson(treatmentPath),
   );
+  const preparedAt = new Date().toISOString();
+  const modeledBaselineRate = audienceModel.audience_mix.reduce(
+    (total, audience) => {
+      const prediction = scoreExposure(audienceModel, controlManifest, {
+        impression_id: `${runId}_baseline`,
+        ts_utc: preparedAt,
+        user_id: `${runId}_baseline`,
+        segment: audience.segment,
+        os: audience.os,
+        exposure_n: 1,
+      });
+      return total + audience.weight * (
+        prediction.p_click * prediction.p_install_if_click +
+        (1 - prediction.p_click) * prediction.p_install_if_no_click
+      );
+    },
+    0,
+  );
+  const baselineRate = Number(
+    readOptionalFlag(arguments_, "--baseline-rate") ?? modeledBaselineRate,
+  );
   const run = prepareExperimentRun({
     run_id: runId,
-    prepared_at: new Date().toISOString(),
+    prepared_at: preparedAt,
     seed,
-    users,
+    batch_size: batchSize,
+    baseline_rate: baselineRate,
+    minimum_detectable_effect: minimumDetectableEffect,
+    alpha,
+    power,
+    hypothesis,
     environment,
     audience_model_path: projectPath(modelPath),
     audience_model: audienceModel,
@@ -102,7 +139,8 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
       {
         run: paths.run,
         status: run.status,
-        users: run.traffic.users,
+        statistical_design: run.statistical_design,
+        traffic: run.traffic,
         arms: run.experiment.arms.map(({role, variant_id}) => ({
           role,
           variant_id,

@@ -76,13 +76,15 @@ Definition: [`experimentRunSchema` and `ExperimentRun`](../src/experiment/run.ts
 
 An auditable record of one experiment execution.
 
-It owns the frozen input paths and fingerprints, seed, traffic budget, two arm
-definitions, metric names, current lifecycle status, and the Statsig experiment receipt.
-The experiment runner may advance its status, but it must reject changed inputs and
-must never persist platform credentials.
+It owns the frozen hypothesis and layer changes, input paths and fingerprints,
+seed, two-arm definitions, metric names, fixed-horizon statistical design,
+calculated sample size, batch plan, current lifecycle status, and the Statsig
+experiment receipt. The experiment runner may advance its status, but it must
+reject changed inputs and must never persist platform credentials.
 
-The first smoke run intentionally fixes one exposure per synthetic user. Statsig is
-the assignment source of truth; the audience model only samples the assigned
+Each run fixes one exposure per synthetic user. Statsig is the assignment source
+of truth for a provider run. The local simulator instead uses reproducible paired
+50/50 assignment; in both cases the audience model only samples the assigned
 creative's outcome.
 
 ## Not domain primitives

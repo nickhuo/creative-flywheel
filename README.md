@@ -46,6 +46,14 @@ bun run experiment serve --run-id smoke_001
 bun run experiment inspect --run-id smoke_001
 ```
 
+`prepare` freezes the hypothesis and statistical design. By default it estimates
+the control creative's marginal install rate from the fitted audience model, uses
+an absolute MDE of 0.0025, alpha 0.05, power 0.8, and rounds the calculated
+fixed-horizon sample size up to a complete 500-user batch. Override these
+assumptions with `--baseline-rate`, `--mde`, `--alpha`, `--power`, `--batch-size`,
+or `--hypothesis`. Each later simulator round uses the preceding experiment's
+observed champion rate as its baseline and recalculates its fixed sample size.
+
 `prepare` is offline. `create` ensures the install-rate and CTR ratio metrics,
 creates a 50/50 Statsig experiment, and starts it explicitly. `serve` asks Statsig
 for every user’s arm, samples exactly one impression from the frozen audience
