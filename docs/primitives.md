@@ -62,7 +62,7 @@ Definition: [`AudiencePrediction`](../src/audience/model.ts#L233-L242)
 
 The audience model's probabilities and training-data coverage for one manifest and exposure context.
 
-It is an audit value, not an experiment result and not an input to the decision agent.
+It is an audit value, not an experiment result and not an input to the challenger agent.
 
 `layer_coverage` describes only coverage of `CreativeManifest.layers`:
 
@@ -87,6 +87,50 @@ of truth for a provider run. The local simulator instead uses reproducible paire
 50/50 assignment; in both cases the audience model only samples the assigned
 creative's outcome.
 
+The first local run estimates its baseline from the control creative and fitted
+audience mix. Each subsequent local run freezes the preceding experiment's
+observed champion rate as its baseline and recalculates its fixed-horizon sample
+size. Challenger generation does not own or modify the statistical design.
+
+## ResultSnapshot
+
+Definition: [`resultSnapshotSchema` and `ResultSnapshot`](../src/experiment/evaluation.ts)
+
+An immutable, content-addressed view of the evidence available for one experiment
+observation. The experiment observer owns it.
+
+It normalizes provider identity (`statsig` or the local `simulator`), analysis
+method, data date, arm exposures, health issues, and primary and secondary metric
+results. Raw provider responses remain in the observation log and authorization
+or execution state remains in the agent ledger. A snapshot never owns a
+recommendation or action.
+
+## ChallengerProposal
+
+Definition: [`challengerProposalSchema` and `ChallengerProposal`](../src/experiment/evaluation.ts)
+
+A typed creative hypothesis produced by the single Challenger Agent for one
+completed `ResultSnapshot`.
+
+It owns the proposed hypothesis, rationale, evidence references, and complete
+renderable layer selection. It does not choose whether to stop, promote, or
+terminate and has no approval or execution authority. The deterministic policy
+selects the next champion before the agent is called.
+
+## ProposedAction
+
+Definition: [`proposedActionSchema` and `ProposedAction`](../src/experiment/evaluation.ts)
+
+A typed workflow action assembled for exactly one `ResultSnapshot`.
+
+It owns the deterministic `stop`, `promote`, or `terminate` result and the
+evidence used by that policy. `stop` and `promote` also contain the
+`ChallengerProposal` used to prepare the next experiment; `terminate` does not.
+`terminate` records the final experiment's `stop` or `promote` result and the
+resulting champion before ending the optimization loop.
+It does not own eligibility, approval, or execution authority. Provider actions
+require human review, while the local simulator approves and executes them.
+
 ## Not domain primitives
 
 `FeatureSpec`, `LogisticModel`, `Metrics`, `PreviewRecord`, `AudienceRow`,
@@ -94,4 +138,6 @@ creative's outcome.
 are implementation or audit details. They do not define the creative-loop protocol
 and do not require domain-level naming.
 
-`Round`, `ResultSnapshot`, and `Decision` are planning names only. They are not implemented primitives and must be reviewed before implementation.
+`EligibilityAssessment`, `DecisionProposalRecord`, and `ActionReceiptRecord` are
+implementation or audit details. `Round` and `Decision` remain planning names and
+are not implemented primitives.
