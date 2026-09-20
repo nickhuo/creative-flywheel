@@ -85,3 +85,55 @@ local soundtrack or silence. Real image, character, font, and mastered audio
 assets can replace these mappings without changing the manifest contract.
 
 The first render downloads Remotion's pinned Chrome Headless Shell once.
+
+## Creative optimization agent
+
+Set `OPENAI_API_KEY` and `OPENAI_MODEL` in `.env`, then run one observation tick:
+
+```bash
+bun run agent tick --run-id smoke_001
+```
+
+Run a multi-round optimization entirely against the local audience simulator:
+
+```bash
+bun run agent simulate --run-id smoke_001 --max-rounds 10
+```
+
+The simulator adds one reproducible 50/50 batch at a time and records every
+cumulative snapshot. The deterministic gate advances intermediate batches without
+calling the model. At the calculated fixed horizon, deterministic policy chooses
+`stop` or `promote`. Unless the maximum round has been reached, one Challenger
+Agent call uses the updated champion and complete experiment history to propose
+the next hypothesis and renderable layer combination. The local executor prepares
+the next run and repeats until deterministic `terminate`.
+
+Without `--run-id`, the command scans every `served` or `awaiting_results`
+experiment under `artifacts/experiments/`. A scheduler can call it hourly:
+
+```bash
+bun run agent tick
+```
+
+The tick fetches cumulative exposures, diagnostics, and Statsig metric results,
+appends the raw response to `observations.jsonl`, and stores an immutable normalized
+snapshot in `artifacts/agent/state.sqlite`. The current experiments use a fixed
+horizon, so the deterministic decision runs only after target exposure is met,
+the primary metric is ready, and health checks pass. The model is called only to
+propose a challenger after `stop` or `promote`; it never chooses the experiment
+outcome. Repeating a tick with unchanged provider evidence does not call the model
+again.
+
+Inspect and review proposals with:
+
+```bash
+bun run agent proposals --status pending
+bun run agent approve --proposal-id <id> --reviewed-by <actor>
+bun run agent reject --proposal-id <id> --reviewed-by <actor> --note <reason>
+```
+
+The fixed-horizon action space is `stop`, `promote`, and `terminate`; there is no
+`continue`. Provider actions require human approval. Their external executors are
+not implemented yet, so approval records intent without mutating Statsig or
+publishing creative. The local simulator auto-approves actions and prepares the
+next experiment so the optimization trajectory can be reproduced end to end.
