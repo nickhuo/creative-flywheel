@@ -261,7 +261,10 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
       const challengerVariantId = experimentRunIdSchema.parse(
         `${rootRunId}_g${nextRound - 1}_v00`,
       );
-      const challengerPath = creativeManifestPath(challengerVariantId);
+      const challengerPath = creativeManifestPath(
+        rootRunId,
+        challengerVariantId,
+      );
       if (await Bun.file(challengerPath).exists()) {
         throw new Error(`Creative already exists for ${challengerVariantId}.`);
       }

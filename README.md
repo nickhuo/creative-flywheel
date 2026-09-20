@@ -10,13 +10,16 @@ Implemented domain primitives and their source definitions are maintained in
 ```bash
 bun install --frozen-lockfile
 bun run check
-for manifest in manifests/g0_v*.json; do bun run render "$manifest"; done
+bun run experiment prepare --run-id render_demo_001
+for manifest in manifests/g0_v*.json; do
+  bun run render --run-id render_demo_001 "$manifest"
+done
 ```
 
 Each render is stored as an immutable creative package under
-`artifacts/creatives/{variant_id}/`, containing `manifest.json`, `video.mp4`, and
-`render.json`. The renderer refuses to replace an existing video or reuse a
-variant ID with different manifest content.
+`artifacts/runs/{optimization_run_id}/creatives/{variant_id}/`, containing
+`manifest.json`, `video.mp4`, and `render.json`. The renderer refuses to replace
+an existing video or reuse a variant ID with different manifest content.
 Generation zero contains eight manifests (`g0_v00` through `g0_v07`) that vary
 across all six layers and cover all values in the render catalog. The renderer is
 deterministic and uses only local CSS, animation, text, and reviewed audio assets;
@@ -105,8 +108,8 @@ bun run agent simulate --run-id smoke_001 --max-rounds 10
 Render the approved challenger lineage when visual review is needed:
 
 ```bash
-for manifest in artifacts/creatives/smoke_001_g*_v00/manifest.json; do
-  bun run render "$manifest"
+for manifest in artifacts/runs/smoke_001/creatives/smoke_001_g*_v00/manifest.json; do
+  bun run render --run-id smoke_001 "$manifest"
 done
 ```
 
@@ -124,7 +127,7 @@ layers; after `promote`, it exploits the new champion with exactly one layer
 change. The orchestrator validates this policy instead of relying on the prompt
 alone. The local executor adds each next experiment to the root optimization's
 `experiments.json`, writes its globally namespaced challenger manifest under
-`artifacts/creatives/`, and repeats until deterministic `terminate`.
+the run's `creatives/` directory, and repeats until deterministic `terminate`.
 
 Without `--run-id`, the command scans the latest snapshot of every `served` or
 `awaiting_results` experiment under `artifacts/runs/`. A scheduler can call it

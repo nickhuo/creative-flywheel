@@ -7,9 +7,11 @@ import {
   artifactPath,
   creativeManifestPath,
   projectRoot,
+  runArtifactPaths,
   writeJsonAtomic,
   writeJsonNew,
 } from "../artifacts";
+import {experimentRunIdSchema} from "../experiment/run";
 import {renderableCreativeManifestSchema, VIDEO_SPEC} from "../manifest";
 
 const MAX_CONTAINER_DURATION_DRIFT_IN_FRAMES = 2; // Covers silent AAC encoder priming.
@@ -32,12 +34,23 @@ const probeSchema = z.object({
   }),
 });
 
-const [manifestArgument] = Bun.argv.slice(2);
+const [runFlag, runIdArgument, manifestArgument] = Bun.argv.slice(2);
 
-if (manifestArgument === undefined) {
-  throw new Error("Usage: bun run render <manifest.json>");
+if (
+  runFlag !== "--run-id" ||
+  runIdArgument === undefined ||
+  manifestArgument === undefined
+) {
+  throw new Error(
+    "Usage: bun run render --run-id <optimization-run-id> <manifest.json>",
+  );
 }
 
+const optimizationRunId = experimentRunIdSchema.parse(runIdArgument);
+const planPath = runArtifactPaths(optimizationRunId).plan;
+if (!(await Bun.file(planPath).exists())) {
+  throw new Error(`Optimization run not found: ${optimizationRunId}`);
+}
 const manifestPath = resolve(manifestArgument);
 const manifestFile = Bun.file(manifestPath);
 
@@ -47,7 +60,10 @@ if (!(await manifestFile.exists())) {
 
 const manifestJson: unknown = await manifestFile.json();
 const manifest = renderableCreativeManifestSchema.parse(manifestJson);
-const storedManifestPath = creativeManifestPath(manifest.variant_id);
+const storedManifestPath = creativeManifestPath(
+  optimizationRunId,
+  manifest.variant_id,
+);
 const creativeDirectory = dirname(storedManifestPath);
 const outputPath = resolve(creativeDirectory, "video.mp4");
 const pendingOutputPath = resolve(creativeDirectory, "video.partial.mp4");

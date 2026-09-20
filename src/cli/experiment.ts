@@ -4,6 +4,7 @@ import {
   appendExperimentSnapshot,
   appendObservation,
   artifactPath,
+  creativeManifestPath,
   findExperiment,
   findLatestObservation,
   indexExperimentRound,
@@ -123,6 +124,14 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
   const baselineRate = Number(
     readOptionalFlag(arguments_, "--baseline-rate") ?? modeledBaselineRate,
   );
+  const storedControlPath = creativeManifestPath(
+    runId,
+    controlManifest.variant_id,
+  );
+  const storedTreatmentPath = creativeManifestPath(
+    runId,
+    treatmentManifest.variant_id,
+  );
   const run = prepareExperimentRun({
     run_id: runId,
     prepared_at: preparedAt,
@@ -135,12 +144,15 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
     hypothesis,
     environment,
     audience_model_path: artifactPath(modelPath),
-    control_manifest_path: artifactPath(controlPath),
+    control_manifest_path: artifactPath(storedControlPath),
     control_manifest: controlManifest,
-    treatment_manifest_path: artifactPath(treatmentPath),
+    treatment_manifest_path: artifactPath(storedTreatmentPath),
     treatment_manifest: treatmentManifest,
   });
-  const paths = await initializeOptimizationRun(runId, run);
+  const paths = await initializeOptimizationRun(runId, run, [
+    controlManifest,
+    treatmentManifest,
+  ]);
   const ledger = await openAgentLedger();
   try {
     indexOptimizationRun(ledger, runId, run);

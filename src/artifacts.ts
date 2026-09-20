@@ -9,11 +9,11 @@ import {
   experimentRunSchema,
   type ExperimentRun,
 } from "./experiment/run";
+import {type CreativeManifest} from "./manifest";
 
 export const projectRoot = resolve(import.meta.dir, "..");
 export const artifactsDirectory = resolve(projectRoot, "artifacts");
 export const runsDirectory = resolve(artifactsDirectory, "runs");
-export const creativesDirectory = resolve(artifactsDirectory, "creatives");
 export const defaultLedgerPath = resolve(artifactsDirectory, "state.sqlite");
 
 const timestampSchema = z.string().datetime();
@@ -78,6 +78,7 @@ export type RunArtifactPaths = {
   experiments: string;
   observations: string;
   trajectory: string;
+  creatives: string;
 };
 
 export function runArtifactPaths(optimizationRunId: string): RunArtifactPaths {
@@ -88,6 +89,7 @@ export function runArtifactPaths(optimizationRunId: string): RunArtifactPaths {
     experiments: resolve(directory, "experiments.json"),
     observations: resolve(directory, "observations.json"),
     trajectory: resolve(directory, "trajectory.json"),
+    creatives: resolve(directory, "creatives"),
   };
 }
 
@@ -142,9 +144,17 @@ export function indexExperimentRound(
 export async function initializeOptimizationRun(
   optimizationRunId: string,
   run: ExperimentRun,
+  initialManifests: readonly [CreativeManifest, CreativeManifest],
 ): Promise<RunArtifactPaths> {
   const paths = runArtifactPaths(optimizationRunId);
   const [control, treatment] = run.experiment.arms;
+  const [controlManifest, treatmentManifest] = initialManifests;
+  if (
+    controlManifest.variant_id !== control.variant_id ||
+    treatmentManifest.variant_id !== treatment.variant_id
+  ) {
+    throw new Error("Initial manifests do not match experiment arms.");
+  }
   await mkdir(paths.directory, {recursive: true});
   const plan = optimizationRunPlanSchema.parse({
     schema_version: 1,
@@ -160,6 +170,14 @@ export async function initializeOptimizationRun(
   await writeJsonNew(paths.plan, plan);
   await writeJsonNew(paths.experiments, []);
   await writeJsonNew(paths.observations, []);
+  await writeJsonNew(
+    creativeManifestPath(optimizationRunId, controlManifest.variant_id),
+    controlManifest,
+  );
+  await writeJsonNew(
+    creativeManifestPath(optimizationRunId, treatmentManifest.variant_id),
+    treatmentManifest,
+  );
   await appendExperimentSnapshot({
     optimization_run_id: optimizationRunId,
     round_number: 1,
@@ -266,8 +284,15 @@ export async function findLatestObservation(
   return null;
 }
 
-export function creativeManifestPath(variantId: string): string {
-  return resolve(creativesDirectory, variantId, "manifest.json");
+export function creativeManifestPath(
+  optimizationRunId: string,
+  variantId: string,
+): string {
+  return resolve(
+    runArtifactPaths(optimizationRunId).creatives,
+    variantId,
+    "manifest.json",
+  );
 }
 
 export function artifactPath(path: string): string {

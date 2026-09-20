@@ -128,6 +128,10 @@ test(
       expect(run.experiment.secondary_metrics).toEqual([
         {name: "ctr_user", type: "event_user"},
       ]);
+      expect(run.experiment.arms.map(({manifest}) => manifest.path)).toEqual([
+        `artifacts/runs/${runId}/creatives/g0_v00/manifest.json`,
+        `artifacts/runs/${runId}/creatives/g0_v01/manifest.json`,
+      ]);
       expect(
         experimentRunSchema.safeParse({
           ...run,
@@ -216,10 +220,15 @@ test(
         action_receipt: {status: "succeeded"},
       });
       expect((await readdir(runDirectory)).sort()).toEqual([
+        "creatives",
         "experiments.json",
         "observations.json",
         "plan.json",
         "trajectory.json",
+      ]);
+      expect((await readdir(join(runDirectory, "creatives"))).sort()).toEqual([
+        "g0_v00",
+        "g0_v01",
       ]);
       expect(await Bun.file(ledgerPath).exists()).toBe(true);
       const ledger = new Database(ledgerPath, {readonly: true, strict: true});
