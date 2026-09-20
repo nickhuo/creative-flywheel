@@ -1,6 +1,6 @@
 import {expect, test} from "bun:test";
 import {randomUUID} from "node:crypto";
-import {mkdtemp, rm, stat} from "node:fs/promises";
+import {mkdtemp, readdir, rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join, resolve} from "node:path";
 
@@ -59,6 +59,7 @@ test(
         root_run_id: string;
         termination: string;
         trajectory: Array<{
+          log: string;
           action: {action: string};
           action_receipt: {status: string};
         }>;
@@ -71,10 +72,29 @@ test(
       });
       expect(simulation.trajectory).toHaveLength(1);
       expect(simulation.trajectory[0]).toMatchObject({
+        log: `artifacts/experiments/${runId}/simulation.json`,
         action: {action: "terminate"},
         action_receipt: {status: "succeeded"},
       });
-      expect((await stat(ledgerPath)).size).toBeGreaterThan(0);
+      expect((await readdir(runDirectory)).sort()).toEqual([
+        "run.json",
+        "simulation.json",
+      ]);
+      expect(await Bun.file(ledgerPath).exists()).toBe(false);
+
+      const simulationLog = await Bun.file(
+        join(runDirectory, "simulation.json"),
+      ).json();
+      expect(simulationLog).toMatchObject({
+        schema_version: 1,
+        source: "simulator",
+        run_id: runId,
+        action: {action: "terminate"},
+        proposal: {status: "approved"},
+        action_receipt: {status: "succeeded"},
+        next_run_id: null,
+      });
+      expect(simulationLog).not.toHaveProperty("batches");
     } finally {
       await rm(runDirectory, {recursive: true, force: true});
       await rm(temporaryDirectory, {recursive: true, force: true});
