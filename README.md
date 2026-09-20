@@ -100,13 +100,14 @@ Run a multi-round optimization entirely against the local audience simulator:
 bun run agent simulate --run-id smoke_001 --max-rounds 10
 ```
 
-The simulator adds one reproducible 50/50 batch at a time and records every
-cumulative snapshot. The deterministic gate advances intermediate batches without
-calling the model. At the calculated fixed horizon, deterministic policy chooses
-`stop` or `promote`. Unless the maximum round has been reached, one Challenger
-Agent call uses the updated champion, complete experiment history, and a versioned
-Rune Keepers campaign brief to propose the next hypothesis and renderable layer
-combination. The local executor prepares the next run and repeats until
+The simulator produces one reproducible 50/50 fixed-horizon result per run. It
+keeps transient decision state in memory and writes the normalized result,
+approved action, and receipt to `simulation.json` in that run's artifact folder.
+At the calculated horizon, deterministic policy chooses `stop` or `promote`.
+Unless the maximum round has been reached, one Challenger Agent call uses the
+updated champion, complete experiment history, and a versioned Rune Keepers
+campaign brief to propose the next hypothesis and renderable layer combination.
+The local executor prepares the next run in its own folder and repeats until
 deterministic `terminate`.
 
 Without `--run-id`, the command scans every `served` or `awaiting_results`

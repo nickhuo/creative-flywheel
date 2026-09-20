@@ -5,20 +5,16 @@ import {audienceModelSchema, sha256} from "../audience/model";
 import {type ChallengerContext} from "../agent/challenger";
 import {
   AgentLedger,
-  type DecisionProposalRecord,
+  type ActionReceiptRecord,
   type ObservationTrigger,
   type ProposalStatus,
 } from "../agent/ledger";
 import {evaluateSnapshot} from "../agent/orchestrator";
-import {
-  type ProposedAction,
-  type ResultSnapshot,
-} from "../experiment/evaluation";
+import {type ProposedAction} from "../experiment/evaluation";
 import {
   experimentRunIdSchema,
   experimentRunSchema,
   summarizeExperimentEvents,
-  type ExperimentEventRecord,
   type ExperimentRun,
 } from "../experiment/run";
 import {
@@ -79,86 +75,76 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
   if (Number.isNaN(simulationTime)) {
     throw new Error(`Run ${rootRunId} has an invalid prepared_at timestamp.`);
   }
-  const ledger = await openLedger();
+  const ledger = new AgentLedger();
   try {
     const experimentHistory: ChallengerContext["experiment_history"] = [];
-    const trajectory: unknown[] = [];
+    const completedRuns: Array<{
+      round: number;
+      run_id: string;
+      action: ProposedAction;
+      action_receipt: ActionReceiptRecord;
+      log: string;
+    }> = [];
     let termination: "max_rounds" | null = null;
 
     for (let round = 1; round <= maxRounds; round += 1) {
       const {controlManifest, treatmentManifest} = await loadRunManifests(run);
-      const initialObservedAt = new Date(simulationTime).toISOString();
+      const simulationLogPath = resolve(
+        experimentsDirectory,
+        run.run_id,
+        "simulation.json",
+      );
+      if (await Bun.file(simulationLogPath).exists()) {
+        throw new Error(`Simulation log already exists for ${run.run_id}.`);
+      }
+
+      simulationTime += 60_000;
+      const observedAt = new Date(simulationTime).toISOString();
       if (ledger.getRuntime(run.run_id) === null) {
         ledger.upsertRuntime({
           run_id: run.run_id,
           next_observation_at: null,
           lease_until: null,
           cooldown_until: null,
-          updated_at: initialObservedAt,
+          updated_at: observedAt,
         });
       }
 
-      const events: ExperimentEventRecord[] = [];
-      const batches: unknown[] = [];
-      let finalSnapshot: ResultSnapshot | null = null;
-      let finalAction: ProposedAction | null = null;
-      let finalProposal: DecisionProposalRecord | null = null;
-      for (
-        let start = 0, batch = 1;
-        start < run.traffic.users;
-        start += run.traffic.batch_size, batch += 1
-      ) {
-        simulationTime += 60_000;
-        const observedAt = new Date(simulationTime).toISOString();
-        events.push(
-          ...simulateExperimentBatch(
-            run,
-            audienceModel,
-            controlManifest,
-            treatmentManifest,
-            start,
-            run.traffic.batch_size,
-            observedAt,
-          ),
-        );
-        const summary = summarizeExperimentEvents(run, events);
-        const snapshot = createSimulatedResultSnapshot(run, summary, observedAt);
-        const outcome = await evaluateSnapshot({
-          run,
-          snapshot,
-          trigger: "manual",
-          observed_at: observedAt,
-          model,
-          ledger,
-          challenger_context: {
-            round,
-            max_rounds: maxRounds,
-            control_manifest: controlManifest,
-            treatment_manifest: treatmentManifest,
-            experiment_history: experimentHistory,
-          },
-          tracing_disabled: Bun.env.OPENAI_AGENTS_DISABLE_TRACING === "1",
-        });
-        batches.push({
-          batch,
-          cumulative_users: summary.users,
-          arms: summary.arms,
-          snapshot_id: outcome.snapshot_id,
-          eligibility: outcome.eligibility,
-          proposal: outcome.proposal,
-        });
-        if (outcome.action !== null) {
-          finalSnapshot = snapshot;
-          finalAction = outcome.action;
-          finalProposal = outcome.proposal;
-        }
-      }
+      const events = simulateExperimentBatch(
+        run,
+        audienceModel,
+        controlManifest,
+        treatmentManifest,
+        0,
+        run.traffic.users,
+        observedAt,
+      );
+      const summary = summarizeExperimentEvents(run, events);
+      const finalSnapshot = createSimulatedResultSnapshot(
+        run,
+        summary,
+        observedAt,
+      );
+      const outcome = await evaluateSnapshot({
+        run,
+        snapshot: finalSnapshot,
+        trigger: "manual",
+        observed_at: observedAt,
+        model,
+        ledger,
+        challenger_context: {
+          round,
+          max_rounds: maxRounds,
+          control_manifest: controlManifest,
+          treatment_manifest: treatmentManifest,
+          experiment_history: experimentHistory,
+        },
+        tracing_disabled: Bun.env.OPENAI_AGENTS_DISABLE_TRACING === "1",
+      });
+      const finalAction = outcome.action;
+      const finalProposal = outcome.proposal;
 
-      if (
-        finalSnapshot === null ||
-        finalAction === null ||
-        finalProposal === null
-      ) {
+      if (finalAction === null || finalProposal === null) {
         throw new Error(`Run ${run.run_id} completed without a workflow action.`);
       }
       if (finalProposal.status !== "pending") {
@@ -175,6 +161,14 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
           review_note: "Automatically approved inside the local simulator.",
         },
       );
+      const proposalLog = {
+        proposal_id: approvedProposal.proposal_id,
+        policy_version: approvedProposal.policy_version,
+        prompt_version: approvedProposal.prompt_version,
+        model: approvedProposal.model,
+        status: approvedProposal.status,
+        reviewed_by: approvedProposal.reviewed_by,
+      };
       experimentHistory.push({
         run_id: run.run_id,
         hypothesis: run.experiment.hypothesis.statement,
@@ -202,15 +196,24 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
             champion_variant_id: finalAction.champion_variant_id,
           },
         });
-        trajectory.push({
+        await writeJsonNew(simulationLogPath, {
+          schema_version: 1,
+          source: "simulator",
           round,
           run_id: run.run_id,
-          hypothesis: run.experiment.hypothesis,
-          batch_size: run.traffic.batch_size,
-          required_users: run.statistical_design.required_users,
-          batches,
+          observed_at: observedAt,
+          snapshot: finalSnapshot,
+          action: finalAction,
+          proposal: proposalLog,
+          action_receipt: receipt,
+          next_run_id: null,
+        });
+        completedRuns.push({
+          round,
+          run_id: run.run_id,
           action: finalAction,
           action_receipt: receipt,
+          log: relative(projectRoot, simulationLogPath),
         });
         termination = "max_rounds";
         break;
@@ -267,16 +270,24 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
           next_run_id: next.run.run_id,
         },
       });
-      trajectory.push({
+      await writeJsonNew(simulationLogPath, {
+        schema_version: 1,
+        source: "simulator",
         round,
         run_id: run.run_id,
-        hypothesis: run.experiment.hypothesis,
-        batch_size: run.traffic.batch_size,
-        required_users: run.statistical_design.required_users,
-        batches,
+        observed_at: observedAt,
+        snapshot: finalSnapshot,
+        action: finalAction,
+        proposal: proposalLog,
+        action_receipt: receipt,
+        next_run_id: next.run.run_id,
+      });
+      completedRuns.push({
+        round,
+        run_id: run.run_id,
         action: finalAction,
         action_receipt: receipt,
-        next_run: next.run,
+        log: relative(projectRoot, simulationLogPath),
       });
       run = next.run;
     }
@@ -289,7 +300,7 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
           root_run_id: rootRunId,
           max_rounds: maxRounds,
           termination,
-          trajectory,
+          trajectory: completedRuns,
         },
         null,
         2,
