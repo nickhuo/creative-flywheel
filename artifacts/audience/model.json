@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "source": {
-    "sha256": "40ce1fee7f827b76522c8638a5fdc9ea66e622d20169ed49f9b8a742892ef9c8",
     "row_count": 120000,
     "start_ts_utc": "2026-08-17 00:00",
     "end_ts_utc": "2026-08-30 23:59"

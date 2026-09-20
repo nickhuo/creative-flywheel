@@ -4,10 +4,75 @@ import {mkdtemp, readdir, rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join, resolve} from "node:path";
 
+import {AgentLedger} from "../src/agent/ledger";
+import {createResultSnapshot} from "../src/experiment/evaluation";
 import {experimentRunSchema} from "../src/experiment/run";
 import {StatsigConsoleClient} from "../src/experiment/statsig";
 
 const projectRoot = resolve(import.meta.dir, "..");
+
+test("snapshot identity ignores repeated observation time", () => {
+  const evidence = {
+    schema_version: 1 as const,
+    run_id: "snapshot_test",
+    data_through: null,
+    source: {provider: "simulator" as const, experiment_id: "experiment"},
+    analysis: "fixed_horizon" as const,
+    exposure_groups: [
+      {
+        group_id: "control",
+        variant_id: "g0_v00",
+        role: "control" as const,
+        exposures: 10,
+      },
+      {
+        group_id: "treatment",
+        variant_id: "g0_v01",
+        role: "treatment" as const,
+        exposures: 10,
+      },
+    ],
+    health_issues: [],
+    primary_metric: {
+      name: "install_rate_user",
+      status: "pending" as const,
+      reason: "Waiting for results.",
+    },
+    secondary_metrics: [],
+  };
+  const first = createResultSnapshot({
+    ...evidence,
+    observed_at: "2026-09-19T00:00:00.000Z",
+  });
+  const repeated = createResultSnapshot({
+    ...evidence,
+    observed_at: "2026-09-19T01:00:00.000Z",
+  });
+  expect(repeated.snapshot_id).toBe(first.snapshot_id);
+
+  const ledger = new AgentLedger();
+  try {
+    ledger.recordSnapshot({
+      snapshot_id: first.snapshot_id,
+      run_id: first.run_id,
+      trigger: "manual",
+      observed_at: first.observed_at,
+      recorded_at: first.observed_at,
+      payload: first,
+    });
+    const persisted = ledger.recordSnapshot({
+      snapshot_id: repeated.snapshot_id,
+      run_id: repeated.run_id,
+      trigger: "cron",
+      observed_at: repeated.observed_at,
+      recorded_at: repeated.observed_at,
+      payload: repeated,
+    });
+    expect(persisted.observed_at).toBe(first.observed_at);
+  } finally {
+    ledger.close();
+  }
+});
 
 test(
   "prepares and simulates a complete local experiment",

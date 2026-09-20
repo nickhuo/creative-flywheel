@@ -21,7 +21,6 @@ export type ExperimentRuntimeInput = Omit<
 export type ResultSnapshotRecord = {
   snapshot_id: string;
   run_id: string;
-  fingerprint: string;
   trigger: ObservationTrigger;
   observed_at: string;
   recorded_at: string;
@@ -117,14 +116,12 @@ export class AgentLedger {
       CREATE TABLE IF NOT EXISTS result_snapshots (
         snapshot_id TEXT PRIMARY KEY NOT NULL,
         run_id TEXT NOT NULL REFERENCES experiment_runtime(run_id),
-        fingerprint TEXT NOT NULL,
         trigger TEXT NOT NULL CHECK (
           trigger IN ('cron', 'manual', 'provider_event')
         ),
         observed_at TEXT NOT NULL,
         recorded_at TEXT NOT NULL,
-        payload_json TEXT NOT NULL CHECK (json_valid(payload_json)),
-        UNIQUE (run_id, fingerprint)
+        payload_json TEXT NOT NULL CHECK (json_valid(payload_json))
       ) STRICT
     `);
     this.#database.run(`
@@ -272,18 +269,17 @@ export class AgentLedger {
       const insertion = this.#database
         .query<
           never,
-          [string, string, string, ObservationTrigger, string, string, string]
+          [string, string, ObservationTrigger, string, string, string]
         >(
           `INSERT INTO result_snapshots (
-             snapshot_id, run_id, fingerprint, trigger, observed_at,
+             snapshot_id, run_id, trigger, observed_at,
              recorded_at, payload_json
-           ) VALUES (?, ?, ?, ?, ?, ?, ?)
-           ON CONFLICT (run_id, fingerprint) DO NOTHING`,
+           ) VALUES (?, ?, ?, ?, ?, ?)
+           ON CONFLICT (snapshot_id) DO NOTHING`,
         )
         .run(
           snapshot.snapshot_id,
           snapshot.run_id,
-          snapshot.fingerprint,
           snapshot.trigger,
           snapshot.observed_at,
           snapshot.recorded_at,
@@ -291,13 +287,13 @@ export class AgentLedger {
         );
 
       const persisted = this.#database
-        .query<ResultSnapshotDatabaseRow, [string, string]>(
-          `SELECT snapshot_id, run_id, fingerprint, trigger, observed_at,
+        .query<ResultSnapshotDatabaseRow, [string]>(
+          `SELECT snapshot_id, run_id, trigger, observed_at,
                   recorded_at, payload_json
            FROM result_snapshots
-           WHERE run_id = ? AND fingerprint = ?`,
+           WHERE snapshot_id = ?`,
         )
-        .get(snapshot.run_id, snapshot.fingerprint);
+        .get(snapshot.snapshot_id);
       if (persisted === null) {
         throw new Error(`Snapshot ID already exists: ${snapshot.snapshot_id}`);
       }
@@ -320,7 +316,7 @@ export class AgentLedger {
   getSnapshot(snapshotId: string): ResultSnapshotRecord | null {
     const record = this.#database
       .query<ResultSnapshotDatabaseRow, [string]>(
-        `SELECT snapshot_id, run_id, fingerprint, trigger, observed_at,
+        `SELECT snapshot_id, run_id, trigger, observed_at,
                 recorded_at, payload_json
          FROM result_snapshots
          WHERE snapshot_id = ?`,

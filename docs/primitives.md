@@ -44,7 +44,7 @@ Definition: [`audienceModelSchema` and `AudienceModel`](../src/audience/model.ts
 
 A frozen, versioned artifact fitted from historical impression data.
 
-It owns the source fingerprint, deterministic train/validation split, feature vocabulary, model coefficients, audience and fatigue distributions, validation metrics, and inference policies. It does not own experiment assignment or round state.
+It owns source dataset metadata, the deterministic train/validation split, feature vocabulary, model coefficients, audience and fatigue distributions, validation metrics, and inference policies. It does not own experiment assignment or round state.
 
 ## ExposureContext
 
@@ -88,8 +88,8 @@ Definition: [`experimentRunSchema` and `ExperimentRun`](../src/experiment/run.ts
 
 An auditable record of one experiment execution.
 
-It owns the frozen hypothesis and layer changes, input paths and fingerprints,
-seed, two-arm definitions, metric names and types, fixed-horizon statistical
+It owns the frozen hypothesis and layer changes, input paths, seed, two-arm
+definitions, metric names and types, fixed-horizon statistical
 design, calculated sample size, batch plan, current lifecycle status, and the
 Statsig experiment receipt. The experiment runner may advance its status, but it
 must reject changed inputs and must never persist platform credentials.
@@ -113,8 +113,10 @@ size. Challenger generation does not own or modify the statistical design.
 
 Definition: [`resultSnapshotSchema` and `ResultSnapshot`](../src/experiment/evaluation.ts)
 
-An immutable, content-addressed view of the evidence available for one experiment
-observation. The experiment observer owns it.
+An immutable view of the evidence available for one experiment observation. The
+experiment observer owns it. Its stable `snapshot_id` is also the SQLite
+idempotency key; repeated observations with the same normalized evidence reuse
+the same snapshot.
 
 It normalizes provider identity (`statsig` or the local `simulator`), analysis
 method, data date, arm exposures, health issues, and primary and secondary metric

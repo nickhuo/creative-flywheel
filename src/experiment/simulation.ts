@@ -1,7 +1,6 @@
 import {
   deterministicUniform,
   sampleExposure,
-  sha256,
   type AudienceModel,
 } from "../audience/model";
 import {
@@ -79,7 +78,6 @@ export function createNextSimulationRun(input: {
     hypothesis: input.action.next_challenger.hypothesis.statement,
     environment: input.current_run.experiment.environment,
     audience_model_path: input.current_run.audience_model.path,
-    audience_model: input.audience_model,
     control_manifest_path: championArm.manifest.path,
     control_manifest: championManifest,
     treatment_manifest_path: input.challenger_manifest_path,
@@ -102,7 +100,7 @@ export function simulateExperimentBatch(
   count: number,
   observedAt: string,
 ): ExperimentEventRecord[] {
-  verifyRunInputs(run, audienceModel, controlManifest, treatmentManifest);
+  verifyRunInputs(run, controlManifest, treatmentManifest);
   if (start % 2 !== 0 || count % 2 !== 0) {
     throw new RangeError("Simulation batches must preserve paired 50/50 blocks.");
   }
@@ -227,13 +225,6 @@ export function createSimulatedResultSnapshot(
     source: {
       provider: "simulator",
       experiment_id: run.experiment.name,
-      raw_fingerprint: sha256(
-        JSON.stringify({
-          method: "two_proportion_z_v1",
-          alpha: run.statistical_design.alpha,
-          summary,
-        }),
-      ),
     },
     analysis: run.statistical_design.analysis,
     exposure_groups: [

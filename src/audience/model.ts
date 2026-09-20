@@ -127,7 +127,6 @@ export const audienceModelSchema = z
     schema_version: z.literal(1),
     source: z
       .object({
-        sha256: z.string().regex(/^[a-f0-9]{64}$/),
         row_count: z.number().int().positive(),
         start_ts_utc: z.string().min(1),
         end_ts_utc: z.string().min(1),
@@ -257,10 +256,6 @@ export function deterministicUniform(key: string): number {
   return Number.parseInt(sha256(key).slice(0, 13), 16) / 0x10000000000000;
 }
 
-export function modelFingerprint(model: AudienceModel): string {
-  return sha256(JSON.stringify(model));
-}
-
 export function scoreExposure(
   model: AudienceModel,
   manifest: CreativeManifest,
@@ -324,8 +319,7 @@ export function sampleExposure(
 ): ImpressionOutcome {
   const parsedContext = exposureContextSchema.parse(context);
   const prediction = scoreExposure(model, manifest, parsedContext);
-  const hash = modelFingerprint(model);
-  const sampleKey = `${hash}|${seed}|${parsedContext.impression_id}|${manifest.variant_id}`;
+  const sampleKey = `${seed}|${parsedContext.impression_id}|${manifest.variant_id}`;
   const click: Binary =
     deterministicUniform(`${sampleKey}|click`) < prediction.p_click ? 1 : 0;
   const installProbability = click

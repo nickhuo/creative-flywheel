@@ -125,7 +125,6 @@ async function prepareCommand(arguments_: string[]): Promise<void> {
     hypothesis,
     environment,
     audience_model_path: projectPath(modelPath),
-    audience_model: audienceModel,
     control_manifest_path: projectPath(controlPath),
     control_manifest: controlManifest,
     treatment_manifest_path: projectPath(treatmentPath),
@@ -390,12 +389,7 @@ async function loadAndVerifyInputs(run: ExperimentRun): Promise<{
   const treatmentManifest = creativeManifestSchema.parse(
     await readJson(resolve(projectRoot, treatment.manifest.path)),
   );
-  verifyRunInputs(
-    run,
-    audienceModel,
-    controlManifest,
-    treatmentManifest,
-  );
+  verifyRunInputs(run, controlManifest, treatmentManifest);
   return {audienceModel, controlManifest, treatmentManifest};
 }
 

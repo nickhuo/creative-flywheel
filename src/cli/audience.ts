@@ -6,7 +6,6 @@ import {
   audienceModelSchema,
   deterministicUniform,
   FATIGUE_BUCKETS,
-  modelFingerprint,
   sampleExposure,
   scoreExposure,
   type AudienceModel,
@@ -64,7 +63,6 @@ async function fitCommand(arguments_: string[]): Promise<void> {
       {
         artifact: outputPath,
         source_rows: model.source.row_count,
-        model_fingerprint: modelFingerprint(model),
         selected_l2: {
           click: model.click_model.l2,
           install: model.install_model.l2,
@@ -102,9 +100,8 @@ async function sampleCommand(arguments_: string[]): Promise<void> {
       return creativeManifestSchema.parse(manifestJson);
     }),
   );
-  const hash = modelFingerprint(model);
   const records = manifests.flatMap((manifest) =>
-    sampleManifest(model, manifest, perVariant, seed, hash),
+    sampleManifest(model, manifest, perVariant, seed),
   );
   const variants = manifests.map((manifest) => {
     const variantRecords = records.filter(
@@ -138,8 +135,6 @@ async function sampleCommand(arguments_: string[]): Promise<void> {
     schema_version: 1,
     kind: "audience_preview",
     note: "Independent model preview contexts; assignment and coherent exposure history remain the responsibility of the experiment runner.",
-    model_fingerprint: hash,
-    fingerprint_input: "JSON.stringify(parsed model)",
     seed,
     per_variant: perVariant,
     manifests,
@@ -156,11 +151,10 @@ function sampleManifest(
   manifest: CreativeManifest,
   count: number,
   seed: number,
-  modelHash: string,
 ): PreviewRecord[] {
   return Array.from({length: count}, (_, index) => {
     const ordinal = index + 1;
-    const contextKey = `${modelHash}|${seed}|preview_context|${ordinal}`;
+    const contextKey = `${seed}|preview_context|${ordinal}`;
     const audience = pickWeighted(
       model.audience_mix,
       deterministicUniform(`${contextKey}|audience`),

@@ -176,7 +176,6 @@ export function fitAudience(csvText: string): AudienceModel {
   const model = {
     schema_version: 1 as const,
     source: {
-      sha256: sha256(csvText),
       row_count: rows.length,
       start_ts_utc: timestamps[0]!,
       end_ts_utc: timestamps.at(-1)!,

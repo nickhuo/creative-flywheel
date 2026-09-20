@@ -1,6 +1,5 @@
 import {z} from "zod";
 
-import {sha256} from "../audience/model";
 import {
   createResultSnapshot,
   type MetricResult,
@@ -255,7 +254,6 @@ export function normalizeStatsigObservation(
     source: {
       provider: "statsig",
       experiment_id: run.statsig_experiment.experiment_id,
-      raw_fingerprint: sha256(JSON.stringify(observation)),
     },
     analysis:
       experiment.success && experiment.data.data.sequentialTesting

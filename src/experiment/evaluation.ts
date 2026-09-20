@@ -111,7 +111,6 @@ const resultSnapshotContentShape = {
     .object({
       provider: z.enum(["simulator", "statsig"]),
       experiment_id: conciseTextSchema,
-      raw_fingerprint: sha256Schema,
     })
     .strict()
     .readonly(),
@@ -193,16 +192,6 @@ export const resultSnapshotSchema = z
             index === 0 ? ["primary_metric"] : ["secondary_metrics", index - 1],
         });
       }
-    }
-
-    const {snapshot_id: snapshotId, ...content} = snapshot;
-    const canonicalContent = resultSnapshotContentSchema.parse(content);
-    if (sha256(JSON.stringify(canonicalContent)) !== snapshotId) {
-      context.addIssue({
-        code: "custom",
-        message: "Snapshot ID does not match the normalized evidence.",
-        path: ["snapshot_id"],
-      });
     }
   })
   .readonly();
@@ -316,7 +305,9 @@ export function createResultSnapshot(
 ): ResultSnapshot {
   const content = resultSnapshotContentSchema.parse(input);
   return resultSnapshotSchema.parse({
-    snapshot_id: sha256(JSON.stringify(content)),
+    snapshot_id: sha256(
+      JSON.stringify({...content, observed_at: undefined}),
+    ),
     ...content,
   });
 }

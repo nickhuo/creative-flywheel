@@ -61,7 +61,6 @@ export async function evaluateSnapshot(
   const persisted = input.ledger.recordSnapshot({
     snapshot_id: snapshot.snapshot_id,
     run_id: snapshot.run_id,
-    fingerprint: snapshot.source.raw_fingerprint,
     trigger: input.trigger,
     observed_at: input.observed_at,
     recorded_at: input.observed_at,

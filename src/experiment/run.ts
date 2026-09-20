@@ -4,14 +4,11 @@ import {
   deterministicUniform,
   exposureContextSchema,
   impressionOutcomeSchema,
-  modelFingerprint,
-  sha256,
   type AudienceModel,
   type ExposureContext,
 } from "../audience/model";
 import {
   CREATIVE_LAYER_FIELDS,
-  creativeManifestSchema,
   type CreativeManifest,
 } from "../manifest";
 import {calculateRequiredUsers} from "./statistics";
@@ -37,7 +34,6 @@ export const experimentRunIdSchema = safeIdSchema;
 const artifactReferenceSchema = z
   .object({
     path: z.string().trim().min(1),
-    fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
   })
   .strict();
 
@@ -286,7 +282,6 @@ type PrepareExperimentRunInput = {
   hypothesis: string;
   environment: string;
   audience_model_path: string;
-  audience_model: AudienceModel;
   control_manifest_path: string;
   control_manifest: CreativeManifest;
   treatment_manifest_path: string;
@@ -322,7 +317,6 @@ export function prepareExperimentRun(
     seed: input.seed,
     audience_model: {
       path: input.audience_model_path,
-      fingerprint: modelFingerprint(input.audience_model),
     },
     traffic: {
       users: requiredUsers,
@@ -356,7 +350,6 @@ export function prepareExperimentRun(
           variant_id: input.control_manifest.variant_id,
           manifest: {
             path: input.control_manifest_path,
-            fingerprint: manifestFingerprint(input.control_manifest),
           },
           allocation_percent: 50,
         },
@@ -365,7 +358,6 @@ export function prepareExperimentRun(
           variant_id: input.treatment_manifest.variant_id,
           manifest: {
             path: input.treatment_manifest_path,
-            fingerprint: manifestFingerprint(input.treatment_manifest),
           },
           allocation_percent: 50,
         },
@@ -379,24 +371,14 @@ export function prepareExperimentRun(
 
 export function verifyRunInputs(
   run: ExperimentRun,
-  audienceModel: AudienceModel,
   controlManifest: CreativeManifest,
   treatmentManifest: CreativeManifest,
 ): void {
   const [control, treatment] = run.experiment.arms;
-  if (modelFingerprint(audienceModel) !== run.audience_model.fingerprint) {
-    throw new Error("Audience model fingerprint no longer matches run.json.");
-  }
-  if (
-    controlManifest.variant_id !== control.variant_id ||
-    manifestFingerprint(controlManifest) !== control.manifest.fingerprint
-  ) {
+  if (controlManifest.variant_id !== control.variant_id) {
     throw new Error("Control manifest no longer matches run.json.");
   }
-  if (
-    treatmentManifest.variant_id !== treatment.variant_id ||
-    manifestFingerprint(treatmentManifest) !== treatment.manifest.fingerprint
-  ) {
+  if (treatmentManifest.variant_id !== treatment.variant_id) {
     throw new Error("Treatment manifest no longer matches run.json.");
   }
   const actualChanges = CREATIVE_LAYER_FIELDS.flatMap((layer) => {
@@ -423,9 +405,6 @@ export function buildExposureContexts(
     count: run.traffic.users,
   },
 ): ExposureContext[] {
-  if (modelFingerprint(audienceModel) !== run.audience_model.fingerprint) {
-    throw new Error("Audience model fingerprint no longer matches run.json.");
-  }
   if (audienceModel.audience_mix.length === 0) {
     throw new Error("Audience model has no audience distribution.");
   }
@@ -442,7 +421,7 @@ export function buildExposureContexts(
   const contexts = Array.from({length: range.count}, (_, index) => {
     const ordinal = range.start + index + 1;
     const unit = deterministicUniform(
-      `${run.audience_model.fingerprint}|${run.seed}|audience|${ordinal}`,
+      `${run.seed}|audience|${ordinal}`,
     );
     let cumulative = 0;
     let audience = audienceModel.audience_mix.at(-1)!;
@@ -510,8 +489,4 @@ export function summarizeExperimentEvents(
     installs: records.reduce((total, record) => total + record.install, 0),
     arms,
   });
-}
-
-function manifestFingerprint(manifest: CreativeManifest): string {
-  return sha256(JSON.stringify(creativeManifestSchema.parse(manifest)));
 }
