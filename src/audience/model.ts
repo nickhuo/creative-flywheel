@@ -1,18 +1,12 @@
 import {z} from "zod";
 
 import {
+  CREATIVE_LAYER_FIELDS,
   creativeLayersSchema,
   type CreativeManifest,
 } from "../manifest";
 
-export const CREATIVE_FIELDS = [
-  "background",
-  "subject_character",
-  "subject_action",
-  "hook_text",
-  "cta_text",
-  "audio_style",
-] as const;
+export const CREATIVE_FIELDS = CREATIVE_LAYER_FIELDS;
 
 export const FATIGUE_BUCKETS = [
 "1",

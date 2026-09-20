@@ -1,0 +1,13 @@
+{
+  "variant_id": "g0_v02",
+  "generation": 0,
+  "parent_id": null,
+  "layers": {
+    "background": "cozy_cafe",
+    "subject_character": "Kael",
+    "subject_action": "casts_spell",
+    "hook_text": "Can you beat level 3?",
+    "cta_text": "Claim Bonus",
+    "audio_style": "low_drums"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variant_id": "g0_v05",
+  "generation": 0,
+  "parent_id": null,
+  "layers": {
+    "background": "sunlit_meadow",
+    "subject_character": "Kael",
+    "subject_action": "waves_to_camera",
+    "hook_text": "Your party is waiting.",
+    "cta_text": "Claim Bonus",
+    "audio_style": "low_drums"
+  }
+}

@@ -3,7 +3,7 @@ import {resolve} from "node:path";
 
 import {z} from "zod";
 
-import {creativeManifestSchema, VIDEO_SPEC} from "../manifest";
+import {renderableCreativeManifestSchema, VIDEO_SPEC} from "../manifest";
 
 const MAX_CONTAINER_DURATION_DRIFT_IN_FRAMES = 2; // Covers silent AAC encoder priming.
 
@@ -40,7 +40,7 @@ if (!(await manifestFile.exists())) {
 }
 
 const manifestJson: unknown = await manifestFile.json();
-const manifest = creativeManifestSchema.parse(manifestJson);
+const manifest = renderableCreativeManifestSchema.parse(manifestJson);
 const rendersDirectory = resolve(projectRoot, "renders");
 const outputPath = resolve(rendersDirectory, `${manifest.variant_id}.mp4`);
 const pendingOutputPath = resolve(

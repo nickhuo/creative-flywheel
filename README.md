@@ -15,6 +15,11 @@ bun run render manifests/g0_v01.json
 ```
 
 Rendered videos are written to `renders/{variant_id}.mp4`.
+Generation zero contains eight manifests (`g0_v00` through `g0_v07`) that cover
+all values in the six-layer render catalog. The renderer is deterministic and
+uses only local CSS, animation, text, and reviewed audio assets; no generation API
+is required. The three non-silent audio styles use checked-in CC0 loops documented
+in [`public/audio/README.md`](public/audio/README.md); `none` produces silence.
 
 Fit and preview the deterministic audience model with:
 
@@ -66,8 +71,9 @@ Open the Remotion Studio with:
 bun run dev
 ```
 
-The first slice deliberately uses a local CSS composition and a silent AAC track.
-Real image, character, font, and audio assets come after this render contract is
-working end to end.
+The first slice deliberately uses a local CSS composition. Background, character,
+action, hook, and CTA each change the rendered frames; `audio_style` selects a
+local soundtrack or silence. Real image, character, font, and mastered audio
+assets can replace these mappings without changing the manifest contract.
 
 The first render downloads Remotion's pinned Chrome Headless Shell once.

@@ -1,0 +1,13 @@
+{
+  "variant_id": "g0_v04",
+  "generation": 0,
+  "parent_id": null,
+  "layers": {
+    "background": "storm_battlefield",
+    "subject_character": "Rex",
+    "subject_action": "opens_treasure",
+    "hook_text": "She remembers everything.",
+    "cta_text": "Join Luna",
+    "audio_style": "none"
+  }
+}

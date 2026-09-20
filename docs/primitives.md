@@ -6,11 +6,25 @@ Update this document in the same change whenever a primitive is added, renamed, 
 
 ## CreativeManifest
 
-Definition: [`creativeManifestSchema` and `CreativeManifest`](../src/manifest.ts#L19-L42)
+Definitions:
+
+- [`creativeManifestSchema` and `CreativeManifest`](../src/manifest.ts)
+- [`renderableCreativeManifestSchema`](../src/manifest.ts)
+- [`CREATIVE_LAYER_VALUES`](../src/manifest.ts)
 
 A renderable creative variant.
 
 It owns the stable variant identity, generation lineage, and the six creative layers consumed by the renderer and audience model. Generation 0 has no parent; later generations require one.
+The local optimization loop names its single challenger in each generation
+`g{generation}_v00`; experiment run identity remains separate from creative
+identity.
+
+The general schema accepts non-empty layer values so the audience model can report
+unseen-value coverage. The render boundary is deliberately narrower: every layer
+must belong to the catalog fitted by the checked-in audience model. The catalog has
+6 backgrounds, 4 characters, 5 actions, 5 hooks, 4 CTAs, and 4 audio styles, for
+9,600 deterministic combinations. Format is fixed at 1080×1920, 30 fps, and 8
+seconds by `VIDEO_SPEC`; it is not a manifest dimension.
 
 ## AudienceModel
 
