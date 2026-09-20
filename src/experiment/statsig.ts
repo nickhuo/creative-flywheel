@@ -263,10 +263,10 @@ export class StatsigConsoleClient {
         experiment.primaryMetrics[0]!,
         run.experiment.primary_metric,
       ) ||
-      experiment.secondaryMetrics.length !==
-        run.experiment.secondary_metrics.length ||
-      !experiment.secondaryMetrics.every((metric, index) =>
-        matchesMetric(metric, run.experiment.secondary_metrics[index]!),
+      !run.experiment.secondary_metrics.every((expectedMetric) =>
+        experiment.secondaryMetrics.some((metric) =>
+          matchesMetric(metric, expectedMetric)
+        )
       ) ||
       experiment.groups.length !== 2
     ) {

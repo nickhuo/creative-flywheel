@@ -8,8 +8,9 @@ import {join, resolve} from "node:path";
 import {experimentLogRecordSchema} from "../src/artifacts";
 import {AgentLedger} from "../src/agent/ledger";
 import {createResultSnapshot} from "../src/experiment/evaluation";
-import {experimentRunSchema} from "../src/experiment/run";
+import {experimentRunSchema, prepareExperimentRun} from "../src/experiment/run";
 import {StatsigConsoleClient} from "../src/experiment/statsig";
+import {renderableCreativeManifestSchema} from "../src/manifest";
 
 const projectRoot = resolve(import.meta.dir, "..");
 
@@ -74,6 +75,87 @@ test("snapshot identity ignores repeated observation time", () => {
   } finally {
     ledger.close();
   }
+});
+
+test("accepts project-level secondary metrics added by Statsig", async () => {
+  const controlManifest = renderableCreativeManifestSchema.parse(
+    await Bun.file(resolve(projectRoot, "manifests/g0_v00.json")).json(),
+  );
+  const treatmentManifest = renderableCreativeManifestSchema.parse(
+    await Bun.file(resolve(projectRoot, "manifests/g0_v01.json")).json(),
+  );
+  const run = prepareExperimentRun({
+    run_id: "statsig_extra_metrics",
+    prepared_at: "2026-09-20T00:00:00.000Z",
+    seed: 42,
+    batch_size: 2,
+    baseline_rate: 0.01,
+    minimum_detectable_effect: 0.5,
+    alpha: 0.05,
+    power: 0.8,
+    hypothesis: "Test Statsig project metrics.",
+    environment: "development",
+    audience_model_path: "artifacts/audience/model.json",
+    control_manifest_path: "manifests/g0_v00.json",
+    control_manifest: controlManifest,
+    treatment_manifest_path: "manifests/g0_v01.json",
+    treatment_manifest: treatmentManifest,
+  });
+  const [control, treatment] = run.experiment.arms;
+  const client = new StatsigConsoleClient("test-console-key", {
+    fetch: async () => Response.json({
+      data: {
+        id: run.experiment.name,
+        name: run.experiment.name,
+        idType: run.experiment.assignment_unit,
+        description: `Auditable creative smoke run ${run.run_id}.`,
+        hypothesis: run.experiment.hypothesis.statement,
+        permalink: `https://example.com/${run.experiment.name}`,
+        status: "setup",
+        controlGroupID: "control-group",
+        allocation: 100,
+        primaryMetrics: [
+          {...run.experiment.primary_metric, direction: "increase"},
+        ],
+        secondaryMetrics: [
+          ...run.experiment.secondary_metrics.map((metric) => ({
+            ...metric,
+            direction: "increase",
+          })),
+          {name: "dau", type: "user"},
+        ],
+        targetExposures: run.traffic.users,
+        targetingGateID: "",
+        sequentialTesting: false,
+        bonferroniCorrection: false,
+        enabledNonProdEnvironments: [run.experiment.environment],
+        groups: [
+          {
+            id: "control-group",
+            name: "Control",
+            size: control.allocation_percent,
+            parameterValues: {variant_id: control.variant_id},
+            isControl: true,
+          },
+          {
+            id: "treatment-group",
+            name: "Treatment",
+            size: treatment.allocation_percent,
+            parameterValues: {variant_id: treatment.variant_id},
+            isControl: false,
+          },
+        ],
+      },
+    }),
+  });
+
+  const ensured = await client.ensureExperiment(run);
+  expect(ensured.reused).toBe(true);
+  expect(ensured.receipt).toMatchObject({
+    experiment_id: run.experiment.name,
+    control_group_id: "control-group",
+    treatment_group_id: "treatment-group",
+  });
 });
 
 test(
