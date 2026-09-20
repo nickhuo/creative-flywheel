@@ -10,7 +10,9 @@ import {
   type ResultSnapshot,
 } from "../experiment/evaluation";
 import {type ExperimentRun} from "../experiment/run";
+import {CREATIVE_LAYER_FIELDS} from "../manifest";
 import {
+  CHALLENGER_LAYER_STRATEGY,
   CHALLENGER_PROMPT,
   challengerContextSchema,
   runChallengerAgent,
@@ -23,7 +25,7 @@ import {
   type ObservationTrigger,
 } from "./ledger";
 
-export const EXPERIMENT_POLICY_VERSION = "experiment-policy-v5";
+export const EXPERIMENT_POLICY_VERSION = "experiment-policy-v6";
 
 export type ChallengerRunner = (
   run: ExperimentRun,
@@ -127,8 +129,22 @@ export async function evaluateSnapshot(
       ? context.treatment_manifest
       : context.control_manifest;
     const challengerLayers = JSON.stringify(challengerResult.challenger.layers);
-    if (challengerLayers === JSON.stringify(champion.layers)) {
-      throw new Error("Challenger agent proposed the current champion.");
+    const changedLayers = CREATIVE_LAYER_FIELDS.filter(
+      (layer) =>
+        challengerResult.challenger.layers[layer] !== champion.layers[layer],
+    );
+    const strategy = CHALLENGER_LAYER_STRATEGY[decision];
+    if (
+      changedLayers.length < strategy.minimum_changed_layers ||
+      changedLayers.length > strategy.maximum_changed_layers
+    ) {
+      throw new Error(
+        `${strategy.mode} challenger must change ${strategy.minimum_changed_layers}` +
+          (strategy.minimum_changed_layers === strategy.maximum_changed_layers
+            ? ""
+            : `-${strategy.maximum_changed_layers}`) +
+          ` layer(s); received ${changedLayers.length}: ${changedLayers.join(", ") || "none"}.`,
+      );
     }
     const testedLayers = [
       context.control_manifest.layers,

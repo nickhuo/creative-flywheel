@@ -10,18 +10,17 @@ Implemented domain primitives and their source definitions are maintained in
 ```bash
 bun install --frozen-lockfile
 bun run check
-bun run render manifests/g0_v00.json
-bun run render manifests/g0_v01.json
+for manifest in manifests/g0_v*.json; do bun run render "$manifest"; done
 ```
 
 Each render is stored as an immutable creative package under
 `artifacts/creatives/{variant_id}/`, containing `manifest.json`, `video.mp4`, and
 `render.json`. The renderer refuses to replace an existing video or reuse a
 variant ID with different manifest content.
-Generation zero contains eight manifests (`g0_v00` through `g0_v07`) that cover
-all values in the six-layer render catalog. The renderer is deterministic and
-uses only local CSS, animation, text, and reviewed audio assets; no generation API
-is required. The three audio styles use checked-in CC0 loops documented in
+Generation zero contains eight manifests (`g0_v00` through `g0_v07`) that vary
+across all six layers and cover all values in the render catalog. The renderer is
+deterministic and uses only local CSS, animation, text, and reviewed audio assets;
+no generation API is required. The three audio styles use checked-in CC0 loops documented in
 [`public/audio/README.md`](public/audio/README.md).
 
 Fit and preview the deterministic audience model with:
@@ -103,6 +102,14 @@ Run a multi-round optimization entirely against the local audience simulator:
 bun run agent simulate --run-id smoke_001 --max-rounds 10
 ```
 
+Render the approved challenger lineage when visual review is needed:
+
+```bash
+for manifest in artifacts/creatives/smoke_001_g*_v00/manifest.json; do
+  bun run render "$manifest"
+done
+```
+
 The simulator produces one reproducible 50/50 fixed-horizon result per run. It
 stores normalized evidence, approvals, and idempotent action receipts in the
 shared SQLite ledger and writes the portable completed trajectory to
@@ -111,8 +118,11 @@ At the calculated horizon, deterministic policy chooses `stop` or `promote`.
 Unless the maximum round has been reached, one Challenger Agent call uses the
 updated champion, complete experiment history, and a versioned Rune Keepers
 campaign brief to interpret the completed experiment, record a learning, and
-propose the next structured hypothesis and renderable layer combination. The
-local executor adds each next experiment to the root optimization's
+propose the next structured hypothesis and renderable layer combination. After
+`stop`, the challenger explores one coherent direction by changing two or three
+layers; after `promote`, it exploits the new champion with exactly one layer
+change. The orchestrator validates this policy instead of relying on the prompt
+alone. The local executor adds each next experiment to the root optimization's
 `experiments.json`, writes its globally namespaced challenger manifest under
 `artifacts/creatives/`, and repeats until deterministic `terminate`.
 
