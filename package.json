@@ -9,7 +9,7 @@
     "dev": "remotion studio src/video.tsx",
     "experiment": "bun run src/cli/experiment.ts",
     "render": "bun run src/cli/render.ts",
-    "test": "bun test",
+    "test": "bun test ./tests",
     "typecheck": "tsc --noEmit",
     "check": "bun run typecheck && bun test"
   },
