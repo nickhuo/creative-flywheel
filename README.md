@@ -8,7 +8,7 @@ local dashboard.
 The dashboard summarizes the current champion and shows how install rate changes
 across optimization rounds:
 
-![](good-result.png)![](good-result.png)
+![](public/good-result.png)
 
 ## Deliverables
 
