@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g4_v00",
+  "generation": 4,
+  "parent_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+  "layers": {
+    "background": "neon_city",
+    "subject_character": "Mira",
+    "subject_action": "casts_spell",
+    "hook_text": "She remembers everything.",
+    "cta_text": "Install Now",
+    "audio_style": "low_drums"
+  }
+}

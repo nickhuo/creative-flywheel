@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g2_v00",
+  "rendered_at": "2026-09-21T01:14:13.544Z",
+  "renderer": {
+    "name": "remotion",
+    "composition_id": "RuneKeepersAd"
+  },
+  "video": {
+    "path": "artifacts/runs/seed_g0_v02_vs_g0_v03_20260921011211447/creatives/seed_g0_v02_vs_g0_v03_20260921011211447_g2_v00/video.mp4",
+    "codec": "h264",
+    "audio_codec": "aac",
+    "pixel_format": "yuv420p",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration_in_frames": 240
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g8_v00",
+  "generation": 8,
+  "parent_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g7_v00",
+  "layers": {
+    "background": "moonlit_temple",
+    "subject_character": "Mira",
+    "subject_action": "casts_spell",
+    "hook_text": "The ruins are calling",
+    "cta_text": "Install Now",
+    "audio_style": "warm_piano"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+  "created_at": "2026-09-21T01:12:11.763Z",
+  "initial_experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+  "audience_model": {
+    "path": "artifacts/audience/model.json"
+  },
+  "initial_variants": [
+    {
+      "role": "control",
+      "variant_id": "g0_v02"
+    },
+    {
+      "role": "treatment",
+      "variant_id": "g0_v03"
+    }
+  ]
+}

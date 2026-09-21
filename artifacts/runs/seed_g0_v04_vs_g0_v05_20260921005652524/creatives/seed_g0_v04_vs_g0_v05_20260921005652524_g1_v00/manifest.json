@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g1_v00",
+  "generation": 1,
+  "parent_id": "g0_v04",
+  "layers": {
+    "background": "throne_room",
+    "subject_character": "Mira",
+    "subject_action": "opens_treasure",
+    "hook_text": "Free gems every day",
+    "cta_text": "Install Now",
+    "audio_style": "warm_piano"
+  }
+}

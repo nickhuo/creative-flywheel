@@ -1,0 +1,13 @@
+{
+  "variant_id": "g0_v01",
+  "generation": 0,
+  "parent_id": null,
+  "layers": {
+    "background": "moonlit_temple",
+    "subject_character": "Luna",
+    "subject_action": "draws_blade",
+    "hook_text": "The ruins are calling",
+    "cta_text": "Install Now",
+    "audio_style": "warm_piano"
+  }
+}

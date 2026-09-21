@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g4_v00",
+  "generation": 4,
+  "parent_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00",
+  "layers": {
+    "background": "sunlit_meadow",
+    "subject_character": "Rex",
+    "subject_action": "draws_blade",
+    "hook_text": "Your party is waiting.",
+    "cta_text": "Play Free",
+    "audio_style": "low_drums"
+  }
+}

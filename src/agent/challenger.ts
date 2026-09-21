@@ -145,6 +145,8 @@ export const challengerAgentConfigSchema = z
   .object({
     model: z.string().trim().min(1).max(200),
     tracingDisabled: z.boolean().default(false),
+    retryFeedback: z.string().trim().min(1).optional(),
+    previousResponseId: z.string().trim().min(1).optional(),
   })
   .strict();
 
@@ -223,12 +225,17 @@ export async function runCreativeAgent(
 ): Promise<CreativeAgentResult> {
   const resolvedConfig = challengerAgentConfigSchema.parse(config);
   const resolvedSnapshot = resultSnapshotSchema.parse(snapshot);
-  const input = buildChallengerInput(
+  const initialInput = buildChallengerInput(
     run,
     resolvedSnapshot,
     context,
     decision,
   );
+  const input = resolvedConfig.retryFeedback === undefined
+    ? initialInput
+    : resolvedConfig.previousResponseId === undefined
+      ? `${initialInput}\n\n${resolvedConfig.retryFeedback}`
+      : resolvedConfig.retryFeedback;
   const prompt = creativePromptForDecision(decision);
   const agentName = decision === "stop" ? "Explore Agent" : "Exploit Agent";
   const agent = new Agent({
@@ -243,7 +250,10 @@ export async function runCreativeAgent(
     tracingDisabled: resolvedConfig.tracingDisabled,
     workflowName: agentName,
   });
-  const result = await runner.run(agent, input, {maxTurns: 4});
+  const result = await runner.run(agent, input, {
+    maxTurns: 4,
+    previousResponseId: resolvedConfig.previousResponseId,
+  });
 
   if (result.finalOutput === undefined) {
     throw new Error("Challenger agent completed without a proposal.");

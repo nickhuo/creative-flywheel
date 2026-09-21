@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g9_v00",
+  "generation": 9,
+  "parent_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+  "layers": {
+    "background": "moonlit_temple",
+    "subject_character": "Luna",
+    "subject_action": "waves_to_camera",
+    "hook_text": "Your party is waiting.",
+    "cta_text": "Install Now",
+    "audio_style": "warm_piano"
+  }
+}

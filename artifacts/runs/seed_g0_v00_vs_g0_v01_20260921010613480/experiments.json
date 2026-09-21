@@ -1,0 +1,867 @@
+[
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "round_number": 1,
+    "recorded_at": "2026-09-21T01:06:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:06:13.527Z",
+      "seed": 44,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 49500,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.008643660765578815,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 49500
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480",
+        "hypothesis": {
+          "statement": "Changing hook_text from Your party is waiting. to The ruins are calling will improve install rate for the modeled Rune Keepers audience.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "hook_text",
+              "control_value": "Your party is waiting.",
+              "treatment_value": "The ruins are calling"
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "g0_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/g0_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "g0_v01",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/g0_v01/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_02",
+    "round_number": 2,
+    "recorded_at": "2026-09-21T01:08:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_02",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:08:13.527Z",
+      "seed": 45,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 54000,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.009616161616161616,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 54000
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_02",
+        "hypothesis": {
+          "statement": "Relative to updated champion g0_v00, changing the background to sunlit_meadow, subject_action to opens_treasure, and cta_text to Claim Bonus will improve install rate by making discovery feel approachable and immediately rewarding.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "background",
+              "control_value": "moonlit_temple",
+              "treatment_value": "sunlit_meadow"
+            },
+            {
+              "layer": "subject_action",
+              "control_value": "draws_blade",
+              "treatment_value": "opens_treasure"
+            },
+            {
+              "layer": "cta_text",
+              "control_value": "Install Now",
+              "treatment_value": "Claim Bonus"
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "g0_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/g0_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g1_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g1_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_03",
+    "round_number": 3,
+    "recorded_at": "2026-09-21T01:10:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_03",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:10:13.527Z",
+      "seed": 46,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 51500,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.009074074074074075,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 51500
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_03",
+        "hypothesis": {
+          "statement": "Relative to updated champion g0_v00, change subject_character to Mira, subject_action to close_up_smile, and hook_text to She remembers everything. to improve install rate by making personal memory and trust immediately salient.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "subject_character",
+              "control_value": "Luna",
+              "treatment_value": "Mira"
+            },
+            {
+              "layer": "subject_action",
+              "control_value": "draws_blade",
+              "treatment_value": "close_up_smile"
+            },
+            {
+              "layer": "hook_text",
+              "control_value": "Your party is waiting.",
+              "treatment_value": "She remembers everything."
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "g0_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/g0_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_04",
+    "round_number": 4,
+    "recorded_at": "2026-09-21T01:12:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_04",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:12:13.527Z",
+      "seed": 47,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 63000,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.011378640776699029,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 63000
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_04",
+        "hypothesis": {
+          "statement": "Relative to the updated champion, change only audio_style from warm_piano to upbeat_synth to test whether retaining Mira's memory-led emotional creative while adding momentum increases install rate.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "audio_style",
+              "control_value": "warm_piano",
+              "treatment_value": "upbeat_synth"
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g3_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g3_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_05",
+    "round_number": 5,
+    "recorded_at": "2026-09-21T01:14:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_05",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:14:13.527Z",
+      "seed": 48,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 66500,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.012126984126984127,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 66500
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_05",
+        "hypothesis": {
+          "statement": "Relative to the updated champion, change background to neon_city, subject_action to casts_spell, and audio_style to low_drums to test whether a visibly magical, high-momentum companion concept increases install rate.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "background",
+              "control_value": "moonlit_temple",
+              "treatment_value": "neon_city"
+            },
+            {
+              "layer": "subject_action",
+              "control_value": "close_up_smile",
+              "treatment_value": "casts_spell"
+            },
+            {
+              "layer": "audio_style",
+              "control_value": "warm_piano",
+              "treatment_value": "low_drums"
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g4_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g4_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_06",
+    "round_number": 6,
+    "recorded_at": "2026-09-21T01:16:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_06",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:16:13.527Z",
+      "seed": 49,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 68500,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.012571428571428572,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 68500
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_06",
+        "hypothesis": {
+          "statement": "Relative to the updated champion, change subject_action to opens_treasure and hook_text to Free gems every day to test whether concrete discovery value increases install rate.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "subject_action",
+              "control_value": "close_up_smile",
+              "treatment_value": "opens_treasure"
+            },
+            {
+              "layer": "hook_text",
+              "control_value": "She remembers everything.",
+              "treatment_value": "Free gems every day"
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g5_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g5_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_07",
+    "round_number": 7,
+    "recorded_at": "2026-09-21T01:18:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_07",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:18:13.527Z",
+      "seed": 50,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 61000,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.011007299270072993,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 61000
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_07",
+        "hypothesis": {
+          "statement": "Relative to the updated champion, change background to cozy_cafe, hook_text to Your party is waiting., and cta_text to Join Luna to test whether an intimate belonging invitation increases install rate.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "background",
+              "control_value": "moonlit_temple",
+              "treatment_value": "cozy_cafe"
+            },
+            {
+              "layer": "hook_text",
+              "control_value": "She remembers everything.",
+              "treatment_value": "Your party is waiting."
+            },
+            {
+              "layer": "cta_text",
+              "control_value": "Install Now",
+              "treatment_value": "Join Luna"
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g6_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g6_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_08",
+    "round_number": 8,
+    "recorded_at": "2026-09-21T01:20:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_08",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:20:13.527Z",
+      "seed": 51,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 61000,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.011016393442622952,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 61000
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_08",
+        "hypothesis": {
+          "statement": "Relative to the updated champion, change subject_action to waves_to_camera, hook_text to Your party is waiting., and cta_text to Join Luna to test whether direct belonging and character invitation increase install rate.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "subject_action",
+              "control_value": "close_up_smile",
+              "treatment_value": "waves_to_camera"
+            },
+            {
+              "layer": "hook_text",
+              "control_value": "She remembers everything.",
+              "treatment_value": "Your party is waiting."
+            },
+            {
+              "layer": "cta_text",
+              "control_value": "Install Now",
+              "treatment_value": "Join Luna"
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g7_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g7_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_09",
+    "round_number": 9,
+    "recorded_at": "2026-09-21T01:22:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_09",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:22:13.527Z",
+      "seed": 52,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 62000,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.011245901639344262,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 62000
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_09",
+        "hypothesis": {
+          "statement": "Relative to the updated champion, change the background to sunlit_meadow, the hook text to Free gems every day, and the CTA to Claim Bonus to test whether approachable reward framing increases install rate.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "background",
+              "control_value": "moonlit_temple",
+              "treatment_value": "sunlit_meadow"
+            },
+            {
+              "layer": "hook_text",
+              "control_value": "She remembers everything.",
+              "treatment_value": "Free gems every day"
+            },
+            {
+              "layer": "cta_text",
+              "control_value": "Install Now",
+              "treatment_value": "Claim Bonus"
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g8_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g8_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480",
+    "experiment_run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_10",
+    "round_number": 10,
+    "recorded_at": "2026-09-21T01:24:13.527Z",
+    "experiment": {
+      "schema_version": 2,
+      "run_id": "seed_g0_v00_vs_g0_v01_20260921010613480_round_10",
+      "status": "prepared",
+      "prepared_at": "2026-09-21T01:24:13.527Z",
+      "seed": 53,
+      "audience_model": {
+        "path": "artifacts/audience/model.json"
+      },
+      "traffic": {
+        "users": 63000,
+        "batch_size": 500,
+        "exposures_per_user": 1,
+        "stop_condition": "fixed_users"
+      },
+      "statistical_design": {
+        "method": "two_proportion_normal_approximation",
+        "analysis": "fixed_horizon",
+        "baseline_rate": 0.011451612903225807,
+        "minimum_detectable_effect": 0.0025,
+        "alpha": 0.05,
+        "power": 0.8,
+        "test_sidedness": "two_sided",
+        "required_users": 63000
+      },
+      "experiment": {
+        "name": "creative_flywheel_seed_g0_v00_vs_g0_v01_20260921010613480_round_10",
+        "hypothesis": {
+          "statement": "Relative to the updated champion, change the subject character to Luna, the subject action to waves_to_camera, and the hook text to Your party is waiting. to test whether direct character welcome and belonging increase install rate.",
+          "expected_direction": "increase",
+          "changes": [
+            {
+              "layer": "subject_character",
+              "control_value": "Mira",
+              "treatment_value": "Luna"
+            },
+            {
+              "layer": "subject_action",
+              "control_value": "close_up_smile",
+              "treatment_value": "waves_to_camera"
+            },
+            {
+              "layer": "hook_text",
+              "control_value": "She remembers everything.",
+              "treatment_value": "Your party is waiting."
+            }
+          ]
+        },
+        "environment": "development",
+        "assignment_unit": "userID",
+        "parameter": "variant_id",
+        "arms": [
+          {
+            "role": "control",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          },
+          {
+            "role": "treatment",
+            "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g9_v00",
+            "manifest": {
+              "path": "artifacts/runs/seed_g0_v00_vs_g0_v01_20260921010613480/creatives/seed_g0_v00_vs_g0_v01_20260921010613480_g9_v00/manifest.json"
+            },
+            "allocation_percent": 50
+          }
+        ],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "type": "event_user"
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "type": "event_user"
+          }
+        ]
+      },
+      "statsig_experiment": null
+    }
+  }
+]

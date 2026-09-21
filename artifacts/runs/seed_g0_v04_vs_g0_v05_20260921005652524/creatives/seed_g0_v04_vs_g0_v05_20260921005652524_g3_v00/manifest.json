@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g3_v00",
+  "generation": 3,
+  "parent_id": "g0_v04",
+  "layers": {
+    "background": "cozy_cafe",
+    "subject_character": "Rex",
+    "subject_action": "draws_blade",
+    "hook_text": "Can you beat level 3?",
+    "cta_text": "Install Now",
+    "audio_style": "warm_piano"
+  }
+}

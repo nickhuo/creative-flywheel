@@ -25,14 +25,20 @@ import {
   type ObservationTrigger,
 } from "./ledger";
 
-export const EXPERIMENT_POLICY_VERSION = "experiment-policy-v6";
+export const EXPERIMENT_POLICY_VERSION = "experiment-policy-v7";
+const MAX_CHALLENGER_ATTEMPTS = 3;
 
 export type ChallengerRunner = (
   run: ExperimentRun,
   snapshot: ResultSnapshot,
   context: ChallengerContext,
   decision: "stop" | "promote",
-  config: {model: string; tracingDisabled?: boolean},
+  config: {
+    model: string;
+    tracingDisabled?: boolean;
+    retryFeedback?: string;
+    previousResponseId?: string;
+  },
 ) => Promise<CreativeAgentResult>;
 
 export type EvaluateSnapshotInput = {
@@ -119,58 +125,86 @@ export async function evaluateSnapshot(
   }
   const creativePrompt = creativePromptForDecision(decision);
   const isFinalRound = context.round === context.max_rounds;
-  const challengerResult = isFinalRound
-    ? null
-    : await (input.propose_challenger ?? runCreativeAgent)(
-        input.run,
-        persistedSnapshot,
-        context,
-        decision,
-        {
-          model: input.model,
-          tracingDisabled: input.tracing_disabled,
-        },
-      );
-
-  if (challengerResult !== null) {
-    const champion = decision === "promote"
-      ? context.treatment_manifest
-      : context.control_manifest;
-    const challengerLayers = JSON.stringify(challengerResult.challenger.layers);
+  const champion = decision === "promote"
+    ? context.treatment_manifest
+    : context.control_manifest;
+  const strategy = CHALLENGER_LAYER_STRATEGY[decision];
+  const testedLayers = [
+    context.control_manifest.layers,
+    context.treatment_manifest.layers,
+    ...context.experiment_history.flatMap(
+      ({control_manifest, treatment_manifest}) => [
+        control_manifest.layers,
+        treatment_manifest.layers,
+      ],
+    ),
+  ];
+  let challengerResult: CreativeAgentResult | null = null;
+  let retryFeedback: string | undefined;
+  let previousResponseId: string | undefined;
+  for (
+    let attempt = 1;
+    !isFinalRound && attempt <= MAX_CHALLENGER_ATTEMPTS;
+    attempt += 1
+  ) {
+    const candidate = await (input.propose_challenger ?? runCreativeAgent)(
+      input.run,
+      persistedSnapshot,
+      context,
+      decision,
+      {
+        model: input.model,
+        tracingDisabled: input.tracing_disabled,
+        retryFeedback,
+        previousResponseId,
+      },
+    );
+    const challengerLayers = JSON.stringify(candidate.challenger.layers);
     const changedLayers = CREATIVE_LAYER_FIELDS.filter(
       (layer) =>
-        challengerResult.challenger.layers[layer] !== champion.layers[layer],
+        candidate.challenger.layers[layer] !== champion.layers[layer],
     );
-    const strategy = CHALLENGER_LAYER_STRATEGY[decision];
+    let validationError: string | null = null;
     if (
       changedLayers.length < strategy.minimum_changed_layers ||
       changedLayers.length > strategy.maximum_changed_layers
     ) {
-      throw new Error(
+      validationError =
         `${strategy.mode} challenger must change ${strategy.minimum_changed_layers}` +
-          (strategy.minimum_changed_layers === strategy.maximum_changed_layers
-            ? ""
-            : `-${strategy.maximum_changed_layers}`) +
-          ` layer(s); received ${changedLayers.length}: ${changedLayers.join(", ") || "none"}.`,
-      );
-    }
-    const testedLayers = [
-      context.control_manifest.layers,
-      context.treatment_manifest.layers,
-      ...context.experiment_history.flatMap(
-        ({control_manifest, treatment_manifest}) => [
-          control_manifest.layers,
-          treatment_manifest.layers,
-        ],
-      ),
-    ];
-    if (
+        (strategy.minimum_changed_layers === strategy.maximum_changed_layers
+          ? ""
+          : `-${strategy.maximum_changed_layers}`) +
+        ` layer(s); received ${changedLayers.length}: ${changedLayers.join(", ") || "none"}.`;
+    } else if (
       testedLayers.some(
         (layers) => JSON.stringify(layers) === challengerLayers,
       )
     ) {
-      throw new Error("Challenger agent proposed a previously tested creative.");
+      validationError =
+        "Challenger agent proposed a previously tested creative.";
     }
+    if (validationError === null) {
+      challengerResult = candidate;
+      break;
+    }
+    if (attempt === MAX_CHALLENGER_ATTEMPTS) {
+      throw new Error(
+        `${validationError} Challenger generation failed after ` +
+          `${MAX_CHALLENGER_ATTEMPTS} attempts.`,
+      );
+    }
+    retryFeedback = [
+      "Your previous challenger was rejected by deterministic validation.",
+      validationError,
+      `Return a different ${strategy.mode} challenger that changes ` +
+        `${strategy.minimum_changed_layers}` +
+        (strategy.minimum_changed_layers === strategy.maximum_changed_layers
+          ? ""
+          : `-${strategy.maximum_changed_layers}`) +
+        " layer(s) relative to the champion.",
+      "Do not repeat any control or treatment creative from the supplied history.",
+    ].join("\n");
+    previousResponseId = candidate.lastResponseId;
   }
 
   const metricEvidence = [

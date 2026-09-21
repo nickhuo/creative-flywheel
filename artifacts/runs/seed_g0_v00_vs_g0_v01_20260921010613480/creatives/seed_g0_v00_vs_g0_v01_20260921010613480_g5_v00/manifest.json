@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g5_v00",
+  "generation": 5,
+  "parent_id": "seed_g0_v00_vs_g0_v01_20260921010613480_g2_v00",
+  "layers": {
+    "background": "moonlit_temple",
+    "subject_character": "Mira",
+    "subject_action": "opens_treasure",
+    "hook_text": "Free gems every day",
+    "cta_text": "Install Now",
+    "audio_style": "warm_piano"
+  }
+}

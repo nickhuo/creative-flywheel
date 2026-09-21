@@ -274,15 +274,25 @@ export function renderOptimizationTrend(runs, selectedRunId) {
     <text class="axis-label round-label" x="${x(index)}" y="${height - 19}" text-anchor="middle">R${run.round ?? index + 1}</text>
   `).join("");
 
+  const dataTable = observations.map(({run, control, challenger, champion}) =>
+    `<tr><th scope="row">R${run.round}</th><td>${formatPercent(control)}</td><td>${formatPercent(challenger)}</td><td>${formatPercent(champion)}</td></tr>`
+  ).join("");
+
   return `
     <div class="trend-legend"><span><i class="legend-line control"></i>Control observed</span><span><i class="legend-line challenger"></i>Challenger observed</span><span><i class="legend-line champion"></i>Champion path</span></div>
-    <svg class="trend-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Control, Challenger, and Champion install rates across optimization rounds">
+    <svg class="trend-chart" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="trend-title trend-description">
+      <title id="trend-title">Optimization trend</title>
+      <desc id="trend-description">Control, Challenger, and Champion install rates across optimization rounds.</desc>
       ${grid}${selectedMarker}
       <path class="control-trend" d="${path(controlPoints)}"/>
       <path class="challenger-trend" d="${path(challengerPoints)}"/>
       <path class="champion-trend" d="${path(championPoints)}"/>
       ${points}
-    </svg>`;
+    </svg>
+    <details class="trend-data">
+      <summary>View exact trend values</summary>
+      <div class="table-scroll"><table><caption>Install rate by optimization round</caption><thead><tr><th scope="col">Round</th><th scope="col">Control</th><th scope="col">Challenger</th><th scope="col">Champion</th></tr></thead><tbody>${dataTable}</tbody></table></div>
+    </details>`;
 }
 
 function renderDecisionPill(run) {

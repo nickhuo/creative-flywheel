@@ -1,0 +1,727 @@
+{
+  "schema_version": 1,
+  "optimization_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524",
+  "source": "simulator",
+  "status": "completed",
+  "max_rounds": 10,
+  "termination": "max_rounds",
+  "rounds": [
+    {
+      "round": 1,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "509253bcf76c585558f5c667d7fa461f6b629e0a15da0add45b4612c4f61e1d5",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.007458333333333333, treatment=0.007458333333333333.",
+          "absolute_effect=0, p_value=0.9999999989999999.",
+          "confidence_interval=[-0.0015394035175155466, 0.0015394035175155466]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "509253bcf76c585558f5c667d7fa461f6b629e0a15da0add45b4612c4f61e1d5",
+          "evaluation": {
+            "interpretation": "The prior challenger materially increased CTR but produced no install-rate difference.",
+            "learning": "Higher attention did not translate into installs; test a distinct reward-and-discovery concept with clearer immediate value."
+          },
+          "hypothesis": {
+            "statement": "Relative to updated champion g0_v04, change background to throne_room, subject_action to opens_treasure, and hook_text to Free gems every day to increase install rate.",
+            "experiment_population": "Users exposed to Rune Keepers ads across AI companion apps, RPG chat apps, and casual games in the next fixed-horizon experiment.",
+            "audience_motivation": "Immediate tangible reward and approachable discovery.",
+            "mechanism": "Epic reward imagery, treasure-opening action, and explicit recurring value clarify the payoff of installing and starting play."
+          },
+          "tradeoffs": [
+            "May weaken the champion’s mystery and exploration appeal.",
+            "Reward framing may reduce character depth and emotional connection.",
+            "Epic imagery may feel less approachable in casual placements."
+          ],
+          "rationale": "This visibly distinct three-layer reward mechanism differs from the updated champion while retaining Mira, Install Now, and warm piano for interpretability. The proposed combination was not found in retrieved historical runs.",
+          "evidence": [
+            "Current snapshot identifies g0_v04 as the updated champion.",
+            "The prior treatment increased CTR by 0.01654166666666667, but install-rate effect was 0 with confidence interval [-0.0015394035175155466, 0.0015394035175155466].",
+            "Historical search excluding the current run returned no matching completed run for the proposed concept."
+          ],
+          "layers": {
+            "background": "throne_room",
+            "subject_character": "Mira",
+            "subject_action": "opens_treasure",
+            "hook_text": "Free gems every day",
+            "cta_text": "Install Now",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "a9167d18a02ab932f3695aaed96cca69d51d77188b3fabb43d4003dfba1e4f11",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "6949290508a25ec31f57453893326159a9265acec3082345648f378773fed0dd",
+        "proposal_id": "a9167d18a02ab932f3695aaed96cca69d51d77188b3fabb43d4003dfba1e4f11",
+        "idempotency_key": "a9167d18a02ab932f3695aaed96cca69d51d77188b3fabb43d4003dfba1e4f11:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T00:57:52.566Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524",
+          "round": 1,
+          "champion_variant_id": "g0_v04",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g1_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_02"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 2,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_02",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "1a0a2aa20efcfaa2b8d2fcefa72fda9d17e216d246de00693bbeb628223e136a",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.0077701149425287355, treatment=0.004091954022988506.",
+          "absolute_effect=-0.0036781609195402293, p_value=5.880077338371592e-7.",
+          "confidence_interval=[-0.005120880992514578, -0.0022354408465658808]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "1a0a2aa20efcfaa2b8d2fcefa72fda9d17e216d246de00693bbeb628223e136a",
+          "evaluation": {
+            "interpretation": "The treatment significantly reduced install rate versus g0_v04, while CTR was inconclusive.",
+            "learning": "A reward-and-power framing with throne-room discovery did not outperform the champion; explore a distinct belonging-and-adventure direction."
+          },
+          "hypothesis": {
+            "statement": "Relative to updated champion g0_v04, change background to moonlit_temple, subject_action to waves_to_camera, and hook_text to Your party is waiting. to increase install rate.",
+            "experiment_population": "The fixed-horizon campaign population exposed to Rune Keepers ads.",
+            "audience_motivation": "Belonging and character attachment, with an accessible invitation to join an adventure party.",
+            "mechanism": "A mysterious setting paired with direct friendly address and a belonging hook may make the party feel present and inviting, increasing motivation to install."
+          },
+          "tradeoffs": [
+            "May weaken the champion's intimate memory signal.",
+            "Mystery may reduce immediate clarity for casual audiences.",
+            "Direct address may feel less dramatic than a combat or reward framing."
+          ],
+          "rationale": "This changes exactly three coordinated layers to create a visibly distinct belonging-and-exploration concept while retaining Mira, direct installation, and warm piano for interpretability.",
+          "evidence": [
+            "Snapshot primary metric: treatment install rate was 0.0040919540 versus control 0.0077701149.",
+            "Snapshot confidence interval for the install-rate effect was entirely negative: [-0.0051208810, -0.0022354408].",
+            "Snapshot CTR effect was inconclusive, with confidence interval [-0.0056176596, 0.0012958205].",
+            "Historical searches for reward/discovery and party/belonging concepts returned no matches."
+          ],
+          "layers": {
+            "background": "moonlit_temple",
+            "subject_character": "Mira",
+            "subject_action": "waves_to_camera",
+            "hook_text": "Your party is waiting.",
+            "cta_text": "Install Now",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "4b9a8ef66db574bc12b06818b1fcbd13518fab5b68a7a10008cfdade91aa763e",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "12b7f35b9c5e8330b724a3e7cc701365acd1bf2163d845be24d04b36e3822b38",
+        "proposal_id": "4b9a8ef66db574bc12b06818b1fcbd13518fab5b68a7a10008cfdade91aa763e",
+        "idempotency_key": "4b9a8ef66db574bc12b06818b1fcbd13518fab5b68a7a10008cfdade91aa763e:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T00:59:52.566Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_02",
+          "round": 2,
+          "champion_variant_id": "g0_v04",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g2_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_03"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 3,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_03",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "1437f821cbfc921cd34fcd4cb3860be2a4ce554eebf4e45d6d1971d1a32d8839",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.008444444444444444, treatment=0.009866666666666666.",
+          "absolute_effect=0.0014222222222222223, p_value=0.11324066607334715.",
+          "confidence_interval=[-0.00033774489603314315, 0.0031821893404775877]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "1437f821cbfc921cd34fcd4cb3860be2a4ce554eebf4e45d6d1971d1a32d8839",
+          "evaluation": {
+            "interpretation": "The belonging-and-adventure challenger increased CTR but did not produce a statistically conclusive install-rate improvement.",
+            "learning": "Attention and party-belonging framing alone did not reliably translate into installs; explore a clearer challenge-and-mastery motivation."
+          },
+          "hypothesis": {
+            "statement": "Relative to updated champion g0_v04, change subject_character to Rex, subject_action to draws_blade, and hook_text to Can you beat level 3? to increase install rate.",
+            "experiment_population": "Users exposed to Rune Keepers ads across AI companion apps, RPG chat apps, and casual games in the next fixed-horizon experiment.",
+            "audience_motivation": "Challenge, mastery, and combat progression.",
+            "mechanism": "A loyal knight, blade-drawing action, and an explicit level challenge make the gameplay objective immediately clear and invite users to prove themselves by installing."
+          },
+          "tradeoffs": [
+            "May weaken the champion’s warmth and emotional connection.",
+            "Combat urgency may feel less suitable for companion-app audiences.",
+            "A challenge hook may reduce approachability for casual users."
+          ],
+          "rationale": "This changes exactly three coordinated layers for a visibly distinct challenge-and-mastery concept while retaining the champion’s background, direct install CTA, and warm piano. The proposed combination was not returned by historical searches.",
+          "evidence": [
+            "Current snapshot identifies g0_v04 as the updated champion.",
+            "The current challenger’s install-rate effect was 0.0014222222222222223 with confidence interval [-0.00033774489603314315,0.0031821893404775877], so the result was inconclusive.",
+            "The current challenger increased CTR by 0.02342222222222222, but CTR is diagnostic rather than the primary objective.",
+            "Historical searches excluding the current run returned no matching completed run for the proposed challenge concept."
+          ],
+          "layers": {
+            "background": "cozy_cafe",
+            "subject_character": "Rex",
+            "subject_action": "draws_blade",
+            "hook_text": "Can you beat level 3?",
+            "cta_text": "Install Now",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "92bcc60835d1669a4b665ae443a9f20d1a4a4ce9d0557756f862bf343433a2f3",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "cfee5e0c7f7e925432ab3147be7399eaa4c3681a6eea13aaedc73bb67da96743",
+        "proposal_id": "92bcc60835d1669a4b665ae443a9f20d1a4a4ce9d0557756f862bf343433a2f3",
+        "idempotency_key": "92bcc60835d1669a4b665ae443a9f20d1a4a4ce9d0557756f862bf343433a2f3:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:01:52.566Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_03",
+          "round": 3,
+          "champion_variant_id": "g0_v04",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g3_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_04"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 4,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_04",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "9b5706746bd94737e56f4d7264554d9e8bfd81902a3f315a305190dc3b8bedef",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.009319587628865979, treatment=0.0036288659793814433.",
+          "absolute_effect=-0.005690721649484536, p_value=5.773159728050814e-15.",
+          "confidence_interval=[-0.007117370178736062, -0.0042640731202330095]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "9b5706746bd94737e56f4d7264554d9e8bfd81902a3f315a305190dc3b8bedef",
+          "evaluation": {
+            "interpretation": "The challenger significantly reduced install rate versus g0_v04 despite increasing CTR, so the action-oriented concept did not translate into installs.",
+            "learning": "Preserve a direct, approachable invitation while exploring belonging and discovery rather than combat intensity."
+          },
+          "hypothesis": {
+            "statement": "Relative to updated champion g0_v04, change background to sunlit_meadow, hook_text to Your party is waiting., and cta_text to Play Free to increase install rate.",
+            "experiment_population": "All users exposed to the fixed-horizon Rune Keepers creative experiment across AI companion apps, RPG chat apps, and casual games.",
+            "audience_motivation": "Belonging and low-friction approachability, especially for users receptive to joining characters in a party.",
+            "mechanism": "A brighter setting, belonging-oriented message, and free-play CTA should make the party invitation feel welcoming and easy to act on, improving install intent."
+          },
+          "tradeoffs": [
+            "May weaken the dramatic fantasy signal.",
+            "Play Free may be less explicitly acquisition-oriented than Install Now.",
+            "Belonging language may be less compelling for challenge-motivated users."
+          ],
+          "rationale": "This is a visibly distinct three-layer exploration that tests one coherent welcoming-party mechanism against the updated champion while avoiding the prior combat direction.",
+          "evidence": [
+            "Snapshot primary metric: treatment install rate was 0.0036288659793814433 versus control 0.009319587628865979, with a 95% confidence interval for the effect of [-0.007117370178736062, -0.0042640731202330095].",
+            "Snapshot secondary metric: treatment CTR was 0.04338144329896907 versus control 0.037278350515463916, indicating higher engagement did not produce higher install rate.",
+            "Deterministic decision identifies g0_v04 as the updated champion and sets the workflow action to stop.",
+            "Historical search excluding the current run returned no matching completed combat experiments."
+          ],
+          "layers": {
+            "background": "sunlit_meadow",
+            "subject_character": "Mira",
+            "subject_action": "close_up_smile",
+            "hook_text": "Your party is waiting.",
+            "cta_text": "Play Free",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "3b06591d86a2508b7298fdac3ba3237ea0d6dba673ced2bfa2abc642bb3b04a5",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "e6a1bf0a7506dd164c6432df1a6a57723d24997522d7bfff10bb08671857fab4",
+        "proposal_id": "3b06591d86a2508b7298fdac3ba3237ea0d6dba673ced2bfa2abc642bb3b04a5",
+        "idempotency_key": "3b06591d86a2508b7298fdac3ba3237ea0d6dba673ced2bfa2abc642bb3b04a5:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:03:52.566Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_04",
+          "round": 4,
+          "champion_variant_id": "g0_v04",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g4_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_05"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 5,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_05",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "051902fbe0f6820fbd17ee4beb0f02c1ed60314ad18ba4fbed16b891e659d71a",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.007886792452830188, treatment=0.006943396226415094.",
+          "absolute_effect=-0.0009433962264150941, p_value=0.20559025094556316.",
+          "confidence_interval=[-0.0024041448953716713, 0.0005173524425414828]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "051902fbe0f6820fbd17ee4beb0f02c1ed60314ad18ba4fbed16b891e659d71a",
+          "evaluation": {
+            "interpretation": "The challenger produced a higher CTR but a lower, inconclusive install rate; the deterministic decision stopped the experiment and retained g0_v04.",
+            "learning": "A stronger party-oriented invitation can attract clicks without establishing install intent, so explore a more concrete reward-and-discovery mechanism."
+          },
+          "hypothesis": {
+            "statement": "Relative to updated champion g0_v04, change subject_character to Rex, subject_action to opens_treasure, and hook_text to Free gems every day to increase install rate.",
+            "experiment_population": "The fixed-horizon campaign population exposed to Rune Keepers vertical video ads.",
+            "audience_motivation": "Immediate, approachable rewards and low-friction value, especially plausible for casual-game audiences.",
+            "mechanism": "A loyal, energetic character opening treasure paired with a recurring reward promise should make the product value concrete and motivate more users to install."
+          },
+          "tradeoffs": [
+            "May weaken the champion's warmth and personal-connection signal.",
+            "Reward framing could attract curiosity clicks without improving installs.",
+            "Rex and treasure imagery may feel less distinctive to companion-app audiences."
+          ],
+          "rationale": "This is a visibly distinct three-layer exploration centered on tangible reward and discovery, while retaining the champion's cozy setting, direct install CTA, and warm piano for interpretability.",
+          "evidence": [
+            "Snapshot primary metric: treatment install rate was 0.006943 versus control 0.007887, with a 95% CI of -0.002404 to 0.000517 and p=0.2056.",
+            "Snapshot secondary metric: treatment CTR was 0.058717 versus control 0.037774, with a 95% CI of 0.017299 to 0.024587.",
+            "The deterministic decision is stop, with g0_v04 as champion.",
+            "Historical search excluding the current run returned no matching completed runs."
+          ],
+          "layers": {
+            "background": "cozy_cafe",
+            "subject_character": "Rex",
+            "subject_action": "opens_treasure",
+            "hook_text": "Free gems every day",
+            "cta_text": "Install Now",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "b617ac7d9f5755ee04560c29808ceebc02949234cc9ee4d02c9b3763a507e624",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "8edb00553ca8d1ac8b7fed36d2497f0ece908b5e4b0ac2b22b9c92d65d45526a",
+        "proposal_id": "b617ac7d9f5755ee04560c29808ceebc02949234cc9ee4d02c9b3763a507e624",
+        "idempotency_key": "b617ac7d9f5755ee04560c29808ceebc02949234cc9ee4d02c9b3763a507e624:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:05:52.566Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_05",
+          "round": 5,
+          "champion_variant_id": "g0_v04",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g5_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_06"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 6,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_06",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "2b01214f822b4a4f48e3729f53860a36e812b8190f7222f9de24d636d9429339",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.007692307692307693, treatment=0.0026813186813186814.",
+          "absolute_effect=-0.005010989010989011, p_value=1.0147438445073931e-13.",
+          "confidence_interval=[-0.006330244337065411, -0.003691733684912612]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "2b01214f822b4a4f48e3729f53860a36e812b8190f7222f9de24d636d9429339",
+          "evaluation": {
+            "interpretation": "The challenger was decisively worse than the champion on install rate; its reward/combat framing should not be repeated.",
+            "learning": "Retain the champion's warm, personal positioning and explore belonging through a visibly different invitation-led execution."
+          },
+          "hypothesis": {
+            "statement": "Relative to updated champion g0_v04, change background to sunlit_meadow, hook_text to Your party is waiting., and cta_text to Join Luna to increase install rate.",
+            "experiment_population": "Users exposed in AI companion apps, RPG chat apps, and casual games during the fixed-horizon test.",
+            "audience_motivation": "Belonging and low-friction character attachment.",
+            "mechanism": "A welcoming setting, belonging-oriented message, and character invitation should make the party feel personally available and motivate installs."
+          },
+          "tradeoffs": [
+            "May weaken the champion's memory-specific differentiation.",
+            "Character-specific CTA may reduce relevance for users who do not identify with Luna.",
+            "Approachable framing may feel less dramatic to combat-oriented users."
+          ],
+          "rationale": "This tests a coherent belonging mechanism with exactly three changed layers while preserving the champion's Mira, intimate interaction, and warm audio. No prior matching explore runs were returned by historical search.",
+          "evidence": [
+            "The current snapshot shows the treatment install rate was 0.002681 versus 0.007692 for control, with a 95% confidence interval for the effect entirely below zero.",
+            "The current snapshot reports treatment CTR below control, but CTR is used only as diagnostic evidence.",
+            "The current deterministic decision identifies g0_v04 as the updated champion.",
+            "Historical search excluding the current run returned no matches."
+          ],
+          "layers": {
+            "background": "sunlit_meadow",
+            "subject_character": "Mira",
+            "subject_action": "close_up_smile",
+            "hook_text": "Your party is waiting.",
+            "cta_text": "Join Luna",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "f363c9d684a51d7f0541a98394d3c3003920ec06a53e76faf7385c397ca8e05a",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "0913452a335daa897cacd8ee8dec472e5ea5b3f32d9e85042905662a54225c3e",
+        "proposal_id": "f363c9d684a51d7f0541a98394d3c3003920ec06a53e76faf7385c397ca8e05a",
+        "idempotency_key": "f363c9d684a51d7f0541a98394d3c3003920ec06a53e76faf7385c397ca8e05a:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:07:52.566Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_06",
+          "round": 6,
+          "champion_variant_id": "g0_v04",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g6_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_07"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 7,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_07",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "84c38501b0cdd104d026c68468ee965c120116ac070a9c424d3a01268f36a40e",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.008533333333333334, treatment=0.0057777777777777775.",
+          "absolute_effect=-0.0027555555555555562, p_value=0.0005253128698579079.",
+          "confidence_interval=[-0.004312868246806744, -0.0011982428643043676]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "84c38501b0cdd104d026c68468ee965c120116ac070a9c424d3a01268f36a40e",
+          "evaluation": {
+            "interpretation": "The sunlit-meadow, party-belonging, and Join Luna treatment significantly reduced install rate despite increasing CTR.",
+            "learning": "Higher attention did not translate into installs; retain the champion’s intimate memory cue and explore a distinct mystery-oriented fantasy presentation."
+          },
+          "hypothesis": {
+            "statement": "Relative to updated champion g0_v04, change background to moonlit_temple, subject_action to opens_treasure, and hook_text to The ruins are calling to increase install rate through mystery and discovery while preserving Mira’s personal connection.",
+            "experiment_population": "The fixed-horizon Rune Keepers ad population exposed in AI companion apps, RPG chat apps, and casual games.",
+            "audience_motivation": "Mystery, exploration, and discovery alongside a familiar companion connection.",
+            "mechanism": "A moonlit ruin setting, treasure discovery, and an exploratory hook should create a compelling fantasy invitation while Mira preserves warmth and trust, increasing motivation to install."
+          },
+          "tradeoffs": [
+            "May weaken the champion’s direct memory signal.",
+            "Mystery may be less immediately clear than the champion’s personal message.",
+            "Treasure discovery could distract from Mira’s emotional presence."
+          ],
+          "rationale": "This changes exactly three coordinated catalog layers from g0_v04 and creates a visibly distinct mystery-and-discovery concept. The proposed combination differs from the retrieved historical treatment and preserves interpretability.",
+          "evidence": [
+            "Current snapshot identifies g0_v04 as the champion baseline.",
+            "The current treatment reduced install rate from 0.008533333333333334 to 0.0057777777777777775, with confidence interval [-0.004312868246806744,-0.0011982428643043676].",
+            "CTR increased from 0.03604444444444444 to 0.0496, showing attention did not translate into installs.",
+            "The retrieved historical run found mystery-hook wording alone inconclusive, motivating coordinated visual support."
+          ],
+          "layers": {
+            "background": "moonlit_temple",
+            "subject_character": "Mira",
+            "subject_action": "opens_treasure",
+            "hook_text": "The ruins are calling",
+            "cta_text": "Install Now",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "d8e9b4cee4ef8e9e49a056f07c5a448e743893077bd12774086911df7ad08c74",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "eec6668316481f973f7a8fbf029d0fbad165552f8bce54c9d956377ee6c82b7f",
+        "proposal_id": "d8e9b4cee4ef8e9e49a056f07c5a448e743893077bd12774086911df7ad08c74",
+        "idempotency_key": "d8e9b4cee4ef8e9e49a056f07c5a448e743893077bd12774086911df7ad08c74:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:09:52.566Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_07",
+          "round": 7,
+          "champion_variant_id": "g0_v04",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g7_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_08"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 8,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_08",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "611526eded08274f55870836c96398b76f8c9eff31ed7fda53059453054b2a04",
+        "summary": "Promote the treatment and test the next challenger.",
+        "rationale": "The treatment has a statistically significant positive primary-metric effect under the fixed-horizon policy.",
+        "evidence": [
+          "install_rate_user: control=0.008, treatment=0.011020408163265306.",
+          "absolute_effect=0.0030204081632653063, p_value=0.0005724220426617244.",
+          "confidence_interval=[0.0013019177094217302, 0.004738898617108882]."
+        ],
+        "action": "promote",
+        "variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g7_v00",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "611526eded08274f55870836c96398b76f8c9eff31ed7fda53059453054b2a04",
+          "evaluation": {
+            "interpretation": "The promoted champion increased install rate versus the prior control, with a positive significant confidence interval; CTR also rose diagnostically.",
+            "learning": "Mystery-and-discovery framing appears promising, so preserve the champion and isolate one adjacent action change."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change subject_action from opens_treasure to casts_spell to test whether stronger magical agency improves install rate.",
+            "experiment_population": "All users exposed to the next fixed-horizon Rune Keepers creative experiment.",
+            "audience_motivation": "Fantasy-RPG users may be motivated by visible magic, power, and progression.",
+            "mechanism": "Replacing passive reward discovery with an active spell moment may increase perceived gameplay intensity and motivate installs."
+          },
+          "tradeoffs": [
+            "May weaken the champion’s reward clarity.",
+            "Could reduce warmth and emotional continuity from Mira with warm piano.",
+            "May make the creative feel more combat-oriented than approachable."
+          ],
+          "rationale": "Keep all champion layers unchanged except subject_action, isolating whether active magic can improve the proven exploration concept.",
+          "evidence": [
+            "The current treatment install rate was 0.011020408163265306 versus 0.008 for control.",
+            "The observed absolute install-rate effect was 0.0030204081632653063 with a 95% confidence interval of [0.0013019177094217302, 0.004738898617108882].",
+            "The promoted champion uses moonlit_temple, Mira, opens_treasure, The ruins are calling, Install Now, and warm_piano.",
+            "No matching prior exploit runs were returned by historical search."
+          ],
+          "layers": {
+            "background": "moonlit_temple",
+            "subject_character": "Mira",
+            "subject_action": "casts_spell",
+            "hook_text": "The ruins are calling",
+            "cta_text": "Install Now",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "13273e48d15f737459e17b95c93d4cfffbf8079fbe3b781f5051b444828b3e7e",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "exploit-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "1814a65ef281fde96194bb64dd24fd82e4ab2a9f3f6a85ee6f36efef5b321ef0",
+        "proposal_id": "13273e48d15f737459e17b95c93d4cfffbf8079fbe3b781f5051b444828b3e7e",
+        "idempotency_key": "13273e48d15f737459e17b95c93d4cfffbf8079fbe3b781f5051b444828b3e7e:promote",
+        "action_type": "promote",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:11:52.566Z",
+        "payload": {
+          "effect": "treatment_promoted_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_08",
+          "round": 8,
+          "champion_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g7_v00",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g8_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_09"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 9,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_09",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "dd8154d3ca8375ffe6311a09190221c3760da7dfac8755da53b4ef88181a9065",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.012721311475409836, treatment=0.008918032786885246.",
+          "absolute_effect=-0.00380327868852459, p_value=0.000005632970401237003.",
+          "confidence_interval=[-0.0054449428231840786, -0.0021616145538651014]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "dd8154d3ca8375ffe6311a09190221c3760da7dfac8755da53b4ef88181a9065",
+          "evaluation": {
+            "interpretation": "The casts_spell challenger significantly reduced install rate versus the champion, despite increasing CTR.",
+            "learning": "Magic-power action can attract clicks without converting installs; retain the champion’s mystery-and-discovery direction while testing a more approachable reward cue."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change background to sunlit_meadow, subject_action to close_up_smile, and cta_text to Play Free to test whether approachable warmth and low-friction framing increase install rate.",
+            "experiment_population": "All users exposed to the fixed-horizon creative experiment across the campaign’s eligible inventory.",
+            "audience_motivation": "Approachability and low-friction play, especially plausible for casual-game audiences without asserting segment performance.",
+            "mechanism": "A bright welcoming setting, trust-building expression, and free-play CTA should reduce perceived commitment and make installation feel easy."
+          },
+          "tradeoffs": [
+            "May weaken the champion’s mystery and exploration salience.",
+            "A softer visual may reduce urgency or fantasy intensity.",
+            "Play Free may attract lower-intent clicks that do not convert."
+          ],
+          "rationale": "This is a visibly distinct three-layer exploration of approachable entry while preserving Mira, the discovery hook, and warm piano for interpretability.",
+          "evidence": [
+            "Current snapshot: casts_spell lowered install rate by 0.0038033 absolute versus the champion, with a 95% CI of [-0.0054449, -0.0021616].",
+            "Current snapshot: casts_spell increased CTR by 0.0075082 absolute, so CTR did not predict install conversion.",
+            "Retrieved round 8: the champion’s moonlit_temple, opens_treasure, and The ruins are calling combination improved install rate by 0.0030204 absolute with a positive significant outcome."
+          ],
+          "layers": {
+            "background": "sunlit_meadow",
+            "subject_character": "Mira",
+            "subject_action": "close_up_smile",
+            "hook_text": "The ruins are calling",
+            "cta_text": "Play Free",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "2112f36be048f98f65734189542492e7afa4e1ece96949b13b5942b10302cabe",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "28f6705407f2568c3d5c5679b68042ef9486424195990582ccffbef1326eb2f6",
+        "proposal_id": "2112f36be048f98f65734189542492e7afa4e1ece96949b13b5942b10302cabe",
+        "idempotency_key": "2112f36be048f98f65734189542492e7afa4e1ece96949b13b5942b10302cabe:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:13:52.566Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_09",
+          "round": 9,
+          "champion_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g7_v00",
+          "challenger_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g9_v00",
+          "next_run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_10"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    },
+    {
+      "round": 10,
+      "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_10",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "57f6acc68924841fb38c5dcb688e1a95fb9629c6e27c36e424fe89b5ea17d6a2",
+        "summary": "Record the final experiment outcome and terminate optimization.",
+        "rationale": "The final experiment resolved to stop; round 10 reached max_rounds=10.",
+        "evidence": [
+          "install_rate_user: control=0.01283453237410072, treatment=0.007482014388489209.",
+          "absolute_effect=-0.005352517985611511, p_value=1.9910739723627557e-12.",
+          "confidence_interval=[-0.006842988942259182, -0.0038620470289638404].",
+          "round=10 equals max_rounds=10."
+        ],
+        "action": "terminate",
+        "final_experiment_action": "stop",
+        "champion_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g7_v00"
+      },
+      "proposal": {
+        "proposal_id": "dab985ea10e7185bfc4f21741a305433e85b8de4d7eddd8b89f36c6f6c3c34a8",
+        "policy_version": "experiment-policy-v6",
+        "prompt_version": "explore-prompt-v1",
+        "model": "deterministic",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "3ed6dc91743a0804ac8c0fa14023bdbbc11b953e07a2c4705c95816ee9ded166",
+        "proposal_id": "dab985ea10e7185bfc4f21741a305433e85b8de4d7eddd8b89f36c6f6c3c34a8",
+        "idempotency_key": "dab985ea10e7185bfc4f21741a305433e85b8de4d7eddd8b89f36c6f6c3c34a8:terminate",
+        "action_type": "terminate",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:15:52.566Z",
+        "payload": {
+          "effect": "optimization_terminated",
+          "run_id": "seed_g0_v04_vs_g0_v05_20260921005652524_round_10",
+          "round": 10,
+          "final_experiment_action": "stop",
+          "champion_variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g7_v00"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v04_vs_g0_v05_20260921005652524/trajectory.json"
+    }
+  ]
+}

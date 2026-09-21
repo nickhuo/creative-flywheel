@@ -1,4 +1,5 @@
 import {expect, test} from "bun:test";
+import {RunContext} from "@openai/agents";
 import {randomUUID} from "node:crypto";
 import {mkdir, mkdtemp, rm, writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
@@ -6,6 +7,7 @@ import {join} from "node:path";
 
 import {EXPLORE_PROMPT} from "../src/agent/challenger";
 import {
+  createExperimentHistoryTools,
   getExperimentTrajectory,
   searchExperimentRuns,
 } from "../src/agent/history";
@@ -290,6 +292,41 @@ test("history tools search compact evidence and expand one trajectory", async ()
         {variant_id: treatmentManifest.variant_id, generation: 0, parent_id: null},
       ],
     });
+  } finally {
+    await rm(temporaryRoot, {recursive: true, force: true});
+  }
+});
+
+test("history tools return invalid model input for correction", async () => {
+  const searchTool = createExperimentHistoryTools()[0];
+  if (searchTool?.type !== "function") {
+    throw new Error("Expected search_experiment_runs to be a function tool.");
+  }
+
+  const output = await searchTool.invoke(
+    new RunContext(),
+    JSON.stringify({changed_layers: [], limit: 5}),
+  );
+
+  expect(output).toContain("Invalid history tool input");
+
+  const temporaryRoot = await mkdtemp(join(tmpdir(), "simula-history-error-"));
+  const runsPath = join(temporaryRoot, "runs");
+  try {
+    await writeFile(runsPath, "not a directory");
+    const failingTool = createExperimentHistoryTools({
+      source: {
+        project_root: temporaryRoot,
+        runs_directory: runsPath,
+        ledger_path: join(temporaryRoot, "state.sqlite"),
+      },
+    })[0];
+    if (failingTool?.type !== "function") {
+      throw new Error("Expected search_experiment_runs to be a function tool.");
+    }
+    await expect(
+      failingTool.invoke(new RunContext(), JSON.stringify({limit: 5})),
+    ).rejects.toThrow();
   } finally {
     await rm(temporaryRoot, {recursive: true, force: true});
   }

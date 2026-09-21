@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g8_v00",
+  "generation": 8,
+  "parent_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+  "layers": {
+    "background": "sunlit_meadow",
+    "subject_character": "Mira",
+    "subject_action": "opens_treasure",
+    "hook_text": "Free gems every day",
+    "cta_text": "Claim Bonus",
+    "audio_style": "low_drums"
+  }
+}

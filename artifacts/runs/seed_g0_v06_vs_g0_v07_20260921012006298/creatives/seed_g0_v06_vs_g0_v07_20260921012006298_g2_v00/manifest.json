@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g2_v00",
+  "generation": 2,
+  "parent_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00",
+  "layers": {
+    "background": "moonlit_temple",
+    "subject_character": "Rex",
+    "subject_action": "draws_blade",
+    "hook_text": "Can you beat level 3?",
+    "cta_text": "Claim Bonus",
+    "audio_style": "upbeat_synth"
+  }
+}

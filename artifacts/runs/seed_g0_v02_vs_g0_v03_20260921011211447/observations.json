@@ -1,0 +1,1052 @@
+[
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "round_number": 1,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:13:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 24000,
+        "impressions": 24000,
+        "clicks": 1286,
+        "installs": 88,
+        "arms": [
+          {
+            "variant_id": "g0_v02",
+            "impressions": 12000,
+            "clicks": 571,
+            "installs": 39
+          },
+          {
+            "variant_id": "g0_v03",
+            "impressions": 12000,
+            "clicks": 715,
+            "installs": 49
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "02354c1ecb95ae76af064b2ff9cb0ac03e2f96af106c288c7621232485283b12",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+        "observed_at": "2026-09-21T01:13:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "g0_v02",
+            "role": "control",
+            "exposures": 12000
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "g0_v03",
+            "role": "treatment",
+            "exposures": 12000
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "g0_v02",
+            "units": 12000,
+            "mean": 0.00325
+          },
+          "treatment": {
+            "variant_id": "g0_v03",
+            "units": 12000,
+            "mean": 0.004083333333333333
+          },
+          "absolute_effect": 0.0008333333333333331,
+          "relative_effect": 0.25641025641025633,
+          "confidence_interval": {
+            "lower": -0.0006959921658236902,
+            "upper": 0.0023626588324903563,
+            "level": 0.95
+          },
+          "p_value": 0.28553713005985104
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "g0_v02",
+              "units": 12000,
+              "mean": 0.04758333333333333
+            },
+            "treatment": {
+              "variant_id": "g0_v03",
+              "units": 12000,
+              "mean": 0.059583333333333335
+            },
+            "absolute_effect": 0.012000000000000004,
+            "relative_effect": 0.2521891418563924,
+            "confidence_interval": {
+              "lower": 0.006303946598605835,
+              "upper": 0.01769605340139417,
+              "level": 0.95
+            },
+            "p_value": 0.000036672737457887905
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_02",
+    "round_number": 2,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:15:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_02",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 23000,
+        "impressions": 23000,
+        "clicks": 1075,
+        "installs": 132,
+        "arms": [
+          {
+            "variant_id": "g0_v02",
+            "impressions": 11500,
+            "clicks": 581,
+            "installs": 38
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "impressions": 11500,
+            "clicks": 494,
+            "installs": 94
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "4ca0bf9644862fb42c86fa4123d152425008a16cfc9c62d8eea9b73bd17e015c",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_02",
+        "observed_at": "2026-09-21T01:15:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_02"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "g0_v02",
+            "role": "control",
+            "exposures": 11500
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "role": "treatment",
+            "exposures": 11500
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "g0_v02",
+            "units": 11500,
+            "mean": 0.0033043478260869567
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "units": 11500,
+            "mean": 0.00817391304347826
+          },
+          "absolute_effect": 0.004869565217391304,
+          "relative_effect": 1.4736842105263155,
+          "confidence_interval": {
+            "lower": 0.002918097296047433,
+            "upper": 0.006821033138735175,
+            "level": 0.95
+          },
+          "p_value": 0.0000010189494417112144
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "g0_v02",
+              "units": 11500,
+              "mean": 0.050521739130434784
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+              "units": 11500,
+              "mean": 0.042956521739130435
+            },
+            "absolute_effect": -0.007565217391304349,
+            "relative_effect": -0.14974182444061965,
+            "confidence_interval": {
+              "lower": -0.013020162173947969,
+              "upper": -0.00211027260866073,
+              "level": 0.95
+            },
+            "p_value": 0.0065728969681808636
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_03",
+    "round_number": 3,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:17:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_03",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 47000,
+        "impressions": 47000,
+        "clicks": 2081,
+        "installs": 411,
+        "arms": [
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "impressions": 23500,
+            "clicks": 995,
+            "installs": 204
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g2_v00",
+            "impressions": 23500,
+            "clicks": 1086,
+            "installs": 207
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "d20bde1d50ef774bcb05232cab1c4b83bac880966a011e0eb9f635133d66f001",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_03",
+        "observed_at": "2026-09-21T01:17:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_03"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "role": "control",
+            "exposures": 23500
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g2_v00",
+            "role": "treatment",
+            "exposures": 23500
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "units": 23500,
+            "mean": 0.008680851063829787
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g2_v00",
+            "units": 23500,
+            "mean": 0.008808510638297873
+          },
+          "absolute_effect": 0.0001276595744680864,
+          "relative_effect": 0.014705882352941327,
+          "confidence_interval": {
+            "lower": -0.001555764529401347,
+            "upper": 0.0018110836783375198,
+            "level": 0.95
+          },
+          "p_value": 0.8818452652213122
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+              "units": 23500,
+              "mean": 0.042340425531914895
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g2_v00",
+              "units": 23500,
+              "mean": 0.046212765957446805
+            },
+            "absolute_effect": 0.00387234042553191,
+            "relative_effect": 0.0914572864321607,
+            "confidence_interval": {
+              "lower": 0.00015302612418979528,
+              "upper": 0.007591654726874025,
+              "level": 0.95
+            },
+            "p_value": 0.04129918079833228
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_04",
+    "round_number": 4,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:19:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_04",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 49500,
+        "impressions": 49500,
+        "clicks": 2987,
+        "installs": 459,
+        "arms": [
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "impressions": 24750,
+            "clicks": 1048,
+            "installs": 244
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g3_v00",
+            "impressions": 24750,
+            "clicks": 1939,
+            "installs": 215
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "269ed0c3bbd05a5fdacdc30bb36ef6d7ce52c3d61884df3ee14b7d92394fb1f9",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_04",
+        "observed_at": "2026-09-21T01:19:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_04"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "role": "control",
+            "exposures": 24750
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g3_v00",
+            "role": "treatment",
+            "exposures": 24750
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "units": 24750,
+            "mean": 0.009858585858585858
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g3_v00",
+            "units": 24750,
+            "mean": 0.008686868686868687
+          },
+          "absolute_effect": -0.001171717171717171,
+          "relative_effect": -0.11885245901639337,
+          "confidence_interval": {
+            "lower": -0.0028603993300146194,
+            "upper": 0.0005169649865802773,
+            "level": 0.95
+          },
+          "p_value": 0.1738541404841092
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+              "units": 24750,
+              "mean": 0.04234343434343434
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g3_v00",
+              "units": 24750,
+              "mean": 0.07834343434343434
+            },
+            "absolute_effect": 0.036,
+            "relative_effect": 0.8501908396946565,
+            "confidence_interval": {
+              "lower": 0.031816589715505175,
+              "upper": 0.04018341028449482,
+              "level": 0.95
+            },
+            "p_value": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_05",
+    "round_number": 5,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:21:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_05",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 55500,
+        "impressions": 55500,
+        "clicks": 2430,
+        "installs": 458,
+        "arms": [
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "impressions": 27750,
+            "clicks": 1207,
+            "installs": 262
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g4_v00",
+            "impressions": 27750,
+            "clicks": 1223,
+            "installs": 196
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "34f6be587b4bd5447d29e5804a00ece2ab7a1b884195fbe1942b108d65763b47",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_05",
+        "observed_at": "2026-09-21T01:21:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_05"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "role": "control",
+            "exposures": 27750
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g4_v00",
+            "role": "treatment",
+            "exposures": 27750
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "units": 27750,
+            "mean": 0.00944144144144144
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g4_v00",
+            "units": 27750,
+            "mean": 0.007063063063063063
+          },
+          "absolute_effect": -0.0023783783783783777,
+          "relative_effect": -0.2519083969465648,
+          "confidence_interval": {
+            "lower": -0.003883531443373881,
+            "upper": -0.0008732253133828742,
+            "level": 0.95
+          },
+          "p_value": 0.0019564754573253573
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+              "units": 27750,
+              "mean": 0.043495495495495494
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g4_v00",
+              "units": 27750,
+              "mean": 0.044072072072072074
+            },
+            "absolute_effect": 0.0005765765765765804,
+            "relative_effect": 0.013256006628003402,
+            "confidence_interval": {
+              "lower": -0.002828019542881067,
+              "upper": 0.003981172696034228,
+              "level": 0.95
+            },
+            "p_value": 0.7399467037322669
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_06",
+    "round_number": 6,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:23:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_06",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 53500,
+        "impressions": 53500,
+        "clicks": 2875,
+        "installs": 583,
+        "arms": [
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "impressions": 26750,
+            "clicks": 1130,
+            "installs": 239
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "impressions": 26750,
+            "clicks": 1745,
+            "installs": 344
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "195a468eb4aef0f9f2473e2d869b0f79862bc8cd874877bc2f30a1ad711784d8",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_06",
+        "observed_at": "2026-09-21T01:23:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_06"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "role": "control",
+            "exposures": 26750
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "role": "treatment",
+            "exposures": 26750
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+            "units": 26750,
+            "mean": 0.008934579439252336
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "units": 26750,
+            "mean": 0.012859813084112149
+          },
+          "absolute_effect": 0.003925233644859813,
+          "relative_effect": 0.43933054393305443,
+          "confidence_interval": {
+            "lower": 0.002166089522636163,
+            "upper": 0.005684377767083464,
+            "level": 0.95
+          },
+          "p_value": 0.000012290302173312284
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g1_v00",
+              "units": 26750,
+              "mean": 0.04224299065420561
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+              "units": 26750,
+              "mean": 0.06523364485981309
+            },
+            "absolute_effect": 0.02299065420560748,
+            "relative_effect": 0.5442477876106195,
+            "confidence_interval": {
+              "lower": 0.019173993347898394,
+              "upper": 0.02680731506331657,
+              "level": 0.95
+            },
+            "p_value": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_07",
+    "round_number": 7,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:25:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_07",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 70000,
+        "impressions": 70000,
+        "clicks": 4611,
+        "installs": 809,
+        "arms": [
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "impressions": 35000,
+            "clicks": 2127,
+            "installs": 388
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g6_v00",
+            "impressions": 35000,
+            "clicks": 2484,
+            "installs": 421
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "b4049f9addad90703407e613747e37e16276e546a47deca92373fbc3e6992d9a",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_07",
+        "observed_at": "2026-09-21T01:25:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_07"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "role": "control",
+            "exposures": 35000
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g6_v00",
+            "role": "treatment",
+            "exposures": 35000
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "units": 35000,
+            "mean": 0.011085714285714286
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g6_v00",
+            "units": 35000,
+            "mean": 0.012028571428571428
+          },
+          "absolute_effect": 0.0009428571428571429,
+          "relative_effect": 0.08505154639175258,
+          "confidence_interval": {
+            "lower": -0.0006406703386745501,
+            "upper": 0.0025263846243888358,
+            "level": 0.95
+          },
+          "p_value": 0.2432180428323374
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+              "units": 35000,
+              "mean": 0.06077142857142857
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g6_v00",
+              "units": 35000,
+              "mean": 0.07097142857142857
+            },
+            "absolute_effect": 0.0102,
+            "relative_effect": 0.1678420310296192,
+            "confidence_interval": {
+              "lower": 0.006525579415245096,
+              "upper": 0.013874420584754906,
+              "level": 0.95
+            },
+            "p_value": 5.352431875493835e-8
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_08",
+    "round_number": 8,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:27:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_08",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 61500,
+        "impressions": 61500,
+        "clicks": 3333,
+        "installs": 595,
+        "arms": [
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "impressions": 30750,
+            "clicks": 1960,
+            "installs": 352
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g7_v00",
+            "impressions": 30750,
+            "clicks": 1373,
+            "installs": 243
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "d4ed260aa808d23592fdadfd20028aab7cc3f10413f35878719d293c43008b93",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_08",
+        "observed_at": "2026-09-21T01:27:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_08"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "role": "control",
+            "exposures": 30750
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g7_v00",
+            "role": "treatment",
+            "exposures": 30750
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "units": 30750,
+            "mean": 0.011447154471544716
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g7_v00",
+            "units": 30750,
+            "mean": 0.007902439024390244
+          },
+          "absolute_effect": -0.003544715447154472,
+          "relative_effect": -0.30965909090909094,
+          "confidence_interval": {
+            "lower": -0.005091674802401715,
+            "upper": -0.0019977560919072286,
+            "level": 0.95
+          },
+          "p_value": 0.000007117476433560199
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+              "units": 30750,
+              "mean": 0.06373983739837398
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g7_v00",
+              "units": 30750,
+              "mean": 0.04465040650406504
+            },
+            "absolute_effect": -0.019089430894308937,
+            "relative_effect": -0.2994897959183673,
+            "confidence_interval": {
+              "lower": -0.022664915055465494,
+              "upper": -0.01551394673315238,
+              "level": 0.95
+            },
+            "p_value": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_09",
+    "round_number": 9,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:29:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_09",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 63000,
+        "impressions": 63000,
+        "clicks": 2996,
+        "installs": 415,
+        "arms": [
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "impressions": 31500,
+            "clicks": 1969,
+            "installs": 356
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g8_v00",
+            "impressions": 31500,
+            "clicks": 1027,
+            "installs": 59
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "7fe96c9506d950b8e7458b1677912183eee2b658ad81ca381efacb69fc0bb0cc",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_09",
+        "observed_at": "2026-09-21T01:29:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_09"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "role": "control",
+            "exposures": 31500
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g8_v00",
+            "role": "treatment",
+            "exposures": 31500
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "units": 31500,
+            "mean": 0.011301587301587302
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g8_v00",
+            "units": 31500,
+            "mean": 0.001873015873015873
+          },
+          "absolute_effect": -0.009428571428571429,
+          "relative_effect": -0.8342696629213483,
+          "confidence_interval": {
+            "lower": -0.010689781541909072,
+            "upper": -0.008167361315233785,
+            "level": 0.95
+          },
+          "p_value": 0
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+              "units": 31500,
+              "mean": 0.06250793650793651
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g8_v00",
+              "units": 31500,
+              "mean": 0.032603174603174606
+            },
+            "absolute_effect": -0.029904761904761906,
+            "relative_effect": -0.47841543930929403,
+            "confidence_interval": {
+              "lower": -0.033220296028991673,
+              "upper": -0.02658922778053214,
+              "level": 0.95
+            },
+            "p_value": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "optimization_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447",
+    "experiment_run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_10",
+    "round_number": 10,
+    "type": "simulator_result",
+    "recorded_at": "2026-09-21T01:31:11.763Z",
+    "payload": {
+      "summary": {
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_10",
+        "note": "Local reconciliation only; Statsig remains the result source.",
+        "users": 62500,
+        "impressions": 62500,
+        "clicks": 3655,
+        "installs": 702,
+        "arms": [
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "impressions": 31250,
+            "clicks": 1918,
+            "installs": 336
+          },
+          {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g9_v00",
+            "impressions": 31250,
+            "clicks": 1737,
+            "installs": 366
+          }
+        ]
+      },
+      "snapshot": {
+        "snapshot_id": "a6a217c2f4d3596640a11eec83790481eb6d1d1bb651fd6ae9df34aed32b7013",
+        "schema_version": 1,
+        "run_id": "seed_g0_v02_vs_g0_v03_20260921011211447_round_10",
+        "observed_at": "2026-09-21T01:31:11.763Z",
+        "data_through": "2026-09-21",
+        "source": {
+          "provider": "simulator",
+          "experiment_id": "creative_flywheel_seed_g0_v02_vs_g0_v03_20260921011211447_round_10"
+        },
+        "analysis": "fixed_horizon",
+        "exposure_groups": [
+          {
+            "group_id": "simulator_control",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "role": "control",
+            "exposures": 31250
+          },
+          {
+            "group_id": "simulator_treatment",
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g9_v00",
+            "role": "treatment",
+            "exposures": 31250
+          }
+        ],
+        "health_issues": [],
+        "primary_metric": {
+          "name": "install_rate_user",
+          "status": "ready",
+          "control": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+            "units": 31250,
+            "mean": 0.010752
+          },
+          "treatment": {
+            "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g9_v00",
+            "units": 31250,
+            "mean": 0.011712
+          },
+          "absolute_effect": 0.0009600000000000008,
+          "relative_effect": 0.08928571428571436,
+          "confidence_interval": {
+            "lower": -0.0006923766910362824,
+            "upper": 0.002612376691036284,
+            "level": 0.95
+          },
+          "p_value": 0.25483259371157607
+        },
+        "secondary_metrics": [
+          {
+            "name": "ctr_user",
+            "status": "ready",
+            "control": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g5_v00",
+              "units": 31250,
+              "mean": 0.061376
+            },
+            "treatment": {
+              "variant_id": "seed_g0_v02_vs_g0_v03_20260921011211447_g9_v00",
+              "units": 31250,
+              "mean": 0.055584
+            },
+            "absolute_effect": -0.0057919999999999985,
+            "relative_effect": -0.0943691345151199,
+            "confidence_interval": {
+              "lower": -0.009470944147123605,
+              "upper": -0.0021130558528763914,
+              "level": 0.95
+            },
+            "p_value": 0.0020325032769972218
+          }
+        ]
+      }
+    }
+  }
+]

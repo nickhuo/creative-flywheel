@@ -54,7 +54,11 @@ test("creative decisions route to separate agents and prompt versions", async ()
     const treatmentManifest = renderableCreativeManifestSchema.parse({
       ...controlManifest,
       variant_id: `${scenario.decision}_treatment`,
-      layers: {...controlManifest.layers, hook_text: "The ruins are calling"},
+      layers: {
+        ...controlManifest.layers,
+        subject_action: "casts_spell",
+        hook_text: "The ruins are calling",
+      },
     });
     const run = prepareExperimentRun({
       run_id: `${scenario.decision}_routing_test`,
@@ -147,6 +151,7 @@ test("creative decisions route to separate agents and prompt versions", async ()
           subject_character: "Rex" as const,
         };
     const ledger = new AgentLedger();
+    let challengerAttempts = 0;
     try {
       const outcome = await evaluateSnapshot({
         run,
@@ -162,8 +167,34 @@ test("creative decisions route to separate agents and prompt versions", async ()
           treatment_manifest: treatmentManifest,
           experiment_history: [],
         },
-        propose_challenger: async (_run, _snapshot, _context, decision) => {
+        propose_challenger: async (
+          _run,
+          _snapshot,
+          _context,
+          decision,
+          config,
+        ) => {
+          challengerAttempts += 1;
           expect(decision).toBe(scenario.decision);
+          if (scenario.decision === "stop" && challengerAttempts === 2) {
+            expect(config.retryFeedback).toContain("received 4");
+            expect(config.previousResponseId).toBe("response-1");
+          }
+          if (scenario.decision === "stop" && challengerAttempts === 3) {
+            expect(config.retryFeedback).toContain("previously tested");
+            expect(config.previousResponseId).toBe("response-2");
+          }
+          const layers = scenario.decision === "stop" && challengerAttempts === 1
+            ? {
+                ...champion.layers,
+                background: "storm_battlefield" as const,
+                subject_character: "Rex" as const,
+                subject_action: "casts_spell" as const,
+                audio_style: "low_drums" as const,
+              }
+            : scenario.decision === "stop" && challengerAttempts === 2
+              ? treatmentManifest.layers
+              : challengerLayers;
           return {
             challenger: {
               schema_version: 2,
@@ -181,16 +212,17 @@ test("creative decisions route to separate agents and prompt versions", async ()
               tradeoffs: ["The change may narrow audience appeal."],
               rationale: "Test the routed strategy with a controlled change.",
               evidence: ["The current fixed-horizon snapshot."],
-              layers: challengerLayers,
+              layers,
             },
-            lastResponseId: undefined,
+            lastResponseId: `response-${challengerAttempts}`,
           };
         },
       });
       expect(outcome.proposal).toMatchObject({
-        policy_version: "experiment-policy-v6",
+        policy_version: "experiment-policy-v7",
         prompt_version: scenario.prompt.version,
       });
+      expect(challengerAttempts).toBe(scenario.decision === "stop" ? 3 : 1);
     } finally {
       ledger.close();
     }

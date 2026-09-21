@@ -1,4 +1,9 @@
-import {tool, type Tool} from "@openai/agents";
+import {
+  ModelBehaviorError,
+  tool,
+  type RunContext,
+  type Tool,
+} from "@openai/agents";
 import {readdir} from "node:fs/promises";
 import {relative} from "node:path";
 import {z} from "zod";
@@ -420,7 +425,7 @@ export function createExperimentHistoryTools(
       description:
         "Search a small, structured set of completed historical experiment runs. Use this before proposing a creative to find relevant evidence and avoid repeating prior tests.",
       parameters: searchExperimentRunsInputSchema,
-      outputSchema: searchExperimentRunsOutputSchema,
+      errorFunction: recoverInvalidHistoryToolInput,
       execute: (input) =>
         searchExperimentRuns(
           {
@@ -435,10 +440,18 @@ export function createExperimentHistoryTools(
       description:
         "Load the complete normalized evidence and creative lineage for one selected experiment run or optimization root returned by search_experiment_runs.",
       parameters: getExperimentTrajectoryInputSchema,
-      outputSchema: getExperimentTrajectoryOutputSchema,
+      errorFunction: recoverInvalidHistoryToolInput,
       execute: (input) => getExperimentTrajectory(input, source),
     }),
   ];
+}
+
+function recoverInvalidHistoryToolInput(
+  _context: RunContext,
+  error: unknown,
+): string {
+  if (!(error instanceof ModelBehaviorError)) throw error;
+  return "Invalid history tool input. Retry with arguments matching the schema. Use null for unused optional filters, non-empty strings and arrays, ISO 8601 timestamps, and an integer limit from 1 to 10.";
 }
 
 function normalizeSearchText(value: string): string {

@@ -52,8 +52,6 @@ pnpm-debug.log*
 scratchpad/
 
 # Generated artifacts
-artifacts/audience/sample.json
+
 artifacts/agent/
-artifacts/experiments/
-artifacts/runs/
 artifacts/state.sqlite*

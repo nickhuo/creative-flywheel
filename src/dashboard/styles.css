@@ -130,6 +130,18 @@ h3 { font-size: 13px; font-weight: 620; }
 .trend-dot.champion { fill: transparent; stroke: var(--amber); stroke-width: 2; }
 .selected-round-line { stroke: rgba(255,255,255,.13); stroke-dasharray: 3 5; }
 .round-label { font-weight: 600; }
+.trend-data { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.trend-data summary { width: fit-content; color: var(--faint); cursor: pointer; }
+.trend-data summary::marker { color: var(--accent); }
+.trend-data summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
+.table-scroll { overflow-x: auto; margin-top: 10px; }
+.trend-data table { width: 100%; min-width: 430px; border-collapse: collapse; font-size: 11px; }
+.trend-data caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.trend-data th, .trend-data td { padding: 7px 10px; border-top: 1px solid var(--border); text-align: end; white-space: nowrap; }
+.trend-data th:first-child, .trend-data td:first-child { text-align: start; }
+.trend-data thead th { color: var(--faint); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.trend-data tbody th { color: var(--text); font-weight: 650; }
+.trend-data tbody td { color: var(--muted); }
 
 .trajectory-heading { margin-top: 30px; }
 .trajectory-log { display: grid; }

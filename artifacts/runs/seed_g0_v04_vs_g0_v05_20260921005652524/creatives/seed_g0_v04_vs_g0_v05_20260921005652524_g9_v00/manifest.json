@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g9_v00",
+  "generation": 9,
+  "parent_id": "seed_g0_v04_vs_g0_v05_20260921005652524_g7_v00",
+  "layers": {
+    "background": "sunlit_meadow",
+    "subject_character": "Mira",
+    "subject_action": "close_up_smile",
+    "hook_text": "The ruins are calling",
+    "cta_text": "Play Free",
+    "audio_style": "warm_piano"
+  }
+}

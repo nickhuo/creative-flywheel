@@ -1,0 +1,726 @@
+{
+  "schema_version": 1,
+  "optimization_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298",
+  "source": "simulator",
+  "status": "completed",
+  "max_rounds": 10,
+  "termination": "max_rounds",
+  "rounds": [
+    {
+      "round": 1,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "6162bea54b403d68d3211a524755fcf0d9dcb469c68d0fa75a1c2955953ed686",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.002181818181818182, treatment=0.0036363636363636364.",
+          "absolute_effect=0.0014545454545454545, p_value=0.08281591654242071.",
+          "confidence_interval=[-0.00018885074234441831, 0.0030979416514353274]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "6162bea54b403d68d3211a524755fcf0d9dcb469c68d0fa75a1c2955953ed686",
+          "evaluation": {
+            "interpretation": "The previous CTA-and-audio challenger increased CTR and had a higher observed install rate, but the install-rate confidence interval included zero, so the champion remains g0_v06.",
+            "learning": "Attention and lower-friction framing were not conclusive for installs; test a distinct exploration-and-challenge concept."
+          },
+          "hypothesis": {
+            "statement": "Relative to updated champion g0_v06, change background to moonlit_temple, subject_action to draws_blade, and hook_text to Can you beat level 3? to test whether mysterious challenge and combat progression increase install rate.",
+            "experiment_population": "Users exposed to Rune Keepers ads in AI companion apps, RPG chat apps, and casual games.",
+            "audience_motivation": "Exploration, challenge, and progression, especially plausible for fantasy RPG and adventure audiences.",
+            "mechanism": "A mysterious temple, blade-drawing action, and explicit level challenge should create a clear quest objective and urgency that motivates installation."
+          },
+          "tradeoffs": [
+            "May reduce the champion’s immediate reward clarity.",
+            "Combat challenge may appeal less to users seeking casual or companion-oriented experiences.",
+            "The darker exploration tone may weaken the champion’s warm, approachable presentation."
+          ],
+          "rationale": "This visibly distinct concept changes exactly three coordinated layers around one challenge-and-exploration mechanism while preserving the champion’s reward CTA and energetic acquisition framing.",
+          "evidence": [
+            "Current snapshot: g0_v07 increased install rate from 0.002181818181818182 to 0.0036363636363636364, but the 95% confidence interval was [-0.00018885074234441831, 0.0030979416514353274].",
+            "Current snapshot: CTR increased from 0.024363636363636365 to 0.029818181818181817; CTR is diagnostic evidence only.",
+            "Deterministic decision identifies g0_v06 as the updated champion baseline.",
+            "Retrieved history: a prior memory-focused Mira concept produced a positive significant install-rate outcome, supporting exploration of a distinct non-memory motivation rather than repeating it."
+          ],
+          "layers": {
+            "background": "moonlit_temple",
+            "subject_character": "Rex",
+            "subject_action": "draws_blade",
+            "hook_text": "Can you beat level 3?",
+            "cta_text": "Claim Bonus",
+            "audio_style": "low_drums"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "a813effa8e1ffa17ab476e6d6ba24e899f91b8f97af534d5f2fcba8161bb447d",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "f84fb3ea227b1e92258cfc82a2a134164a9c124e981f99cf4485044b23830843",
+        "proposal_id": "a813effa8e1ffa17ab476e6d6ba24e899f91b8f97af534d5f2fcba8161bb447d",
+        "idempotency_key": "a813effa8e1ffa17ab476e6d6ba24e899f91b8f97af534d5f2fcba8161bb447d:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:21:06.344Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298",
+          "round": 1,
+          "champion_variant_id": "g0_v06",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_02"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 2,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_02",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "24148acb838c9bc4b61237031f40fb547a128949334ea2068759d8ae32e3a8c9",
+        "summary": "Promote the treatment and test the next challenger.",
+        "rationale": "The treatment has a statistically significant positive primary-metric effect under the fixed-horizon policy.",
+        "evidence": [
+          "install_rate_user: control=0.0017142857142857142, treatment=0.003657142857142857.",
+          "absolute_effect=0.0019428571428571429, p_value=0.013026614754751531.",
+          "confidence_interval=[0.0004095533579218896, 0.003476160927792396]."
+        ],
+        "action": "promote",
+        "variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "24148acb838c9bc4b61237031f40fb547a128949334ea2068759d8ae32e3a8c9",
+          "evaluation": {
+            "interpretation": "The promoted challenger significantly increased install rate versus the prior control; its confidence interval excludes zero.",
+            "learning": "The demonstrated combat-progression creative is a stronger local baseline than the prior reward-and-discovery framing."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change audio_style from low_drums to upbeat_synth to test whether added energy and momentum further increase install rate.",
+            "experiment_population": "Users exposed to the next fixed-horizon Rune Keepers creative experiment.",
+            "audience_motivation": "Challenge, combat, and progression motivation.",
+            "mechanism": "Upbeat momentum should make the champion's combat challenge feel more immediate and energizing, increasing installs."
+          },
+          "tradeoffs": [
+            "May weaken the champion's tension and anticipation.",
+            "Could make the creative feel less mysterious or dramatic.",
+            "May improve attention while reducing perceived fantasy atmosphere."
+          ],
+          "rationale": "This isolates one layer around the promoted champion, preserving the evidence-backed character, action, setting, hook, and CTA while testing a focused audio refinement. No retrieved historical match used these proposed values and layer combination.",
+          "evidence": [
+            "Snapshot 24148acb838c9bc4b61237031f40fb547a128949334ea2068759d8ae32e3a8c9 reports treatment install rate 0.003657 versus control 0.001714.",
+            "The snapshot reports an install-rate absolute effect of 0.001943 with 95% confidence interval [0.000410, 0.003476] and p=0.0130.",
+            "The snapshot reports treatment CTR 0.066857 versus control CTR 0.026629; CTR is diagnostic only."
+          ],
+          "layers": {
+            "background": "moonlit_temple",
+            "subject_character": "Rex",
+            "subject_action": "draws_blade",
+            "hook_text": "Can you beat level 3?",
+            "cta_text": "Claim Bonus",
+            "audio_style": "upbeat_synth"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "21eb6a1ab374da1d5d30a61b1221a28b5ace74c966009247db378643d0135ef1",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "exploit-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "d76d87dd537841062d0fc8320e746fd23f70f6d02869ff8a868a6a93da543e43",
+        "proposal_id": "21eb6a1ab374da1d5d30a61b1221a28b5ace74c966009247db378643d0135ef1",
+        "idempotency_key": "21eb6a1ab374da1d5d30a61b1221a28b5ace74c966009247db378643d0135ef1:promote",
+        "action_type": "promote",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:23:06.344Z",
+        "payload": {
+          "effect": "treatment_promoted_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_02",
+          "round": 2,
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g2_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_03"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 3,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_03",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "e5b92407aa2a133665cbb8367a660695456f79ff55f52bb9c21b844689fc7fa6",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.0032, treatment=0.00416.",
+          "absolute_effect=0.0009599999999999995, p_value=0.21006217966440288.",
+          "confidence_interval=[-0.0005411272478901817, 0.0024611272478901806]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "e5b92407aa2a133665cbb8367a660695456f79ff55f52bb9c21b844689fc7fa6",
+          "evaluation": {
+            "interpretation": "The upbeat-synth challenger increased observed install rate from 0.0032 to 0.00416, but the confidence interval included zero, so the result was inconclusive and the challenger was not promoted.",
+            "learning": "Audio energy alone did not establish a reliable install-rate improvement; explore a distinct warmth-and-belonging concept instead."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change the background to cozy_cafe, the subject character to Mira, and the subject action to close_up_smile to test whether an intimate memory-and-trust presentation increases install rate.",
+            "experiment_population": "The fixed-horizon campaign exposure population receiving the current champion or this three-layer challenger.",
+            "audience_motivation": "Emotional connection, memory, and belonging, as a plausible motivation for companion-app audiences.",
+            "mechanism": "A warm setting, caring character, and trust-signaling expression should make the companion relationship immediately legible and motivate more users to install."
+          },
+          "tradeoffs": [
+            "May reduce combat urgency and appeal to challenge-oriented RPG users.",
+            "A close-up smile may communicate less gameplay action.",
+            "The intimate café setting may be less visually dramatic than the temple."
+          ],
+          "rationale": "This changes exactly three coordinated layers around one coherent warmth-and-connection mechanism while retaining the champion’s challenge hook, reward CTA, and tense audio for interpretability.",
+          "evidence": [
+            "Current snapshot reports the primary install-rate effect as 0.00096 with a 95% confidence interval from -0.0005411272478901817 to 0.0024611272478901806.",
+            "Current snapshot reports p_value 0.21006217966440288 for install rate, so the audio-only result was inconclusive.",
+            "The deterministic decision identifies seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00 as the updated champion.",
+            "Historical search excluding the current run returned no matches for the queried warmth, memory, connection, and party concepts."
+          ],
+          "layers": {
+            "background": "cozy_cafe",
+            "subject_character": "Mira",
+            "subject_action": "close_up_smile",
+            "hook_text": "Can you beat level 3?",
+            "cta_text": "Claim Bonus",
+            "audio_style": "low_drums"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "e2a1dd389de2712afc33ea696579e367bd0d2f323bac1009bedfc55801467031",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "ecb612de44d8631ca4b46bd8671d92e165258ed139280d9a79daf31f34fce7e7",
+        "proposal_id": "e2a1dd389de2712afc33ea696579e367bd0d2f323bac1009bedfc55801467031",
+        "idempotency_key": "e2a1dd389de2712afc33ea696579e367bd0d2f323bac1009bedfc55801467031:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:25:06.344Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_03",
+          "round": 3,
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g3_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_04"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 4,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_04",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "818ef64b95b95a596c8d52675400b132c3b244dd5e5c30b6e6250c6946011ad2",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.0035555555555555557, treatment=0.005066666666666666.",
+          "absolute_effect=0.0015111111111111106, p_value=0.08366214529701432.",
+          "confidence_interval=[-0.00020092974297564788, 0.003223151965197869]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "818ef64b95b95a596c8d52675400b132c3b244dd5e5c30b6e6250c6946011ad2",
+          "evaluation": {
+            "interpretation": "The cozy_cafe/Mira/close_up_smile treatment showed a higher observed install rate, but its confidence interval included zero; its lower CTR is diagnostic evidence that the intimate presentation may reduce immediate engagement.",
+            "learning": "Warm intimacy may support installs, but the next test should make the emotional invitation more explicit while preserving a clear, low-friction action."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change the background to sunlit_meadow, the hook text to Your party is waiting., and the cta_text to Play Free to test whether approachable belonging and a low-friction invitation increase install rate.",
+            "experiment_population": "Users exposed to the fixed-horizon ad experiment across the campaign inventory; no segment-level performance claim is made.",
+            "audience_motivation": "Belonging and approachable low-friction play, consistent with companion and casual audience motivations in the campaign brief.",
+            "mechanism": "A brighter, welcoming setting plus an explicit party-belonging hook and free-play CTA should clarify social attachment and reduce perceived commitment, encouraging installs."
+          },
+          "tradeoffs": [
+            "May weaken the champion's challenge and combat urgency.",
+            "The brighter scene may reduce fantasy mystery.",
+            "Play Free may create less reward salience than Claim Bonus."
+          ],
+          "rationale": "This is a visibly distinct three-layer exploration that keeps one coherent belonging-and-accessibility mechanism while avoiding the previously tested cozy-cafe/Mira/close-up-smile combination.",
+          "evidence": [
+            "Snapshot primary metric: treatment install rate was 0.0050667 versus control 0.0035556, with a 95% confidence interval for the absolute effect from -0.0002009 to 0.0032232.",
+            "Snapshot secondary metric: treatment CTR was 0.0389333 versus control 0.0597333, an absolute effect of -0.0208.",
+            "The campaign brief identifies belonging, approachable rewards, and low-friction play as plausible motivations, not observed segment performance."
+          ],
+          "layers": {
+            "background": "sunlit_meadow",
+            "subject_character": "Rex",
+            "subject_action": "draws_blade",
+            "hook_text": "Your party is waiting.",
+            "cta_text": "Play Free",
+            "audio_style": "low_drums"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "240f6a8a7c69d9e14bc5b1cd31d2949d40084848338ecca6ca312d1f00d36700",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "a63629f6af104a5ee64a967029ff980eed16855972bb6c7e34349085d14ec898",
+        "proposal_id": "240f6a8a7c69d9e14bc5b1cd31d2949d40084848338ecca6ca312d1f00d36700",
+        "idempotency_key": "240f6a8a7c69d9e14bc5b1cd31d2949d40084848338ecca6ca312d1f00d36700:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:27:06.344Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_04",
+          "round": 4,
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g4_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_05"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 5,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_05",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "845407a1b61460bf54953100fb42c687b040e90e880e08bf90dc1f6566890e46",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.0032653061224489797, treatment=0.004081632653061225.",
+          "absolute_effect=0.0008163265306122451, p_value=0.290952746030267.",
+          "confidence_interval=[-0.0006987129779527661, 0.0023313660391772566]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "845407a1b61460bf54953100fb42c687b040e90e880e08bf90dc1f6566890e46",
+          "evaluation": {
+            "interpretation": "The previous belonging-oriented challenger showed a numerically higher install rate, but its confidence interval included zero, so the result was inconclusive.",
+            "learning": "Belonging cues remain plausible but need a more direct, character-led execution rather than repeating the prior meadow-and-party framing."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change the subject character to Mira, the subject action to close_up_smile, and the audio style to warm_piano to test whether a caring, memory-oriented character moment increases install rate.",
+            "experiment_population": "Users exposed in AI companion apps, RPG chat apps, and casual games during the fixed-horizon experiment.",
+            "audience_motivation": "Emotional connection, care, and trust, especially for users receptive to companion-style relationships.",
+            "mechanism": "Mira’s warm visual presence and softer audio should make the companion relationship immediately legible, reducing perceived friction and motivating installs."
+          },
+          "tradeoffs": [
+            "May weaken the champion’s proven combat urgency.",
+            "A softer presentation may be less salient in fast-scrolling placements.",
+            "The mechanism could appeal unevenly across the mixed app population."
+          ],
+          "rationale": "This is a visibly distinct three-layer emotional-connection concept while retaining the champion’s exploration background, challenge hook, and reward CTA for interpretability. It does not repeat the retrieved historical layer combination.",
+          "evidence": [
+            "Current snapshot: treatment install rate was 0.004081632653061225 versus control 0.0032653061224489797, with a 95% confidence interval from -0.0006987129779527661 to 0.0023313660391772566, so the result was inconclusive.",
+            "Current deterministic decision identifies seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00 as the updated champion.",
+            "Retrieved run seed_g0_v06_vs_g0_v07_20260921012006298_round_04 found the Mira/cozy-cafe/close-up concept inconclusive, motivating a narrower emotional execution here.",
+            "Campaign brief identifies memory, emotional connection, and belonging as plausible motivations, not observed segment results."
+          ],
+          "layers": {
+            "background": "moonlit_temple",
+            "subject_character": "Mira",
+            "subject_action": "close_up_smile",
+            "hook_text": "Can you beat level 3?",
+            "cta_text": "Claim Bonus",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "c7e923355b0265d4457afcfb0ad62bfac476a056bc5834cc613be12290b333b5",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "6e0f6bb16604166ef560a894016101cd06feb859ce0a20089b6b10da2f189d46",
+        "proposal_id": "c7e923355b0265d4457afcfb0ad62bfac476a056bc5834cc613be12290b333b5",
+        "idempotency_key": "c7e923355b0265d4457afcfb0ad62bfac476a056bc5834cc613be12290b333b5:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:29:06.344Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_05",
+          "round": 5,
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g1_v00",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g5_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_06"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 6,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_06",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "5e016a54083c8ed1c87eba81b1ee951e3d31134d8a5e54db937b87df56101d6a",
+        "summary": "Promote the treatment and test the next challenger.",
+        "rationale": "The treatment has a statistically significant positive primary-metric effect under the fixed-horizon policy.",
+        "evidence": [
+          "install_rate_user: control=0.003217391304347826, treatment=0.007043478260869565.",
+          "absolute_effect=0.0038260869565217392, p_value=0.00004889660001095031.",
+          "confidence_interval=[0.0019801438519823924, 0.0056720300610610865]."
+        ],
+        "action": "promote",
+        "variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g5_v00",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "5e016a54083c8ed1c87eba81b1ee951e3d31134d8a5e54db937b87df56101d6a",
+          "evaluation": {
+            "interpretation": "The promoted Mira, close-up smile, and warm piano combination significantly increased install rate versus the prior champion; CTR was inconclusive.",
+            "learning": "The caring, trust-oriented creative combination is a strong local baseline, so test one adjacent environmental change rather than altering its character, action, or audio."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change only the background from moonlit_temple to cozy_cafe to test whether a warmer, more intimate setting further increases install rate.",
+            "experiment_population": "The next fixed-horizon experiment population exposed to Rune Keepers ads across the campaign's AI companion apps, RPG chat apps, and casual games.",
+            "audience_motivation": "Emotional connection, trust, and approachable companionship.",
+            "mechanism": "A conversational cafe setting should make Mira's warmth and memory-oriented identity feel more intimate and accessible, potentially increasing install intent."
+          },
+          "tradeoffs": [
+            "May reduce the fantasy exploration signal of the moonlit temple.",
+            "Could weaken visual drama or curiosity for RPG-oriented viewers.",
+            "Could improve approachability while making the ad feel less distinctive."
+          ],
+          "rationale": "This changes exactly one catalog layer around the promoted champion, preserving the evidence-supported character, action, hook, CTA, and audio while isolating setting effects.",
+          "evidence": [
+            "Snapshot decision promoted variant seed_g0_v06_vs_g0_v07_20260921012006298_g5_v00 as the updated champion.",
+            "The champion's install rate was 0.007043478260869565 versus 0.003217391304347826 for control, with a 95% confidence interval for the effect of [0.0019801438519823924, 0.0056720300610610865].",
+            "The install-rate p-value was 0.00004889660001095031; CTR's confidence interval included zero, so CTR was diagnostic and inconclusive.",
+            "Historical search excluding the current run returned no matches for the proposed concept and changed-layer pattern."
+          ],
+          "layers": {
+            "background": "cozy_cafe",
+            "subject_character": "Mira",
+            "subject_action": "close_up_smile",
+            "hook_text": "Can you beat level 3?",
+            "cta_text": "Claim Bonus",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "54e439ad29431e21ffcc60d72bb46aa6a9d5bfaeff197649ff88410c3d6ed66d",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "exploit-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "9fdafdd1d4c05e2b53d52ea666853e6247d278d5b8e79dd2514f1297c083450d",
+        "proposal_id": "54e439ad29431e21ffcc60d72bb46aa6a9d5bfaeff197649ff88410c3d6ed66d",
+        "idempotency_key": "54e439ad29431e21ffcc60d72bb46aa6a9d5bfaeff197649ff88410c3d6ed66d:promote",
+        "action_type": "promote",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:31:06.344Z",
+        "payload": {
+          "effect": "treatment_promoted_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_06",
+          "round": 6,
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g5_v00",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g6_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_07"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 7,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_07",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "edb5ffdbe1a33d1cdf37790579862cbb6e3df776f6ac16b9a845ff02edd4ae5b",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.007132530120481928, treatment=0.0038554216867469878.",
+          "absolute_effect=-0.0032771084337349403, p_value=0.000006312785433504331.",
+          "confidence_interval=[-0.004699090536380923, -0.0018551263310889578]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "edb5ffdbe1a33d1cdf37790579862cbb6e3df776f6ac16b9a845ff02edd4ae5b",
+          "evaluation": {
+            "interpretation": "The cozy_cafe challenger significantly reduced install rate versus the updated champion; CTR declined in the same direction.",
+            "learning": "A warmer setting alone did not improve response, reinforcing the need to test a clearly differentiated motivation rather than another intimacy cue."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change the background to storm_battlefield, the subject action to draws_blade, and the hook to The ruins are calling to test whether urgent exploration and combat energy increase install rate.",
+            "experiment_population": "The fixed-horizon campaign audience exposed to the next creative experiment across the campaign's placement environments.",
+            "audience_motivation": "Challenge, combat, and exploration.",
+            "mechanism": "A high-urgency visual with an exploration hook should create immediate narrative tension and make the RPG's adventure loop more salient, motivating installs."
+          },
+          "tradeoffs": [
+            "May sacrifice the champion's warmth and trust.",
+            "Combat urgency may feel less approachable to casual audiences.",
+            "The exploration hook may be less immediately clear than a direct reward or install message."
+          ],
+          "rationale": "This is a visibly distinct, coherent combat-exploration concept that changes exactly three coordinated layers while retaining Mira, the reward CTA, and warm audio for interpretability.",
+          "evidence": [
+            "Current snapshot: treatment background cozy_cafe had install rate 0.0038554216867469878 versus control 0.007132530120481928, with absolute effect -0.0032771084337349403 and 95% CI [-0.004699090536380923, -0.0018551263310889578].",
+            "Current snapshot: treatment CTR was 0.03966265060240964 versus control 0.06371084337349397, with absolute effect -0.024048192771084338.",
+            "Historical search excluding the current run returned no matches."
+          ],
+          "layers": {
+            "background": "storm_battlefield",
+            "subject_character": "Mira",
+            "subject_action": "draws_blade",
+            "hook_text": "The ruins are calling",
+            "cta_text": "Claim Bonus",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "75010f269723764f1908627818ea7e346dfc1f461a5507ca099b980625823581",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "dc68783d52cc3ae4964c4913e80f767b27572a95228ee2e73dabbcb82b73e6df",
+        "proposal_id": "75010f269723764f1908627818ea7e346dfc1f461a5507ca099b980625823581",
+        "idempotency_key": "75010f269723764f1908627818ea7e346dfc1f461a5507ca099b980625823581:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:33:06.344Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_07",
+          "round": 7,
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g5_v00",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g7_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_08"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 8,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_08",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "8da8fe30c25939de908d6925305bb06b3887d7a9e2c16f1605f449aa74d9d71a",
+        "summary": "Retain the control and test the next challenger.",
+        "rationale": "The treatment did not satisfy the fixed-horizon promotion rule.",
+        "evidence": [
+          "install_rate_user: control=0.007190476190476191, treatment=0.004571428571428572.",
+          "absolute_effect=-0.002619047619047619, p_value=0.000448358708069696.",
+          "confidence_interval=[-0.004081334237979781, -0.0011567610001154572]."
+        ],
+        "action": "stop",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "8da8fe30c25939de908d6925305bb06b3887d7a9e2c16f1605f449aa74d9d71a",
+          "evaluation": {
+            "interpretation": "The storm-battlefield, blade-drawing, exploration-hook treatment significantly reduced install rate versus the champion, despite increasing CTR.",
+            "learning": "High-attention combat urgency can attract clicks without translating into installs; test a warmer belonging mechanism instead."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change the subject character to Luna, the hook to Your party is waiting., and the CTA to Join Luna to test whether character-centered belonging increases install rate.",
+            "experiment_population": "Users exposed to Rune Keepers ads in AI companion apps, RPG chat apps, and casual games.",
+            "audience_motivation": "Belonging and attachment to a party character.",
+            "mechanism": "A direct character invitation should make the party relationship concrete and reduce friction between curiosity and installing."
+          },
+          "tradeoffs": [
+            "May reduce immediate combat excitement.",
+            "Character-specific framing may appeal less to users seeking challenge or rewards.",
+            "The invitation could feel less informative about gameplay."
+          ],
+          "rationale": "This is a visibly distinct three-layer concept focused on belonging rather than the champion's challenge-and-reward framing, while keeping the background, action, and audio fixed for interpretability.",
+          "evidence": [
+            "Snapshot primary metric: treatment install rate was 0.004571 versus champion control 0.007190, with a 95% confidence interval for the effect of [-0.004081, -0.001157].",
+            "Snapshot secondary metric: treatment CTR was 0.073667 versus champion control 0.066810, with a 95% confidence interval for the effect of [0.001970, 0.011745].",
+            "The campaign brief identifies belonging, emotional connection, and memory as plausible motivations, not observed segment performance."
+          ],
+          "layers": {
+            "background": "moonlit_temple",
+            "subject_character": "Luna",
+            "subject_action": "close_up_smile",
+            "hook_text": "Your party is waiting.",
+            "cta_text": "Join Luna",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "8cddaac060cd2af3074349392fa90dba1fd1c31bb008d00238562a5387bd3916",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "explore-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "b4df64d4b1aabce5d87d452d51942d131ace6e7e02bd46f6f534334b2ceca82b",
+        "proposal_id": "8cddaac060cd2af3074349392fa90dba1fd1c31bb008d00238562a5387bd3916",
+        "idempotency_key": "8cddaac060cd2af3074349392fa90dba1fd1c31bb008d00238562a5387bd3916:stop",
+        "action_type": "stop",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:35:06.344Z",
+        "payload": {
+          "effect": "control_retained_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_08",
+          "round": 8,
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g5_v00",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g8_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_09"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 9,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_09",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "b03a035398f25536832b833d6073ea70c00048c06d89ef612a610f9f046fe093",
+        "summary": "Promote the treatment and test the next challenger.",
+        "rationale": "The treatment has a statistically significant positive primary-metric effect under the fixed-horizon policy.",
+        "evidence": [
+          "install_rate_user: control=0.006917647058823529, treatment=0.009223529411764705.",
+          "absolute_effect=0.002305882352941176, p_value=0.007895901091644397.",
+          "confidence_interval=[0.0006047414801559244, 0.004007023225726427]."
+        ],
+        "action": "promote",
+        "variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g8_v00",
+        "next_challenger": {
+          "schema_version": 2,
+          "snapshot_id": "b03a035398f25536832b833d6073ea70c00048c06d89ef612a610f9f046fe093",
+          "evaluation": {
+            "interpretation": "The promoted Luna, belonging, and character-specific invitation creative increased install rate versus the prior control; CTR also rose, but its interval included zero.",
+            "learning": "Belonging-oriented Luna creative is promising; test a warmer setting while holding all other layers constant."
+          },
+          "hypothesis": {
+            "statement": "Relative to the updated champion, change the background from moonlit_temple to cozy_cafe to test whether a warmer, more intimate setting increases install rate.",
+            "experiment_population": "Users exposed to Rune Keepers ads in AI companion apps, RPG chat apps, and casual games during the next fixed-horizon experiment.",
+            "audience_motivation": "Belonging and emotional connection through a warm, conversational environment.",
+            "mechanism": "A cozy cafe may make Luna's invitation feel more intimate and approachable, increasing motivation to install."
+          },
+          "tradeoffs": [
+            "May reduce fantasy exploration cues.",
+            "Could weaken visual drama and mystery.",
+            "May improve approachability without increasing install intent."
+          ],
+          "rationale": "This isolates one background change around the promoted champion, preserving the observed character, belonging, CTA, action, and audio combination for causal attribution.",
+          "evidence": [
+            "Snapshot primary metric: treatment install rate was 0.0092235 versus 0.0069176 for control, with absolute effect 0.0023059 and 95% CI [0.0006047, 0.0040070].",
+            "Snapshot decision promoted variant seed_g0_v06_vs_g0_v07_20260921012006298_g8_v00 as the updated champion.",
+            "Snapshot CTR increased from 0.0664471 to 0.0711059, but its 95% CI [-0.0001530, 0.0094707] included zero."
+          ],
+          "layers": {
+            "background": "cozy_cafe",
+            "subject_character": "Luna",
+            "subject_action": "close_up_smile",
+            "hook_text": "Your party is waiting.",
+            "cta_text": "Join Luna",
+            "audio_style": "warm_piano"
+          }
+        }
+      },
+      "proposal": {
+        "proposal_id": "1c557521c704e117d0724c2c46418e2c0468e5c422444ab59df31d7da0ec9834",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "exploit-prompt-v1",
+        "model": "gpt-5.6-luna",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "85f4bb83567f7d5a2630b100615575aaa80a7bfd21bf97b8df3b869f7fb09392",
+        "proposal_id": "1c557521c704e117d0724c2c46418e2c0468e5c422444ab59df31d7da0ec9834",
+        "idempotency_key": "1c557521c704e117d0724c2c46418e2c0468e5c422444ab59df31d7da0ec9834:promote",
+        "action_type": "promote",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:37:06.344Z",
+        "payload": {
+          "effect": "treatment_promoted_and_next_run_prepared",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_09",
+          "round": 9,
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g8_v00",
+          "challenger_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g9_v00",
+          "next_run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_10"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    },
+    {
+      "round": 10,
+      "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_10",
+      "action": {
+        "schema_version": 5,
+        "snapshot_id": "a9594e2996aa1fdd68d0eef98425b4e91c7f3b21a6fd1b792ac1f7f3d4b9607a",
+        "summary": "Record the final experiment outcome and terminate optimization.",
+        "rationale": "The final experiment resolved to stop; round 10 reached max_rounds=10.",
+        "evidence": [
+          "install_rate_user: control=0.009295238095238096, treatment=0.0064.",
+          "absolute_effect=-0.0028952380952380957, p_value=0.0001706269042502928.",
+          "confidence_interval=[-0.004404615576086117, -0.0013858606143900742].",
+          "round=10 equals max_rounds=10."
+        ],
+        "action": "terminate",
+        "final_experiment_action": "stop",
+        "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g8_v00"
+      },
+      "proposal": {
+        "proposal_id": "b72de577e1b458b0d0e53f46611aca462f471408f42f6db96ff557d06c8e4581",
+        "policy_version": "experiment-policy-v7",
+        "prompt_version": "explore-prompt-v1",
+        "model": "deterministic",
+        "status": "approved",
+        "reviewed_by": "local_simulator"
+      },
+      "action_receipt": {
+        "receipt_id": "1c8ed1b68c3605f830759100278e215c26c7a1a19e28509b0e0c86941d65d623",
+        "proposal_id": "b72de577e1b458b0d0e53f46611aca462f471408f42f6db96ff557d06c8e4581",
+        "idempotency_key": "b72de577e1b458b0d0e53f46611aca462f471408f42f6db96ff557d06c8e4581:terminate",
+        "action_type": "terminate",
+        "status": "succeeded",
+        "recorded_at": "2026-09-21T01:39:06.344Z",
+        "payload": {
+          "effect": "optimization_terminated",
+          "run_id": "seed_g0_v06_vs_g0_v07_20260921012006298_round_10",
+          "round": 10,
+          "final_experiment_action": "stop",
+          "champion_variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g8_v00"
+        }
+      },
+      "log": "artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/trajectory.json"
+    }
+  ]
+}

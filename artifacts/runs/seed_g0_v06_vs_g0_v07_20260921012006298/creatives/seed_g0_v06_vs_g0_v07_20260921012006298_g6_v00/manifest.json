@@ -1,0 +1,13 @@
+{
+  "variant_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g6_v00",
+  "generation": 6,
+  "parent_id": "seed_g0_v06_vs_g0_v07_20260921012006298_g5_v00",
+  "layers": {
+    "background": "cozy_cafe",
+    "subject_character": "Mira",
+    "subject_action": "close_up_smile",
+    "hook_text": "Can you beat level 3?",
+    "cta_text": "Claim Bonus",
+    "audio_style": "warm_piano"
+  }
+}
