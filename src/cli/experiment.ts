@@ -34,6 +34,7 @@ import {
   StatsigConsoleClient,
   StatsigExperimentSession,
 } from "../experiment/statsig";
+import {normalizeStatsigObservation} from "../experiment/statsig-results";
 import {
   creativeManifestSchema,
   type CreativeManifest,
@@ -405,17 +406,30 @@ async function inspectCommand(arguments_: string[]): Promise<void> {
   const client = new StatsigConsoleClient(
     requiredEnvironmentVariable("STATSIG_CONSOLE_API_KEY"),
   );
-  const raw = await client.inspectExperiment(
-    run.statsig_experiment.experiment_id,
-  );
+  const observedAt = new Date().toISOString();
+  const raw = await client.observeExperiment(run);
   await appendObservation({
     optimization_run_id: location.optimization_run_id,
     experiment_run_id: run.run_id,
     round_number: location.round_number,
-    type: "statsig_inspect",
-    recorded_at: new Date().toISOString(),
+    type: "statsig_result",
+    recorded_at: observedAt,
     payload: raw,
   });
+  const snapshot = normalizeStatsigObservation(run, raw, observedAt);
+  const ledger = await openAgentLedger();
+  try {
+    ledger.recordSnapshot({
+      snapshot_id: snapshot.snapshot_id,
+      run_id: run.run_id,
+      trigger: "manual",
+      observed_at: observedAt,
+      recorded_at: observedAt,
+      payload: snapshot,
+    });
+  } finally {
+    ledger.close();
+  }
   const inspectedRun = experimentRunSchema.parse({
     ...run,
     status: "awaiting_results",
@@ -428,7 +442,7 @@ async function inspectCommand(arguments_: string[]): Promise<void> {
         run: runId,
         status: inspectedRun.status,
         raw_inspection: "observations.json",
-        note: "Metric normalization belongs to the next ResultSnapshot step.",
+        snapshot,
       },
       null,
       2,

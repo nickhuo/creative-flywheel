@@ -194,7 +194,7 @@ export function normalizeStatsigObservation(
   ];
   const observedGroupIds = new Set(exposureRows.map(({groupID}) => groupID));
   for (const group of exposureGroups) {
-    if (!observedGroupIds.has(group.group_id)) {
+    if (exposureRows.length > 0 && !observedGroupIds.has(group.group_id)) {
       issues.push({
         code: "exposure_group_missing",
         level: "error",
@@ -388,7 +388,7 @@ function normalizeMetric(
         controlMean === 0 ? null : absoluteEffect / controlMean,
       confidence_interval: {
         ...confidenceInterval,
-        level: 0.95,
+        level: 1 - run.statistical_design.alpha,
       },
       p_value: pValue,
     },

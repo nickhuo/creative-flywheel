@@ -332,20 +332,6 @@ export class StatsigConsoleClient {
     return {already_active: false, before, start};
   }
 
-  async inspectExperiment(experimentId: string): Promise<unknown> {
-    const experiment = await this.#request(
-      "GET",
-      `/experiments/${encodeURIComponent(experimentId)}`,
-    );
-    const cumulativeExposures = await this.#request(
-      "GET",
-      `/experiments/${encodeURIComponent(experimentId)}/cumulative_exposures`,
-      undefined,
-      true,
-    );
-    return {experiment, cumulative_exposures: cumulativeExposures};
-  }
-
   async observeExperiment(
     run: ExperimentRun,
   ): Promise<StatsigExperimentObservation> {
@@ -383,6 +369,7 @@ export class StatsigConsoleClient {
           control: receipt.control_group_id,
           test: receipt.treatment_group_id,
           metricID: `${metric.name}::${metric.type}`,
+          confidence: String((1 - run.statistical_design.alpha) * 100),
         });
         return {
           name: metric.name,
@@ -421,6 +408,13 @@ export class StatsigConsoleClient {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     const text = await response.text();
+    if (allowNotFound && response.status === 404) return null;
+    if (!response.ok) {
+      const detail = text.replaceAll(this.#apiKey, "[REDACTED]").slice(0, 500);
+      throw new Error(
+        `Statsig Console API ${method} ${path} failed (${response.status}): ${detail || response.statusText}`,
+      );
+    }
     let payload: unknown = null;
     if (text !== "") {
       try {
@@ -431,12 +425,6 @@ export class StatsigConsoleClient {
           {cause: error},
         );
       }
-    }
-    if (allowNotFound && response.status === 404) return null;
-    if (!response.ok) {
-      throw new Error(
-        `Statsig Console API ${method} ${path} failed (${response.status}): ${apiMessage(payload)}`,
-      );
     }
     return payload;
   }
@@ -572,16 +560,4 @@ function unwrapData(value: unknown): unknown {
     throw new Error("Statsig response is missing data.");
   }
   return value.data;
-}
-
-function apiMessage(value: unknown): string {
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    "message" in value &&
-    typeof value.message === "string"
-  ) {
-    return value.message;
-  }
-  return "unknown error";
 }
