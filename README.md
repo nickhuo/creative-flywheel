@@ -19,7 +19,7 @@ across optimization rounds:
 [single-command local workflow](#run-the-end-to-end-test-locally).
 - **Report**: [Report:](REPORT.md#4-agent-loop) How this works and why design like that? Limitation and next steps
 - **Experiments:** [Statsig exposure stream](public/statsig-exposure-stream.png)
-and [current result status](public/statsig-results-unavailable.png).
+and [v2 vs. v3 results](public/statsig-v02-vs-v03-results.png).
 - **Creatives:** [current champion video](artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/creatives/seed_g0_v06_vs_g0_v07_20260921012006298_g8_v00/video.mp4),
 [generation-zero manifests](manifests/), and the [render pipeline](src/video.tsx).
 Each local run writes the generation-zero and final-generation videos and
@@ -73,28 +73,13 @@ DASHBOARD_PORT=4000 bun run dashboard
 
 ## Statsig integration status
 
-The Statsig path can create and start an experiment, assign users through the
-Statsig SDK, and log exposures and outcome events. Result retrieval is designed
-to fetch cumulative exposures, diagnostics, and metrics from the Console API,
-then store normalized snapshots so the agent can resume from the latest
-published state. However, the agent cannot currently retrieve this data from
-Statsig. Retrieval against static experiment data is still failing and under
-investigation.
+The Statsig integration now supports experiment creation, SDK assignment, event logging, and result retrieval through the Console API. Now, click-through rate (CTR) and install-rate results became available the following day. 
 
-This step is important for production because Statsig results are not real-time.
-The agent must persist its state, wait while Statsig processes the experiment,
-retry observation later, and resume safely when results become available. Data
-latency is therefore part of the workflow's execution time, not just a dashboard
-refresh issue.
+The next step is to run a persistent agent that waits for published results,
+periodically checks Statsig, and resumes evaluation when the evidence is ready.
+The existing `bun run agent tick --run-id <id>` command provides one observation and evaluation pass, but a persistent runner still needs to schedule these checks
 
-Statsig confirms that control and treatment exposure events are arriving:
-
-![Statsig Exposure Stream showing control and treatment assignments](public/statsig-exposure-stream.png)
-
-However, the Results view still reports that the experiment metrics are
-unavailable. This is the current blocker for agent observation and resumption:
-
-![Statsig Results showing unavailable experiment metrics](public/statsig-results-unavailable.png)
+![Statsig daily v2 versus v3 scorecard: install-rate lift of 2.26% and click-through lift of 31.78%, with Real-time Pulse off](public/statsig-v02-vs-v03-results.png)
 
 ## Run the end-to-end test locally
 
