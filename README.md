@@ -75,11 +75,82 @@ DASHBOARD_PORT=4000 bun run dashboard
 
 The Statsig integration now supports experiment creation, SDK assignment, event logging, and result retrieval through the Console API. Now, click-through rate (CTR) and install-rate results became available the following day. 
 
-The next step is to run a persistent agent that waits for published results,
-periodically checks Statsig, and resumes evaluation when the evidence is ready.
-The existing `bun run agent tick --run-id <id>` command provides one observation and evaluation pass, but a persistent runner still needs to schedule these checks
+The Temporal observer now durably waits for published results and resumes the
+existing agent evaluation when the evidence is eligible. It closes the loop from
+Statsig results to a persisted decision proposal, not automatic deployment of the
+next experiment. The manual `bun run agent tick --run-id <id>` command remains
+available for a single observation pass.
 
 ![Statsig daily v2 versus v3 scorecard: install-rate lift of 2.26% and click-through lift of 31.78%, with Real-time Pulse off](public/statsig-v02-vs-v03-results.png)
+
+### Run the durable observer
+
+Requires Node.js 22.16+ alongside Bun, a Temporal server, and the Statsig/OpenAI
+settings in [.env.example](.env.example). The Temporal Worker runs on Node; its
+Activity invokes the existing Bun CLI because the ledger uses `bun:sqlite`.
+Credentials stay in the Worker environment, not Workflow arguments.
+
+For local development, install the [Temporal CLI](https://docs.temporal.io/cli)
+and start a server with a persistent database:
+
+```bash
+mkdir -p .cache
+temporal server start-dev --db-filename .cache/temporal.db
+```
+
+In another terminal, start the Worker from the project root:
+
+```bash
+bun run durable worker
+```
+
+Register an already-served Statsig run, then inspect it:
+
+```bash
+bun run durable start --run-id <run-id>
+bun run durable status --run-id <run-id>
+```
+
+Each run has one stable Workflow ID. The first check runs immediately; subsequent
+checks use durable one-hour timers (`--poll-seconds` overrides this at start).
+Missing results or insufficient exposures keep waiting without invoking the
+model. Once eligibility passes, the existing agent writes a proposal to the
+ledger and the Workflow completes with its ID. Repeated starts do not duplicate
+a running or completed Workflow; retries recover an already-persisted proposal.
+Activities are at-least-once: a crash before persisting a proposal can repeat a
+model call, so this is not an exactly-once model invocation guarantee.
+
+Timers and Workflow history survive Worker restarts. No agent process or model
+call runs while the Workflow waits. Detection latency is up to the polling
+interval, plus service/Worker delays; this does not make Statsig publication
+real-time. Request an immediate check or stop watching with:
+
+```bash
+bun run durable check --run-id <run-id>
+bun run durable cancel --run-id <run-id>
+bun run agent proposals --status pending
+```
+
+Unserved runs and blocked evidence wait for manual correction followed by
+`check`. The observer never resends events. Transient Activity failures retry up
+to five attempts with backoff; Statsig authorization failures stop immediately.
+After fixing a failed Workflow, `start` may create a new execution with the same
+ID. A completed proposal still needs human review; provider-side execution of
+approved proposals is not implemented yet.
+
+**Deployment boundary:** this first integration supports one Worker process,
+with one active observation Activity at a time, on the host holding the run
+artifacts and SQLite ledger. Keep both on persistent storage. For a hosted
+Temporal service, configure `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE`, and
+`TEMPORAL_API_KEY` (TLS); the Worker remains your deployment responsibility.
+The local dev server is not a production server. Shared artifact/database
+storage, multi-worker concurrency, deployment versioning, and operational alerts
+remain prerequisites for a horizontally scaled production rollout.
+
+Verification: `bun run check` runs type checks, existing Bun tests, and Temporal
+integration tests. `bun run test:durable` starts an isolated local Temporal server
+(the SDK downloads its binary on first use); it needs no provider credentials
+and tests timers, retries, signals, Worker restart/replay, and cancellation.
 
 ## Run the end-to-end test locally
 

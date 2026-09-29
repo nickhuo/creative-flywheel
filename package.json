@@ -8,15 +8,21 @@
     "audience": "bun run src/cli/audience.ts",
     "dashboard": "bun run src/dashboard/server.ts",
     "dev": "remotion studio src/video.tsx",
+    "durable": "node --env-file-if-exists=.env --import tsx src/cli/durable.ts",
     "experiment": "bun run src/cli/experiment.ts",
     "render": "bun run src/cli/render.ts",
     "test": "bun test ./tests",
+    "test:durable": "node --import tsx --test tests/temporal.integration.ts",
     "typecheck": "tsc --noEmit",
-    "check": "bun run typecheck && bun test"
+    "check": "bun run typecheck && bun run test && bun run test:durable"
   },
   "dependencies": {
     "@openai/agents": "0.18.0",
     "@statsig/statsig-node-core": "0.23.0",
+    "@temporalio/activity": "1.24.0",
+    "@temporalio/client": "1.24.0",
+    "@temporalio/worker": "1.24.0",
+    "@temporalio/workflow": "1.24.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "4.0.525",
@@ -24,9 +30,11 @@
   },
   "devDependencies": {
     "@remotion/cli": "4.0.525",
+    "@temporalio/testing": "1.24.0",
     "@types/bun": "1.3.3",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
+    "tsx": "4.23.15",
     "typescript": "5.9.3"
   }
 }

@@ -193,7 +193,9 @@ test("creative decisions route to separate agents and prompt versions", async ()
                 audio_style: "low_drums" as const,
               }
             : scenario.decision === "stop" && challengerAttempts === 2
-              ? treatmentManifest.layers
+              ? Object.fromEntries(
+                  Object.entries(treatmentManifest.layers).reverse(),
+                ) as typeof treatmentManifest.layers
               : challengerLayers;
           return {
             challenger: {
@@ -226,5 +228,45 @@ test("creative decisions route to separate agents and prompt versions", async ()
     } finally {
       ledger.close();
     }
+  }
+});
+
+test("proposal queries isolate runs and preserve status filtering", () => {
+  const ledger = new AgentLedger();
+  const recordedAt = "2026-09-21T12:00:00.000Z";
+  try {
+    for (const runId of ["first", "second"]) {
+      ledger.recordSnapshot({
+        snapshot_id: `snapshot-${runId}`,
+        run_id: runId,
+        trigger: "manual",
+        observed_at: recordedAt,
+        recorded_at: recordedAt,
+        payload: {},
+      });
+      ledger.recordProposal({
+        proposal_id: `proposal-${runId}`,
+        snapshot_id: `snapshot-${runId}`,
+        action_type: "stop",
+        policy_version: "test-policy",
+        prompt_version: "test-prompt",
+        model: "test-model",
+        created_at: recordedAt,
+        payload: {},
+      });
+    }
+    ledger.approveProposal("proposal-second", {
+      reviewed_at: recordedAt,
+      reviewed_by: "test-reviewer",
+    });
+    expect(ledger.listProposals()).toHaveLength(2);
+    expect(ledger.listProposals("pending").map(({proposal_id}) => proposal_id))
+      .toEqual(["proposal-first"]);
+    expect(ledger.listProposals(undefined, "second").map(({proposal_id}) => proposal_id))
+      .toEqual(["proposal-second"]);
+    expect(ledger.listProposals("pending", "second")).toEqual([]);
+    expect(ledger.listProposals(undefined, "missing")).toEqual([]);
+  } finally {
+    ledger.close();
   }
 });

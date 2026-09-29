@@ -512,27 +512,15 @@ export class AgentLedger {
     return proposal === null ? null : decodePayload(proposal);
   }
 
-  listProposals(status?: ProposalStatus): DecisionProposalRecord[] {
-    const proposals = status === undefined
-      ? this.#database
-          .query<DecisionProposalDatabaseRow, []>(
-            `SELECT proposal_id, snapshot_id, action_type, policy_version,
-                    prompt_version, model, status, created_at, reviewed_at,
-                    reviewed_by, review_note, payload_json
-             FROM decision_proposals
-             ORDER BY created_at DESC, proposal_id`,
-          )
-          .all()
-      : this.#database
-          .query<DecisionProposalDatabaseRow, [ProposalStatus]>(
-            `SELECT proposal_id, snapshot_id, action_type, policy_version,
-                    prompt_version, model, status, created_at, reviewed_at,
-                    reviewed_by, review_note, payload_json
-             FROM decision_proposals
-             WHERE status = ?
-             ORDER BY created_at DESC, proposal_id`,
-          )
-          .all(status);
+  listProposals(status?: ProposalStatus, runId?: string): DecisionProposalRecord[] {
+    const proposals = this.#database
+      .query<DecisionProposalDatabaseRow, [string | null, string | null, string | null, string | null]>(
+        `SELECT p.* FROM decision_proposals p
+         JOIN result_snapshots s ON s.snapshot_id = p.snapshot_id
+         WHERE (? IS NULL OR p.status = ?) AND (? IS NULL OR s.run_id = ?)
+         ORDER BY p.created_at DESC, p.proposal_id`,
+      )
+      .all(status ?? null, status ?? null, runId ?? null, runId ?? null);
     return proposals.map(decodePayload);
   }
 

@@ -65,10 +65,7 @@ export async function evaluateSnapshot(
 ): Promise<EvaluationOutcome> {
   const snapshot = resultSnapshotSchema.parse(input.snapshot);
   const runtime = input.ledger.getRuntime(input.run.run_id);
-  const existingProposals = input.ledger.listProposals().filter((proposal) => {
-    const proposalSnapshot = input.ledger.getSnapshot(proposal.snapshot_id);
-    return proposalSnapshot?.run_id === input.run.run_id;
-  });
+  const existingProposals = input.ledger.listProposals(undefined, input.run.run_id);
   const persisted = input.ledger.recordSnapshot({
     snapshot_id: snapshot.snapshot_id,
     run_id: snapshot.run_id,
@@ -159,7 +156,6 @@ export async function evaluateSnapshot(
         previousResponseId,
       },
     );
-    const challengerLayers = JSON.stringify(candidate.challenger.layers);
     const changedLayers = CREATIVE_LAYER_FIELDS.filter(
       (layer) =>
         candidate.challenger.layers[layer] !== champion.layers[layer],
@@ -177,7 +173,9 @@ export async function evaluateSnapshot(
         ` layer(s); received ${changedLayers.length}: ${changedLayers.join(", ") || "none"}.`;
     } else if (
       testedLayers.some(
-        (layers) => JSON.stringify(layers) === challengerLayers,
+        (layers) => CREATIVE_LAYER_FIELDS.every(
+          (layer) => layers[layer] === candidate.challenger.layers[layer],
+        ),
       )
     ) {
       validationError =

@@ -430,6 +430,10 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
 
 async function tickCommand(arguments_: string[]): Promise<void> {
   const requestedRunId = readOptionalFlag(arguments_, "--run-id");
+  const isDurable = arguments_.includes("--durable");
+  if (isDurable && requestedRunId === undefined) {
+    throw new Error("--durable requires --run-id.");
+  }
   const maxRounds = Number(
     readOptionalFlag(arguments_, "--max-rounds") ?? DEFAULT_MAX_ROUNDS,
   );
@@ -444,10 +448,10 @@ async function tickCommand(arguments_: string[]): Promise<void> {
   const runLocations = requestedRunId === undefined
     ? await listLatestExperiments()
     : [await findExperiment(requestedRunId)];
-  const ledger = await openAgentLedger();
   const client = new StatsigConsoleClient(
     requiredEnvironmentVariable("STATSIG_CONSOLE_API_KEY"),
   );
+  const ledger = await openAgentLedger();
   const model = Bun.env.OPENAI_MODEL?.trim() ?? "";
   const outcomes: unknown[] = [];
   let hasFailure = false;
@@ -455,7 +459,25 @@ async function tickCommand(arguments_: string[]): Promise<void> {
   try {
     for (const location of runLocations) {
       let run = location.experiment;
+      if (isDurable) {
+        const existingProposal = ledger.listProposals(undefined, run.run_id)[0];
+        if (existingProposal !== undefined) {
+          outcomes.push({
+            run_id: run.run_id,
+            status: "proposal_exists",
+            proposal_id: existingProposal.proposal_id,
+          });
+          continue;
+        }
+      }
       if (run.status !== "served" && run.status !== "awaiting_results") {
+        if (isDurable) {
+          outcomes.push({
+            run_id: run.run_id,
+            status: "blocked",
+            error: `Run is ${run.status}; confirm delivery before observing.`,
+          });
+        }
         continue;
       }
       const runtime = ledger.getRuntime(run.run_id);
