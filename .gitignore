@@ -54,4 +54,5 @@ scratchpad/
 # Generated artifacts
 
 artifacts/agent/
+artifacts/benchmark/
 artifacts/state.sqlite*

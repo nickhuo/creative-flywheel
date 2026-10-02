@@ -151,7 +151,9 @@ recommendation or action.
 Definition: [`challengerProposalSchema` and `ChallengerProposal`](../src/experiment/evaluation.ts)
 
 A typed evaluation and creative hypothesis produced by either the Explore Agent
-or Exploit Agent for one completed `ResultSnapshot`.
+or Exploit Agent for one completed `ResultSnapshot`. The workflow attaches
+`snapshot_id`; the agent does not generate it. The benchmark's random baseline
+produces the same type with templated text and uniformly random layers.
 
 It owns the agent's interpretation and learning from the completed experiment,
 a structured next hypothesis, its tradeoffs, rationale, evidence references,
@@ -176,6 +178,30 @@ resulting champion before ending the optimization loop.
 It does not own eligibility, approval, or execution authority. Provider actions
 require human review, while the local simulator approves and executes them.
 
+## Reward
+
+Definition: [`rewardSchema` and `Reward`](../src/benchmark/reward.ts)
+
+The verifier result for one completed `OptimizationRun`, scored against the
+hidden simulator optimum.
+
+It owns the proposal budget, rule violations, the optimum creative, the
+starting champion, the champion after each proposal, and the derived regret
+metrics. Expected install rate is `q × a + (1 − q) × b` per audience group at
+first exposure, weighted by the frozen audience mix, with no sampled outcomes.
+The optimum is the highest expected rate across all 7,200 catalog combinations.
+`normalized_gain` is `(final − start) / (optimum − start)`;
+`mean_normalized_regret` averages regret over the starting point and every
+proposal, divided by the starting regret. `exposures` counts challenger-round
+users only.
+
+A run is invalid when its proposal count differs from the budget, a challenger
+breaks the explore/exploit layer-count rule, repeats a tested creative, leaves
+the catalog, or does not descend from the champion, or a recorded decision
+differs from the deterministic promotion rule. It reads run artifacts but never
+writes them, and no agent code imports it, so the optimum stays hidden during
+search. It does not record model cost; the trajectory does not store usage yet.
+
 ## Not domain primitives
 
 `FeatureSpec`, `LogisticModel`, `Metrics`, `PreviewRecord`, `AudienceRow`,
@@ -187,3 +213,7 @@ and do not require domain-level naming.
 `DecisionProposalRecord`, and `ActionReceiptRecord` are implementation or audit
 details. `Round` and `Decision` remain planning names and are not implemented
 primitives.
+
+`SearchRound`, `TrialReward`, and `ComparisonSummary` are benchmark
+implementation details: the scorer input, one scored trial, and the paired
+agent-versus-random report.

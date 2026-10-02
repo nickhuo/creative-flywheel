@@ -28,6 +28,10 @@ import {
 } from "../agent/ledger";
 import {evaluateSnapshot} from "../agent/orchestrator";
 import {
+  proposeRandomChallenger,
+  RANDOM_BASELINE_MODEL,
+} from "../benchmark/random-challenger";
+import {
   decideExperimentAction,
   type ProposedAction,
 } from "../experiment/evaluation";
@@ -108,7 +112,13 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
   const audienceModel = audienceModelSchema.parse(
     await Bun.file(resolve(projectRoot, run.audience_model.path)).json(),
   );
-  const model = requiredEnvironmentVariable("OPENAI_MODEL");
+  const strategy = readOptionalFlag(arguments_, "--strategy") ?? "agent";
+  if (strategy !== "agent" && strategy !== "random") {
+    throw new Error("--strategy must be agent or random.");
+  }
+  const model = strategy === "random"
+    ? RANDOM_BASELINE_MODEL
+    : requiredEnvironmentVariable("OPENAI_MODEL");
   reporter.start({root_run_id: rootRunId, max_rounds: maxRounds, model});
   let simulationTime = Date.parse(run.prepared_at);
   if (Number.isNaN(simulationTime)) {
@@ -229,6 +239,7 @@ async function simulateCommand(arguments_: string[]): Promise<void> {
           treatment_manifest: treatmentManifest,
           experiment_history: experimentHistory,
         },
+        propose_challenger: strategy === "random" ? proposeRandomChallenger : undefined,
         tracing_disabled: Bun.env.OPENAI_AGENTS_DISABLE_TRACING === "1",
       });
       const finalAction = outcome.action;

@@ -6,10 +6,12 @@
   "scripts": {
     "agent": "bun run src/cli/agent.ts",
     "audience": "bun run src/cli/audience.ts",
+    "benchmark": "bun run src/cli/benchmark.ts",
     "dashboard": "bun run src/dashboard/server.ts",
     "dev": "remotion studio src/video.tsx",
     "experiment": "bun run src/cli/experiment.ts",
     "render": "bun run src/cli/render.ts",
+    "reward": "bun run src/cli/reward.ts",
     "test": "bun test ./tests",
     "typecheck": "tsc --noEmit",
     "check": "bun run typecheck && bun test"

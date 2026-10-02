@@ -112,3 +112,24 @@ bun run agent run \
 The eight generation-zero manifests are divided into four seed pairs. Each
 command runs ten optimization rounds, writes a separate run to `artifacts/runs/`,
 starts the local dashboard, and opens the completed run in your browser.
+
+## Evaluate the agent against a random baseline
+
+```bash
+bun run benchmark --job baseline-v1 --seeds 1-20 --concurrency 8
+```
+
+Each comparison runs the agent and the random baseline from the same starting
+pair and simulation seed, with ten challenger proposals each. Every trial
+starts from the checked-in runs as shared history and keeps its own history in
+`artifacts/benchmark/{job}/{strategy}/{pair}_s{seed}/`. A trial's
+`reward.json` scores its champions against the simulator optimum; the job's
+`summary.json` reports the paired advantage with a 95% confidence interval and
+the mean distance to the optimum after each proposal. Re-running a job skips
+trials that already have a reward.
+
+Score one completed run directly:
+
+```bash
+bun run reward --run-id <optimization-run-id> --budget 10
+```

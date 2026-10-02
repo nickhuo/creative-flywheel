@@ -12,9 +12,14 @@ import {
 import {type CreativeManifest} from "./manifest";
 
 export const projectRoot = resolve(import.meta.dir, "..");
-export const artifactsDirectory = resolve(projectRoot, "artifacts");
-export const runsDirectory = resolve(artifactsDirectory, "runs");
-export const defaultLedgerPath = resolve(artifactsDirectory, "state.sqlite");
+export const runsDirectory = resolve(
+  projectRoot,
+  Bun.env.SIMULA_RUNS_DIR?.trim() || "artifacts/runs",
+);
+export const defaultLedgerPath = resolve(
+  projectRoot,
+  Bun.env.SIMULA_AGENT_DB?.trim() || "artifacts/state.sqlite",
+);
 
 const timestampSchema = z.string().datetime();
 
@@ -94,12 +99,8 @@ export function runArtifactPaths(optimizationRunId: string): RunArtifactPaths {
 }
 
 export async function openAgentLedger(): Promise<AgentLedger> {
-  const configuredPath = Bun.env.SIMULA_AGENT_DB?.trim();
-  const path = configuredPath === undefined || configuredPath === ""
-    ? defaultLedgerPath
-    : resolve(projectRoot, configuredPath);
-  await mkdir(dirname(path), {recursive: true});
-  return new AgentLedger(path);
+  await mkdir(dirname(defaultLedgerPath), {recursive: true});
+  return new AgentLedger(defaultLedgerPath);
 }
 
 export function indexOptimizationRun(

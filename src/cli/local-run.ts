@@ -7,6 +7,7 @@ import {
   projectRoot,
   runArtifactPaths,
 } from "../artifacts";
+import {RANDOM_BASELINE_MODEL} from "../benchmark/random-challenger";
 import {experimentRunIdSchema} from "../experiment/run";
 import {
   CREATIVE_LAYER_FIELDS,
@@ -21,7 +22,8 @@ export async function runLocalOptimization(arguments_: string[]): Promise<void> 
   if (arguments_.includes("--help")) {
     console.log(
       "Usage: bun run agent run [--seed-control g0_v00] " +
-        "[--seed-treatment g0_v01] [--max-rounds 8] [--verbose]",
+        "[--seed-treatment g0_v01] [--max-rounds 8] [--seed 42] " +
+        "[--strategy agent|random] [--verbose]",
     );
     return;
   }
@@ -44,9 +46,15 @@ export async function runLocalOptimization(arguments_: string[]): Promise<void> 
     readOptionalFlag(arguments_, "--seed") ?? "42",
     "--seed",
   );
-  const model = readOptionalFlag(arguments_, "--openai-model") ??
-    requiredEnvironmentVariable("OPENAI_MODEL");
-  requiredEnvironmentVariable("OPENAI_API_KEY");
+  const strategy = readOptionalFlag(arguments_, "--strategy") ?? "agent";
+  if (strategy !== "agent" && strategy !== "random") {
+    throw new Error("--strategy must be agent or random.");
+  }
+  const model = strategy === "random"
+    ? RANDOM_BASELINE_MODEL
+    : readOptionalFlag(arguments_, "--openai-model") ??
+      requiredEnvironmentVariable("OPENAI_MODEL");
+  if (strategy === "agent") requiredEnvironmentVariable("OPENAI_API_KEY");
   const isVerbose = arguments_.includes("--verbose") ||
     !arguments_.includes("--quiet");
   if (arguments_.includes("--verbose") && arguments_.includes("--quiet")) {
@@ -155,6 +163,8 @@ export async function runLocalOptimization(arguments_: string[]): Promise<void> 
       rootRunId,
       "--max-rounds",
       String(maxRounds),
+      "--strategy",
+      strategy,
       ...(!arguments_.includes("--no-render") ? ["--render"] : []),
       ...(isVerbose ? ["--verbose"] : []),
     ],
