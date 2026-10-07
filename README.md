@@ -10,25 +10,6 @@ across optimization rounds:
 
 ![](public/good-result.png)
 
-## Deliverables
-
-- **Code:** [renderer](src/video.tsx),
-[audience model](src/audience/model.ts),
-[Statsig integration](src/experiment/statsig.ts), and
-[agent orchestrator](src/agent/orchestrator.ts). See the
-[single-command local workflow](#run-the-end-to-end-test-locally).
-- **Report**: [Report:](REPORT.md#4-agent-loop) How this works and why design like that? Limitation and next steps
-- **Experiments:** [Statsig exposure stream](public/statsig-exposure-stream.png)
-and [v2 vs. v3 results](public/statsig-v02-vs-v03-results.png).
-- **Creatives:** [current champion video](artifacts/runs/seed_g0_v06_vs_g0_v07_20260921012006298/creatives/seed_g0_v06_vs_g0_v07_20260921012006298_g8_v00/video.mp4),
-[generation-zero manifests](manifests/), and the [render pipeline](src/video.tsx).
-Each local run writes the generation-zero and final-generation videos and
-manifests to `artifacts/runs/`; use the [dashboard](#open-the-dashboard) to
-review them.
-- **Trajectory:** the [dashboard](#open-the-dashboard),
-[portable trajectory model](src/agent/trajectory.ts)
-- **Recording:** the 13-minute walkthrough is [here](https://drive.google.com/file/d/1xHkAf_6buwDD0y3u3jHWejWG1V3-d_3M/view?usp=sharing); the external upload link is pending. See the [productionization sketch](REPORT.md#5-productionization) and
-[next steps](REPORT.md#next-steps).
 
 
 
